@@ -63,7 +63,7 @@ async function init() {
 
   pruningInterval = setInterval(async () => {
     let lastHeader = await getLastHeader()
-    if (manager)
+    if (manager && lastHeader)
       manager.delete(Header, {
         timestamp: LessThan(lastHeader.timestamp - maxDataAge * 3600 * 1000)
       })
