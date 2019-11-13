@@ -1,3 +1,7 @@
+# Demo
+
+Online demo is available at [polkalert.com](https://polkalert.com/)
+
 # Project setup
 
 1.  Install [node.js](https://nodejs.org/en/)
