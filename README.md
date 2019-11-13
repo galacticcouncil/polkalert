@@ -32,6 +32,8 @@ Besides the `start` script, there are other ones which can be used to work with 
 - `yarn install:client`: Installs only the client dependencies
 - `yarn install:server`: Installs only the server dependencies
 
+- `yarn setup`: Setup project environment variables
+
 - `yarn build`: Builds the whole project for production
 - `yarn build:client`: Builds only the client for production
 - `yarn build:server`: Builds only the server for production
