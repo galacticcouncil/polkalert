@@ -1,0 +1,38 @@
+{
+  "name": "polkalert",
+  "description": "",
+  "version": "1.0.0",
+  "engines": {
+    "yarn": "^1.10.1"
+  },
+  "scripts": {
+    "setup": "node ./setup.js",
+    "start": "yarn run-p start:*",
+    "start:client": "cd packages/client && yarn dev",
+    "start:server": "cd packages/server && yarn start",
+    "start:db": "cd packages/server && docker-compose up --build",
+    "stop:db": "cd packages/server && docker-compose down",
+    "build": "yarn build:client",
+    "build:client": "cd packages/client && yarn build",
+    "build:server": "cd packages/server && yarn build",
+    "postinstall": "yarn run-s install:*",
+    "install:client": "cd packages/client && yarn",
+    "install:server": "cd packages/server && yarn",
+    "add:client": "cd packages/client && yarn add",
+    "add:server": "cd packages/server && yarn add",
+    "remove:client": "cd packages/client && yarn remove",
+    "remove:server": "cd packages/server && yarn remove",
+    "storybook": "cd packages/client && yarn storybook",
+    "precommit": "yarn run-s precommit:*",
+    "precommit:client": "cd packages/client && yarn precommit"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  },
+  "dependencies": {
+    "prompts": "^2.2.1",
+    "yaml": "^1.7.2"
+  }
+}

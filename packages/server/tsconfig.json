@@ -1,0 +1,20 @@
+{
+  "sourceMap": true,
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es6",
+    "lib": ["es5", "es6"],
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "outDir": "./build",
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@polkadot/ts",
+      "./node_modules/@types",
+      "./node_modules/@polkadot/api-derive"
+    ]
+  }
+}

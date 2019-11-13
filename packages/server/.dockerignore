@@ -1,0 +1,13 @@
+.git
+.gitignore
+src
+node_modules
+.dockerignore
+dist
+dockerfile
+dockerfile.dev
+docker-compose.yml
+README.md
+LICENSE
+nodemon.json
+tsconfig.json

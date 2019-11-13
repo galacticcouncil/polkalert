@@ -1,0 +1,32 @@
+language: node_js
+
+node_js:
+  - 10
+
+branches:
+  only:
+    - master
+    - develop
+    - "/^travis-.*$/"
+
+services:
+  - docker
+
+before_install:
+  # Install dependencies
+  - gem update --system
+  - yarn install
+  - yarn run build
+  # Other jobs to prepare your environment
+  # like AWS settings, GCP settings, etc
+  - docker info
+  - echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_LOGIN --password-stdin
+
+install:
+  # - docker build -t your_docker_id/example-image .
+
+script: "true"
+
+after_success:
+  # Scripts to tag and push images to docker hub
+  # Scripts to deploy to cloud service like GCP, AWS, Azure, etc

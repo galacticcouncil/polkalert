@@ -1,0 +1,26 @@
+image: node:latest
+
+before_script:
+  - apt-get update -qq && apt-get install
+
+stages:
+  - test
+  - build
+
+test:
+  stage: test
+  before_script:
+    - yarn
+  script:
+    - yarn precommit
+  only:
+    - merge_requests
+
+build:
+  stage: build
+  before_script:
+    - yarn
+  script:
+    - yarn build
+  only:
+    - merge_requests

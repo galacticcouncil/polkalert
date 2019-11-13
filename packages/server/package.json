@@ -1,0 +1,36 @@
+{
+  "name": "monitor-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "nodemon src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@polkadot/ts": "^0.1.84",
+    "@polkadot/types": "0.97.0-beta.2",
+    "@types/koa": "^2.0.41",
+    "@types/koa-router": "^7.0.26",
+    "@types/node": "^12.7.11",
+    "nodemon": "^1.19.3",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.7.0"
+  },
+  "dependencies": {
+    "@polkadot/api": "0.97.0-beta.2",
+    "@polkadot/api-derive": "0.97.0-beta.2",
+    "apollo-server": "^2.9.5",
+    "graphql": "^14.5.8",
+    "levelup": "^4.3.2",
+    "memdown": "^5.1.0",
+    "moment": "^2.24.0",
+    "node-fetch": "^2.6.0",
+    "pg": "^7.12.1",
+    "reflect-metadata": "^0.1.10",
+    "typeorm": "0.2.20"
+  }
+}

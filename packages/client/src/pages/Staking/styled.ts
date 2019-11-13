@@ -1,0 +1,20 @@
+import styled from 'styled-components'
+
+import { device } from 'styles/media'
+
+export const Wrapper = styled.div`
+  min-height: 100%;
+`
+
+export const Header = styled.div`
+  padding-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  @media ${device.lg} {
+    padding-bottom: 88px;
+  }
+`
+
+export const Content = styled.div``
