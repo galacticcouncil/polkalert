@@ -13,18 +13,20 @@ const defaultOrmConfigFile = serverPath + 'ormconfig.default.json'
 const serverConfigFile = serverPath + 'server-config.json'
 const defaultServerConfigFile = serverPath + 'server-config.default.json'
 
+const isConfigured = fs.existsSync(serverConfigFile)
+
 const dbSettings = yaml.parse(
-  fs.readFileSync(defaultDbDockerFile, {
+  fs.readFileSync(isConfigured ? dbDockerFile : defaultDbDockerFile, {
     encoding: 'utf8'
   })
 )
 const ormSettings = JSON.parse(
-  fs.readFileSync(defaultOrmConfigFile, {
+  fs.readFileSync(isConfigured ? ormConfigFile : defaultOrmConfigFile, {
     encoding: 'utf8'
   })
 )
 const serverSettings = JSON.parse(
-  fs.readFileSync(defaultServerConfigFile, {
+  fs.readFileSync(isConfigured ? serverConfigFile : defaultServerConfigFile, {
     encoding: 'utf8'
   })
 )

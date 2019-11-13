@@ -48,8 +48,13 @@ export const typeDefs = gql`
     tokenSymbol: String
   }
 
+  type Settings {
+    serverPort: String
+  }
+
   type Mutation {
-    connection(nodeUrl: String!): String
+    connect(nodeUrl: String!): String
+    updateSettings(serverPort: String): String
   }
 
   type Query {
@@ -57,5 +62,6 @@ export const typeDefs = gql`
     validators: [Validator]
     validator(accountId: String!): Validator
     dataAge: String
+    settings: Settings
   }
 `
