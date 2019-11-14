@@ -7,7 +7,7 @@ if (!config) {
   )
 }
 
-let settings = Object.assign({}, config)
+let settings: Settings = Object.assign({}, config)
 
 function set(options) {
   console.log('updating settings', options)
