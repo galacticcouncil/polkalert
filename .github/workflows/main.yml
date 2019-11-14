@@ -8,13 +8,16 @@ on:
 
 jobs:
   test:
-    name: Test code quality
+    name: Test code quality and build ability
     runs-on: ubuntu-latest
     steps:
-      - run: yarn && yarn precommit
-  build:
-    name: Try to build the code
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - run: yarn && yarn build
+      - uses: actions/checkout@v1
+      - uses: borales/actions-yarn@v2.0.0
+        with:
+          cmd: install
+      - uses: borales/actions-yarn@v2.0.0
+        with:
+          cmd: precommit
+      - uses: borales/actions-yarn@v2.0.0
+        with:
+          cmd: build
