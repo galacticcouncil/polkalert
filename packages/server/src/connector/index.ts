@@ -284,6 +284,7 @@ async function getAndSaveHeadersRecursive(
 
   //last block number of the era we want to get
   let eraEnd = lastBlockNumber - sessionIndex.eraProgress * eraOffset
+  let eraFetchEnd = eraEnd
 
   let headersTotal = 0
 
@@ -295,9 +296,9 @@ async function getAndSaveHeadersRecursive(
   }
 
   //check if the first saved block is in this range, TODO: make first block a param ?
-  else if (firstSavedBlock.number < eraEnd) {
-    if (eraEnd - firstSavedBlock.number > 0) {
-      eraEnd = firstSavedBlock.number
+  else if (firstSavedBlock.number < eraFetchEnd) {
+    if (eraFetchEnd - firstSavedBlock.number > 0) {
+      eraFetchEnd = firstSavedBlock.number
     }
 
     numberOfHeaders = firstSavedBlock.number - eraStart
@@ -306,6 +307,7 @@ async function getAndSaveHeadersRecursive(
   /* DEBUG
   console.log({
     eraEnd,
+    eraFetchEnd,
     eraStart,
     numberOfHeaders,
     lastBlockNumber,
@@ -339,7 +341,9 @@ async function getAndSaveHeadersRecursive(
 
     db.bulkSave('Validator', await getValidators(eraEnd))
 
-    headers = headers.concat(await getPreviousHeaders(numberOfHeaders, eraEnd))
+    headers = headers.concat(
+      await getPreviousHeaders(numberOfHeaders, eraFetchEnd)
+    )
     headers = headers.filter(header => !isNullOrUndefined(header))
 
     console.log('Got', headers.length, 'headers for era', eraIndex - eraOffset)
