@@ -39,7 +39,7 @@ const Staking = () => {
     pollInterval: 10000
   })
 
-  const { data } = api.demo ? stakingDemo as QueryResult : query
+  const { data } = api.demo ? (stakingDemo as QueryResult) : query
 
   return (
     <S.Wrapper>
@@ -60,16 +60,28 @@ const Staking = () => {
                 stashId={item.accountId}
                 controllerId={item.commissionData[0]?.controllerId}
                 sessionId={item.commissionData[0]?.sessionId}
-                bondedTotal={JSON.parse(item.commissionData[0]?.nominatorData)?.totalStake || '0.000'}
-                bondedSelf={item.commissionData[0]?.bondedSelf || '0.000'}
-                bondedFromNominators={JSON.parse(item.commissionData[0]?.nominatorData)?.nominatorStake || '0.000'}
-                commission={item.commissionData[0]?.commission}
-                blocksProduced={
-                  item.blocksProduced
+                bondedTotal={
+                  item.commissionData[0]?.nominatorData
+                    ? JSON.parse(item.commissionData[0].nominatorData)
+                        .totalStake
+                    : '0.000'
                 }
+                bondedSelf={item.commissionData[0]?.bondedSelf || '0.000'}
+                bondedFromNominators={
+                  item.commissionData[0]?.nominatorData
+                    ? JSON.parse(item.commissionData[0].nominatorData)
+                        .nominatorStake
+                    : '0.000'
+                }
+                commission={item.commissionData[0]?.commission}
+                blocksProduced={item.blocksProduced}
                 slashes={item.slashes}
                 recentlyOnline={item.recentlyOnline}
-                nominators={JSON.parse(item.commissionData[0]?.nominatorData)?.stakers}
+                nominators={
+                  item.commissionData[0]?.nominatorData
+                    ? JSON.parse(item.commissionData[0].nominatorData).stakers
+                    : []
+                }
               />
             ))}
           </S.Content>
