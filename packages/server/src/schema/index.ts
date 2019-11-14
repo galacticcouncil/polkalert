@@ -54,7 +54,13 @@ export const typeDefs = gql`
 
   type Mutation {
     connect(nodeUrl: String!): String
-    updateSettings(serverPort: String): String
+    updateSettings(
+      serverPort: Int
+      emailPort: Int
+      emailHost: String
+      emailUsername: String
+      emailPassword: String
+    ): String
   }
 
   type Query {

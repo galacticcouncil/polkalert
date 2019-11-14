@@ -40,8 +40,8 @@ async function connect(_, { nodeUrl }) {
   })
 }
 
-function updateSettings(_, { serverPort }) {
-  return settings.set({ serverPort })
+function updateSettings(_, config) {
+  return settings.set(config)
 }
 
 function getDataAge() {
