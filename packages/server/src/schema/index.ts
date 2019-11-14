@@ -49,7 +49,11 @@ export const typeDefs = gql`
   }
 
   type Settings {
-    serverPort: String
+    serverPort: Int
+    emailPort: Int
+    emailHost: String
+    emailUsername: String
+    emailPassword: String
   }
 
   type Mutation {
