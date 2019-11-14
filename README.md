@@ -9,7 +9,7 @@
 
 **IMPORTANT!** Make sure to:
 
-1.  Use [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) and have the `Editor: Format On Save` setting in VSCode turned on to keep the code consistent.
+1.  Have the `Editor: Format On Save` setting in VSCode turned on to keep the code consistent.
 2.  Always run pre-commit checks before commiting your code. If it won't pass, it won't be able to be built. More info about the checks can be found below.
 3.  Check the other `README.md` files located in subfolders (if provided) for further info.
 
