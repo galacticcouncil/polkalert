@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - master
+      - dev
+
+jobs:
+  test:
+    name: Test code quality
+    runs-on: ubuntu-latest
+    steps:
+      - run: yarn precommit
+  build:
+    name: Try to build the code
+    runs-on: ubuntu-latest
+    steps:
+      - run: yarn build
