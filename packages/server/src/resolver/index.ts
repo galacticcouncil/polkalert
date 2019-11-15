@@ -1,5 +1,6 @@
 import db from '../db'
 import connector from '../connector'
+import webhooks from '../webhooks'
 import { Validator } from '../entity/Validator'
 
 async function addSlashesToValidators(validators: Validator[]) {
@@ -48,7 +49,8 @@ export default {
     validators: getValidators,
     validator: getValidatorInfo,
     dataAge: getDataAge,
-    nodeInfo: connector.getNodeInfo
+    nodeInfo: connector.getNodeInfo,
+    webhook: webhooks.setWebhook
   },
 
   Mutation: {

@@ -57,5 +57,6 @@ export const typeDefs = gql`
     validators: [Validator]
     validator(accountId: String!): Validator
     dataAge: String
+    webhook (url: String!): Boolean
   }
 `
