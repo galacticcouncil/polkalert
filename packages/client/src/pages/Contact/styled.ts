@@ -18,13 +18,6 @@ export const Form = styled.form`
   }
 `
 
-export const Title = styled.div`
-  margin-bottom: 48px;
-  color: ${Colors.Gray[100]};
-  font-size: 24px;
-  line-height: 24px;
-`
-
 export const Logo = styled.div`
   margin-top: 56px;
   color: ${Colors.Gray[100]};

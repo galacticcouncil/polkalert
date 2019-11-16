@@ -1,2 +1,2 @@
-export { default as GetHeaders } from './GetHeaders'
-export { default as GetValidators } from './GetValidators'
+export { default as GetValidatorsQuery } from './GetValidatorsQuery'
+export { default as GetSettingsQuery } from './GetSettingsQuery'

@@ -7,7 +7,7 @@ import { ValidatorInterface } from 'types'
 // import { Loading, Select } from 'ui'
 import { Loading } from 'ui'
 import { ValidatorCard } from 'components'
-import { GetValidators } from 'apollo/queries'
+import { GetValidatorsQuery } from 'apollo/queries'
 import { apiSelector } from 'selectors'
 import stakingDemo from 'mocks/staking'
 
@@ -35,7 +35,7 @@ const Staking = () => {
 
   const api = useSelector(apiSelector)
 
-  const query = useQuery(GetValidators, {
+  const query = useQuery(GetValidatorsQuery, {
     pollInterval: 10000
   })
 
@@ -60,16 +60,16 @@ const Staking = () => {
                 stashId={item.accountId}
                 controllerId={item.commissionData[0]?.controllerId}
                 sessionId={item.commissionData[0]?.sessionId}
-                bondedTotal={JSON.parse(item.commissionData[0]?.nominatorData)?.totalStake || '0.000'}
+                bondedTotal={JSON.parse(item.commissionData[0]?.nominatorData) ?.totalStake || '0.000'}
                 bondedSelf={item.commissionData[0]?.bondedSelf || '0.000'}
-                bondedFromNominators={JSON.parse(item.commissionData[0]?.nominatorData)?.nominatorStake || '0.000'}
+                bondedFromNominators={JSON.parse(item.commissionData[0]?.nominatorData) ?.nominatorStake || '0.000'}
                 commission={item.commissionData[0]?.commission}
                 blocksProduced={
                   item.blocksProduced
                 }
                 slashes={item.slashes}
                 recentlyOnline={item.recentlyOnline}
-                nominators={JSON.parse(item.commissionData[0]?.nominatorData)?.stakers}
+                nominators={JSON.parse(item.commissionData[0]?.nominatorData) ?.stakers}
               />
             ))}
           </S.Content>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useDidUpdate } from 'react-hooks-lib'
+import SVG from 'react-inlinesvg'
 import CSS from 'csstype'
 
 import * as S from './styled'
@@ -32,6 +33,7 @@ const Input = ({
   style
 }: Props) => {
   const [invalid, setInvalid] = useState<boolean>(false)
+  const [valueVisible, setValueVisible] = useState<boolean>(false)
 
   useDidUpdate(() => {
     if (required) setInvalid(!value.replace(/\s/g, ''))
@@ -44,11 +46,22 @@ const Input = ({
         <S.Input
           name={name}
           disabled={disabled}
-          type={type}
+          type={type !== 'password' || !valueVisible ? type : 'text'}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          style={{ padding: type === 'password' ? '12px 4px 12px 14px' : '12px 14px' }}
         />
+        {type === 'password' && (
+          <S.VisibilityToggle onClick={() => setValueVisible(!valueVisible)}>
+            <SVG src={valueVisible ? '/icons/show.svg' : '/icons/hide.svg'}>
+              <img
+                src={valueVisible ? '/icons/show.svg' : '/icons/hide.svg'}
+                alt={valueVisible ? 'Value visible' : 'Value hidden'}
+              />
+            </SVG>
+          </S.VisibilityToggle>
+        )}
       </S.InputWrapper>
     </S.Wrapper>
   )

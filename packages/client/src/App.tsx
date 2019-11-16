@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 
 import { NavigationProvider } from 'contexts'
 import { DefaultLayout } from 'layouts'
-import { SelectApi, Staking, Contact } from 'pages'
+import { SelectApi, Staking, Contact, Settings } from 'pages'
 import { apiSelector } from 'selectors'
 
 const history = createBrowserHistory()
@@ -25,6 +25,7 @@ const App = () => {
             <Route path="/" exact component={SelectApi} />
             <Route path="/staking" exact component={Staking} />
             <Route path="/contact" exact component={Contact} />
+            <Route path="/settings" exact component={Settings} />
             <Redirect from="*" to="/" />
           </Switch>
         </DefaultLayout>

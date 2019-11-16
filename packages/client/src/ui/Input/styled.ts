@@ -22,7 +22,11 @@ export const Label = styled.div`
 export const InputWrapper = styled.div<{
   invalid?: boolean
 }>`
+  background: ${Colors.Gray[300]};
+  border-radius: 8px;
   position: relative;
+  display: flex;
+  align-items: center;
 
   &:before {
     content: ${p => p.invalid && "' '"};
@@ -46,12 +50,31 @@ export const Input = styled.input<{
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }>`
   width: 100%;
-  padding: 12px 14px;
-  background: ${Colors.Gray[300]};
-  border-radius: 8px;
   color: inherit;
 
   &:disabled {
     opacity: 0.5;
+  }
+`
+
+export const VisibilityToggle = styled.div`
+  margin-right: 4px;
+  padding: 8px;
+  display: flex;
+  cursor: pointer;
+
+  &:hover path {
+    fill: ${Colors.Primary};
+  }
+
+  svg,
+  img {
+    width: 22px;
+    height: 22px;
+  }
+
+  path {
+    fill: ${Colors.White};
+    transition: fill 0.3s linear;
   }
 `
