@@ -1,21 +1,29 @@
 import React, { useEffect } from 'react'
 import { Router, Switch, Route, Redirect } from 'react-router-dom'
 import { createBrowserHistory } from 'history'
-import { useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
+import { useQuery } from '@apollo/react-hooks'
 
 import { NavigationProvider } from 'contexts'
 import { DefaultLayout } from 'layouts'
 import { SelectApi, Staking, Contact, Settings } from 'pages'
-import { apiSelector } from 'selectors'
+import { setApiAction } from 'actions'
+import { GetNodeInfoQuery } from 'apollo/queries'
 
 const history = createBrowserHistory()
 
 const App = () => {
-  const api = useSelector(apiSelector)
+  const dispatch = useDispatch()
+
+  const { data } = useQuery(GetNodeInfoQuery)
 
   useEffect(() => {
-    if (!api.loaded) history.push('/')
-  }, [api])
+    if (data?.nodeInfo) {
+      data.nodeInfo.chain
+        ? dispatch(setApiAction({ loaded: true }))
+        : history.push('/')
+    }
+  }, [data])
 
   return (
     <Router history={history}>

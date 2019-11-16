@@ -46,7 +46,7 @@ const SelectApi = () => {
           navigateTo('/staking')
         })
         .catch(() => {
-          if (snackbarRef && snackbarRef.current) snackbarRef.current.open()
+          if (snackbarRef?.current) snackbarRef.current.open()
           hideLoading()
         })
     }
