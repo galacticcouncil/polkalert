@@ -7,6 +7,7 @@ import { useQuery } from '@apollo/react-hooks'
 import { NavigationProvider } from 'contexts'
 import { DefaultLayout } from 'layouts'
 import { SelectApi, Staking, Contact, Settings } from 'pages'
+import { Loading } from 'ui'
 import { setApiAction } from 'actions'
 import { GetNodeInfoQuery } from 'apollo/queries'
 
@@ -15,20 +16,27 @@ const history = createBrowserHistory()
 const App = () => {
   const dispatch = useDispatch()
 
-  const { data } = useQuery(GetNodeInfoQuery)
+  const { data, error, loading } = useQuery(GetNodeInfoQuery)
 
   useEffect(() => {
-    if (data?.nodeInfo) {
-      data.nodeInfo.chain
-        ? dispatch(setApiAction({ loaded: true }))
-        : history.push('/')
+    if (!loading) {
+      if (data?.nodeInfo?.chain) {
+        dispatch(setApiAction({ loaded: true }))
+      } else {
+        history.push('/')
+      }
+
+      if (error) {
+        history.push('/')
+      }
     }
-  }, [data])
+  }, [data, error])
 
   return (
     <Router history={history}>
       <NavigationProvider>
         <DefaultLayout>
+          {loading && <Loading />}
           <Switch>
             <Route path="/" exact component={SelectApi} />
             <Route path="/staking" exact component={Staking} />

@@ -1,2 +1,2 @@
-export { default as ConnectionMutation } from './ConnectionMutation'
+export { default as ConnectMutation } from './ConnectMutation'
 export { default as UpdateSettingsMutation } from './UpdateSettingsMutation'
