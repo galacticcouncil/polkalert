@@ -1,3 +1,4 @@
 {
-  "serverPort": 4000
+  "serverPort": 4000,
+  "webHooks": []
 }

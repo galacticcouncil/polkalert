@@ -1,5 +1,6 @@
 import db from '../db'
 import connector from '../connector'
+import webHooks from '../webHooks'
 import { Validator } from '../entity/Validator'
 import settings from '../settings'
 
@@ -41,6 +42,8 @@ async function connect(_, { nodeUrl }) {
 }
 
 function updateSettings(_, config) {
+  if (config.webHooks) webHooks.set(config.webHooks)
+  
   return settings.set(config)
 }
 
@@ -60,6 +63,5 @@ export default {
   Mutation: {
     connect,
     updateSettings
-    //Return node info?
   }
 }
