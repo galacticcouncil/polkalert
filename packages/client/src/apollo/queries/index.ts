@@ -1,3 +1,3 @@
-export { default as GetHeaders } from './GetHeaders'
-export { default as GetValidators } from './GetValidators'
-export { default as GetNodeInfo } from './GetNodeInfo'
+export { default as GetValidatorsQuery } from './GetValidatorsQuery'
+export { default as GetSettingsQuery } from './GetSettingsQuery'
+export { default as GetNodeInfoQuery } from './GetNodeInfoQuery'

@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 import { useMutation } from '@apollo/react-hooks'
 
 import { UiOptionType, SnackbarType } from 'types'
-import { ConnectToApi } from 'apollo/mutations'
+import { ConnectMutation } from 'apollo/mutations'
 import { NavigationContext } from 'contexts'
 import { setApiAction } from 'actions'
 import { useBooleanState } from 'hooks'
@@ -27,7 +27,7 @@ const SelectApi = () => {
   const [apiUrl, setApiUrl] = useState<UiOptionType>(options[0])
   const [customApiUrl, setCustomApiUrl] = useState<string>('wss://')
   const [loadingVisible, showLoading, hideLoading] = useBooleanState()
-  const [connectToApi] = useMutation(ConnectToApi)
+  const [connectMutation] = useMutation(ConnectMutation)
   const snackbarRef = useRef<SnackbarType>(null)
 
   const setApi = () => {
@@ -40,7 +40,7 @@ const SelectApi = () => {
       dispatch(setApiAction({ loaded: true, demo: true }))
       navigateTo('/staking')
     } else {
-      connectToApi({ variables: { nodeUrl: url } })
+      connectMutation({ variables: { nodeUrl: url } })
         .then(() => {
           dispatch(setApiAction({ loaded: true }))
           navigateTo('/staking')

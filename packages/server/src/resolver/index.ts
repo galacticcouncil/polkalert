@@ -43,7 +43,7 @@ async function connect(_, { nodeUrl }) {
 
 function updateSettings(_, config) {
   if (config.webHooks) webHooks.set(config.webHooks)
-
+  
   return settings.set(config)
 }
 
