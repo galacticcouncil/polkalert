@@ -1,6 +1,7 @@
 import db from '../db'
 import connector from '../connector'
 import { Validator } from '../entity/Validator'
+import settings from '../settings'
 
 async function addSlashesToValidators(validators: Validator[]) {
   let eraIndex = validators[0].commissionData[0].eraIndex
@@ -39,6 +40,10 @@ async function connect(_, { nodeUrl }) {
   })
 }
 
+function updateSettings(_, config) {
+  return settings.set(config)
+}
+
 function getDataAge() {
   return db.getDataAge()
 }
@@ -48,11 +53,13 @@ export default {
     validators: getValidators,
     validator: getValidatorInfo,
     dataAge: getDataAge,
-    nodeInfo: connector.getNodeInfo
+    nodeInfo: connector.getNodeInfo,
+    settings: settings.get
   },
 
   Mutation: {
-    connection: connect
+    connect,
+    updateSettings
     //Return node info?
   }
 }

@@ -27,7 +27,7 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
   const links = [
     {
       name: 'Switch Node',
-      icon: '/icons/settings.svg',
+      icon: '/icons/refresh.svg',
       href: '/'
     },
     {
@@ -39,6 +39,11 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
       name: 'Contact',
       icon: '/icons/mail.svg',
       href: '/contact'
+    },
+    {
+      name: 'Settings',
+      icon: '/icons/settings.svg',
+      href: '/settings'
     }
   ]
 

@@ -1,1 +1,2 @@
-export { default as ConnectToApi } from './ConnectToApi'
+export { default as ConnectMutation } from './ConnectMutation'
+export { default as UpdateSettingsMutation } from './UpdateSettingsMutation'

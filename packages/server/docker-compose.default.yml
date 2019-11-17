@@ -8,10 +8,8 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=user
       - POSTGRES_DB=polkalert
-    volumes:
-      - ./dist/db/:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
+      - 5432:5432
     expose:
-      - '5432'
+      - 5432
     restart: unless-stopped

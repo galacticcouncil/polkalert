@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "build": "tsc",
     "start": "nodemon src/index.ts"
@@ -13,11 +14,9 @@
   "devDependencies": {
     "@polkadot/ts": "^0.1.84",
     "@polkadot/types": "0.97.0-beta.2",
-    "@types/koa": "^2.0.41",
-    "@types/koa-router": "^7.0.26",
     "@types/node": "^12.7.11",
     "nodemon": "^1.19.3",
-    "ts-node": "^8.4.1",
+    "ts-node": "^8.5.0",
     "typescript": "^3.7.0"
   },
   "dependencies": {

@@ -1,25 +1,25 @@
-import React from "react";
-import { useQuery } from "@apollo/react-hooks";
-import { useSelector } from "react-redux";
+import React from 'react'
+import { useQuery } from '@apollo/react-hooks'
+import { useSelector } from 'react-redux'
 
 // import { UiOptionType } from 'types'
-import { ValidatorInterface } from "types";
+import { ValidatorInterface } from 'types'
 // import { Loading, Select } from 'ui'
-import { Loading } from "ui";
-import { ValidatorCard } from "components";
-import { GetValidators } from "apollo/queries";
-import { apiSelector } from "selectors";
-import stakingDemo from "mocks/staking";
+import { Loading } from 'ui'
+import { ValidatorCard } from 'components'
+import { GetValidatorsQuery } from 'apollo/queries'
+import { apiSelector } from 'selectors'
+import stakingDemo from 'mocks/staking'
 
-import * as S from "./styled";
+import * as S from './styled'
 
 type Data = {
-  validators: ValidatorInterface[];
-};
+  validators: ValidatorInterface[]
+}
 
 type QueryResult = {
-  data: Data;
-};
+  data: Data
+}
 
 const Staking = () => {
   // const filterOptions = [
@@ -33,13 +33,13 @@ const Staking = () => {
 
   // const [filter, setFilter] = useState<UiOptionType>(filterOptions[0])
 
-  const api = useSelector(apiSelector);
+  const api = useSelector(apiSelector)
 
-  const query = useQuery(GetValidators, {
+  const query = useQuery(GetValidatorsQuery, {
     pollInterval: 10000
-  });
+  })
 
-  const { data } = api.demo ? (stakingDemo as QueryResult) : query;
+  const { data } = api.demo ? (stakingDemo as QueryResult) : query
 
   return (
     <S.Wrapper>
@@ -66,7 +66,7 @@ const Staking = () => {
                       : {}
                   }))
                   : [{}]
-              };
+              }
 
               return (
                 <ValidatorCard
@@ -76,14 +76,14 @@ const Staking = () => {
                   sessionId={itemFormatted.commissionData[0].sessionId}
                   bondedTotal={
                     itemFormatted.commissionData[0].nominatorData?.totalStake ||
-                    "0.000"
+                    '0.000'
                   }
                   bondedSelf={
-                    itemFormatted.commissionData[0].bondedSelf || "0.000"
+                    itemFormatted.commissionData[0].bondedSelf || '0.000'
                   }
                   bondedFromNominators={
                     itemFormatted.commissionData[0].nominatorData
-                      ?.nominatorStake || "0.000"
+                      ?.nominatorStake || '0.000'
                   }
                   commission={itemFormatted.commissionData[0].commission}
                   blocksProduced={itemFormatted.blocksProduced}
@@ -93,7 +93,7 @@ const Staking = () => {
                     itemFormatted.commissionData[0].nominatorData?.stakers
                   }
                 />
-              );
+              )
             })}
           </S.Content>
         </>
@@ -101,7 +101,7 @@ const Staking = () => {
         <Loading />
       )}
     </S.Wrapper>
-  );
-};
+  )
+}
 
-export default Staking;
+export default Staking
