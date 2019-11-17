@@ -54,6 +54,7 @@ export const typeDefs = gql`
     emailHost: String
     emailUsername: String
     emailPassword: String
+    webHooks: [String]
   }
 
   type Mutation {
@@ -64,6 +65,7 @@ export const typeDefs = gql`
       emailHost: String
       emailUsername: String
       emailPassword: String
+      webHooks: [String]
     ): String
   }
 

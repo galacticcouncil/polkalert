@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import SVG from 'react-inlinesvg'
 
-import { Input, Textarea, Button, Modal } from 'ui'
+import { PageTitle, Input, Textarea, Button, Modal } from 'ui'
 import { encodeURI } from 'utils'
 import { useBooleanState } from 'hooks'
 
@@ -55,7 +55,7 @@ const Contact = () => {
   return (
     <S.Wrapper>
       <S.Form onSubmit={handleFormSubmit}>
-        <S.Title>Contact Us</S.Title>
+        <PageTitle>Contact Us</PageTitle>
         <Input
           fluid
           required

@@ -1,9 +1,13 @@
-import config from '../../server-config.json'
-import { writeFileSync } from 'fs'
+import { writeFileSync, existsSync, readFileSync } from 'fs'
+const configFile = './server-config.json'
+
+const config = existsSync(configFile)
+  ? JSON.parse(readFileSync(configFile, { encoding: 'utf8' }))
+  : null
 
 if (!config) {
   throw new Error(
-    'Server settings not present, please try running "yarn setup" command in the root directory'
+    'Server settings not initialized, please try running "yarn setup" command in the root directory'
   )
 }
 
