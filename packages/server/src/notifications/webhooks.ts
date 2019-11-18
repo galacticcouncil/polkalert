@@ -1,6 +1,6 @@
 import WebHooks from 'node-webhooks'
 
-let webHookStorage: [string?] = []
+let webHookStorage: string[] = []
 let webHooks = null
 
 function init(settings: Settings) {
@@ -16,7 +16,7 @@ function init(settings: Settings) {
 //TODO: figure out if we want a simple filter on the server
 //and send event type in payload or if we allow different
 //urls for different events
-async function set(urlList: [string?]) {
+async function set(urlList: string[]) {
   webHookStorage.forEach(url => {
     if (!urlList.includes(url)) {
       webHooks.add('webHooks', url)
