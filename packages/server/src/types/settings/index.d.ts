@@ -4,4 +4,6 @@ declare type Settings = {
   emailHost?: string
   emailUsername?: string
   emailPassword?: string
+  emailRecipient?: string
+  webHooks?: [string?]
 }

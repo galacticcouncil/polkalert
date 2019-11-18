@@ -15,6 +15,7 @@
     "@polkadot/ts": "^0.1.84",
     "@polkadot/types": "0.97.0-beta.2",
     "@types/node": "^12.7.11",
+    "@types/nodemailer": "^6.2.2",
     "nodemon": "^1.19.3",
     "ts-node": "^8.5.0",
     "typescript": "^3.7.0"

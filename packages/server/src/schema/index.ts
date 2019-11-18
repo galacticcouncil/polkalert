@@ -65,6 +65,7 @@ export const typeDefs = gql`
       emailHost: String
       emailUsername: String
       emailPassword: String
+      emailRecipient: String
       webHooks: [String]
     ): String
   }

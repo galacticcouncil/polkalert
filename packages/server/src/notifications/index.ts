@@ -1,38 +1,28 @@
 import settings from '../settings'
-import nodemailer from 'nodemailer'
+import email from './email'
+import webhooks from './webhooks'
 
-let config = settings.get()
-let email = null
+let settingsListener = null
 
-function init() {
-  if (config.emailPort && config.emailHost && config.emailHost) {
-    email = nodemailer.createTransport({
-      host: config.emailHost,
-      port: config.emailPort,
-      secure: config.emailPort === 465 ? true : false,
-      auth: {
-        user: config.emailUsername,
-        password: config.emailPassword
-      }
-    })
+async function init() {
+  email.init(settings.get())
+  webhooks.init(settings.get())
+
+  if (!settingsListener) {
+    settingsListener = settings.onChange(init)
   }
+
+  return
 }
 
 async function send(type, message) {
-  if (email) {
-    let info = await email.sendMail({
-      from: '"polkalert" <info@polkalert.com>',
-      to: 'bar@example.com',
-      subject: type,
-      text: message
-    })
+  email.send(type, message)
+  webhooks.send(type, message)
 
-    console.log('Email message sent: %s', info.messageId)
-  }
+  return
 }
 
-init()
-
 export default {
+  init,
   send
 }
