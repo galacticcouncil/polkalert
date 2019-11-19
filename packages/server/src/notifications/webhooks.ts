@@ -1,16 +1,22 @@
 import WebHooks from 'node-webhooks'
-import settings from '../settings'
 
-let webHookStorage: [string] = settings.get().webHooks
+let webHookStorage: string[] = []
+let webHooks = null
 
-var webHooks = new WebHooks({
-  db: { webHooks: webHookStorage }
-})
+function init(settings: Settings) {
+  if (!webHooks) {
+    webHooks = new WebHooks({
+      db: { webHooks: webHookStorage }
+    })
+  }
+
+  set(settings.webHooks)
+}
 
 //TODO: figure out if we want a simple filter on the server
 //and send event type in payload or if we allow different
 //urls for different events
-async function set(urlList: [string]) {
+async function set(urlList: string[]) {
   webHookStorage.forEach(url => {
     if (!urlList.includes(url)) {
       webHooks.add('webHooks', url)
@@ -22,14 +28,16 @@ async function set(urlList: [string]) {
     }
   })
   webHookStorage = urlList
+  return
 }
 
 //TODO: figure out data format, i.e. - type:string, amount:number
-async function sendWebHookEvent(data) {
-  webHooks.trigger('webHooks', data)
+async function send(type, message) {
+  webHooks.trigger('webHooks', { type, message })
+  return
 }
 
 export default {
-  set,
-  sendWebHookEvent
+  init,
+  send
 }

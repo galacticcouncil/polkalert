@@ -10,6 +10,7 @@ import {
   Moment,
   SlashJournalEntry
 } from '@polkadot/types/interfaces'
+import notifications from '../notifications'
 
 let maxHeaderBatch = 250
 let maxBlockHistory = 15000
@@ -467,6 +468,8 @@ async function startDataService() {
   }
 
   getHeaderDataHistory(currentSessionInfo)
+
+  notifications.init()
 
   await subscribeEvents()
   await subscribeHeaders()
