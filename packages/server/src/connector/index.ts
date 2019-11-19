@@ -170,7 +170,9 @@ async function subscribeHeaders() {
     lastSavedBlock.hash = hash
     lastSavedBlock.timestamp = enhancedHeader['timestamp']
 
-    //GET Missing blocks, TODO: this could make hole in the data if missing blocks are pruned
+    //GET Missing blocks, TODO: this could make hole in the data if missing
+    //blocks are pruned or server is turned off while getting missing blocks
+
     if (missing > 0) {
       console.log('missing', missing, 'headers')
       let missingHeaders = await getPreviousHeaders(

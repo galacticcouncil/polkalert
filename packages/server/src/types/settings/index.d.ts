@@ -1,5 +1,7 @@
 declare type Settings = {
+  blockTimeNotificationRatio: number
   serverPort: number
+  email?: boolean
   emailPort?: number
   emailHost?: string
   emailUsername?: string

@@ -5,22 +5,20 @@
 3.  Open Terminal and navigate to the project folder - `cd path/to/project`
 4.  Install Yarn if you don't have it already - `npm i -g yarn`
 5.  Run the `yarn` command to install project dependencies
-6.  If you don't have docker, install docker and docker-compose `https://docs.docker.com/compose/install/`
-
-**IMPORTANT!** Make sure to:
-
-1.  Use [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) and have the `Editor: Format On Save` setting in VSCode turned on to keep the code consistent.
-2.  Always run pre-commit checks before commiting your code. If it won't pass, it won't be able to be built. More info about the checks can be found below.
-3.  Check the other `README.md` files located in subfolders (if provided) for further info.
+6.  Run the `yarn setup` command to setup environment variables and default settings.
+7.  If you don't have docker, install docker and docker-compose `https://docs.docker.com/compose/install/`
 
 # Running the project
 
-You can run the project via Terminal using one of the following commands:
+You can run the project via Terminal using the following commands:
 
-1.  `yarn start:client`: Runs only the client on `localhost:8080`
-2.  `yarn start:server`: Runs only the server on `localhost:4000`
-3.  `yarn start:db`: Runs only the db on `localhost:5432`
-4.  `yarn start`: Runs the whole project, the client and the server parts will run on the addresses mentioned above
+1.  `yarn start:client`: Runs the client, default on `localhost:8080`
+2.  `yarn start:server`: Runs only the server, default on `localhost:4000`
+3.  `yarn start:db`: Runs only the db, default on `localhost:5432`
+
+You need all of the three parts: client, server and db running to run Polkalert
+
+4.  `yarn start`: Shortcut which runs the whole project. The client, db and the server parts will run on the ports mentioned above by default or on ports you configured via setup script. Note that you will not have full control over each process if you run the app this way.
 
 5.  `yarn stop:db`: Stops db and resets docker interfaces if it doesn't stop automatically
 
@@ -32,7 +30,7 @@ Besides the `start` script, there are other ones which can be used to work with 
 - `yarn install:client`: Installs only the client dependencies
 - `yarn install:server`: Installs only the server dependencies
 
-- `yarn setup`: Setup project environment variables
+- `yarn setup`: Setup project environment variables and default settings
 
 - `yarn build`: Builds the whole project for production
 - `yarn build:client`: Builds only the client for production
@@ -48,3 +46,9 @@ Besides the `start` script, there are other ones which can be used to work with 
 
 - `yarn precommit`: Runs pre-commit checks on the whole project
 - `yarn precommit:client`: Runs pre-commit checks only on the client
+
+**DEV-IMPORTANT!** Make sure to:
+
+1.  Use [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) and have the `Editor: Format On Save` setting in VSCode turned on to keep the code consistent.
+2.  Always run pre-commit checks before commiting your code. If it won't pass, it won't be able to be built. More info about the checks can be found below.
+3.  Check the other `README.md` files located in subfolders (if provided) for further info.
