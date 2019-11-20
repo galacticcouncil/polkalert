@@ -20,6 +20,7 @@ const SelectApi = () => {
     'wss://substrate-rpc.parity.io/',
     'ws://127.0.0.1:9944',
     'ws://127.0.0.1:9933',
+    'Demo',
     'Custom'
   ]
 
@@ -36,7 +37,7 @@ const SelectApi = () => {
     const isCustomUrl = apiUrl === 'Custom'
     const url = isCustomUrl ? customApiUrl : (apiUrl as string)
 
-    if (url.toLowerCase() === 'demo') {
+    if (url === 'Demo') {
       dispatch(setApiAction({ loaded: true, demo: true }))
       navigateTo('/staking')
     } else {
