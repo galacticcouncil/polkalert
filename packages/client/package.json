@@ -1,6 +1,6 @@
 {
   "name": "polkalert",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "scripts": {
     "dev": "webpack-dev-server --hot --config webpack.config.js --mode development",
@@ -15,7 +15,6 @@
   },
   "keywords": [],
   "author": "Andrej Mikulička",
-  "license": "ISC",
   "bugs": {
     "url": "https://gitlab.com/andrejmikulicka95/polkalert/issues"
   },
