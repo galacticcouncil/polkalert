@@ -29,7 +29,7 @@ function init(settings: Settings) {
   return
 }
 
-async function send(type, message) {
+async function send(type: string, message: string) {
   if (emailProvider) {
     let info = await emailProvider.sendMail({
       from: '"polkalert" <info@polkalert.com>',

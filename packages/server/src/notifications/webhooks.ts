@@ -32,7 +32,7 @@ async function set(urlList: string[]) {
 }
 
 //TODO: figure out data format, i.e. - type:string, amount:number
-async function send(type, message) {
+async function send(type: string, message: string) {
   webHooks.trigger('webHooks', { type, message })
   return
 }
