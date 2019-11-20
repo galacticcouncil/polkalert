@@ -24,7 +24,9 @@
     "add:server": "cd packages/server && yarn add",
     "remove:client": "cd packages/client && yarn remove",
     "remove:server": "cd packages/server && yarn remove",
-    "storybook": "cd packages/client && yarn storybook"
+    "storybook": "cd packages/client && yarn storybook",
+    "precommit": "yarn run-s precommit:*",
+    "precommit:client": "cd packages/client && yarn precommit"
   },
   "keywords": [],
   "devDependencies": {
