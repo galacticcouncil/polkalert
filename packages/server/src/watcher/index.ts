@@ -13,8 +13,10 @@ let notificationTimeout: NodeJS.Timeout = null
 function init() {
   blockTimeNotificationRatio = settings.get().blockTimeNotificationRatio
 
-  clearTimeout(notificationTimeout)
-  startTimeout()
+  if (averageBlockTime) {
+    clearTimeout(notificationTimeout)
+    startTimeout()
+  }
 
   if (!settingsListener) {
     settingsListener = settings.onChange(init)
@@ -29,19 +31,26 @@ function setAverageBlockTime(newAverageBlockTime: number) {
 
 function startTimeout() {
   notificationTimeout = setTimeout(() => {
-    notifications.send(
-      'connection',
-      `node didn't receive blocks for ${notificationTimeoutTime /
-        1000} seconds while average block time in the network is ${averageBlockTime /
-        1000} seconds, check your connection.
-        If you think this message is false alarm, check your block time notification ratio setting`
-    )
+    const text =
+      "node didn't receive blocks for " +
+      (notificationTimeoutTime / 1000).toFixed(2) +
+      'seconds while average block time in the network is ' +
+      (averageBlockTime / 1000).toFixed(2) +
+      'seconds, check your connection.\n' +
+      'If you think this message is false alarm,' +
+      'check your block time notification ratio setting'
+
+    notifications.send('connection', text)
+
+    console.log(text)
   }, notificationTimeoutTime)
 }
 
 function ping() {
-  clearTimeout(notificationTimeout)
-  startTimeout()
+  if (averageBlockTime) {
+    clearTimeout(notificationTimeout)
+    startTimeout()
+  }
 }
 
 export default {

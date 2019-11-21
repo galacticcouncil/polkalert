@@ -87,7 +87,7 @@ async function connect() {
     tokenDecimals: properties.tokenDecimals.unwrapOr(new U32(12)).toNumber(),
     tokenSymbol: properties.tokenSymbol.unwrapOr('DEV').toString()
   }
-  console.log('\x1b[36m%s\x1b[0m', 'connected to:' + nodeUrl)
+  console.log('Connected to:')
   console.log(nodeInfo)
 
   return api

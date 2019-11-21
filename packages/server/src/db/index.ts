@@ -3,16 +3,17 @@ import { createConnection, Connection, EntityManager, LessThan } from 'typeorm'
 import { Header } from '../entity/Header'
 import { Validator } from '../entity/Validator'
 import { CommissionData } from '../entity/CommissionData'
-import { GraphQLError } from 'graphql'
 import { formatBalance } from '@polkadot/util'
 import { performance } from 'perf_hooks'
 import { NodeInfoStorage } from '../entity/NodeInfoStorage'
 import * as moment from 'moment'
+import { AppVersion } from '../entity/AppVersion'
 
 let connection: Connection = null
 let manager: EntityManager = null
 let nodeInfo: NodeInfo = null
 let validatorMap = {}
+let retryInterval: number = 5000
 
 //TODO: Config
 //number of seconds to prune blocks
@@ -56,19 +57,23 @@ async function init() {
   if (connection) await disconnect()
   connection =
     (await createConnection().catch(error => console.log(error))) || null
+
   if (!connection) {
-    throw new Error('Cannot create connection to database')
+    console.log('Cannot create connection to database, retrying...')
+    console.log('Please make sure the database is running')
+    await new Promise(resolve => setTimeout(resolve, retryInterval))
+    await init()
+  } else {
+    manager = connection.manager
+
+    pruningInterval = setInterval(async () => {
+      let lastHeader = await getLastHeader()
+      if (manager && lastHeader)
+        manager.delete(Header, {
+          timestamp: LessThan(lastHeader.timestamp - maxDataAge * 3600 * 1000)
+        })
+    }, pruning * 1000)
   }
-  manager = connection.manager
-
-  pruningInterval = setInterval(async () => {
-    let lastHeader = await getLastHeader()
-    if (manager && lastHeader)
-      manager.delete(Header, {
-        timestamp: LessThan(lastHeader.timestamp - maxDataAge * 3600 * 1000)
-      })
-  }, pruning * 1000)
-
   return
 }
 
@@ -226,13 +231,9 @@ async function bulkSave(type, data) {
 }
 
 async function getValidatorInfo(id) {
-  if (connection) {
-    return await manager.findOne(Validator, id, {
-      relations: ['commissionData', 'blocksProduced']
-    })
-  } else {
-    throw new GraphQLError('not connected to any node')
-  }
+  return await manager.findOne(Validator, id, {
+    relations: ['commissionData', 'blocksProduced']
+  })
 }
 
 async function getFirstHeader() {
@@ -244,28 +245,24 @@ async function getLastHeader() {
 }
 
 async function getValidators() {
-  if (connection) {
-    console.log('DB: getting all validators')
-    let performanceStart = performance.now()
-    let allValidators: Validator[] = await manager.find(Validator, {
-      relations: ['commissionData', 'blocksProduced']
-    })
+  console.log('DB: getting all validators')
+  let performanceStart = performance.now()
+  let allValidators: Validator[] = await manager.find(Validator, {
+    relations: ['commissionData', 'blocksProduced']
+  })
 
-    //TODO look into performance with query countRelationAndMap
-    allValidators = allValidators.map(validator => {
-      validator.blocksProducedCount = validator.blocksProduced.length
-      return validator
-    })
+  //TODO look into performance with query countRelationAndMap
+  allValidators = allValidators.map(validator => {
+    validator.blocksProducedCount = validator.blocksProduced.length
+    return validator
+  })
 
-    console.log(
-      'DB: got all validators:Performance',
-      performance.now() - performanceStart,
-      'ms'
-    )
-    return allValidators
-  } else {
-    throw new GraphQLError('not connected to any node')
-  }
+  console.log(
+    'DB: got all validators:Performance',
+    performance.now() - performanceStart,
+    'ms'
+  )
+  return allValidators
 }
 
 async function setNodeInfo(newNodeInfo: NodeInfo) {
@@ -294,9 +291,27 @@ async function getNodeInfo(): Promise<NodeInfo> {
   } else return null
 }
 
+async function getAppVersion() {
+  let appVersion = await manager.findOne(AppVersion, 1)
+  if (appVersion) {
+    return appVersion.version
+  } else return null
+}
+
+async function setAppVersion(newAppVersion) {
+  let appVersion = (await manager.findOne(AppVersion, 1)) || new AppVersion()
+  appVersion.version = newAppVersion
+  appVersion.id = 1
+  await manager.save(appVersion)
+
+  return
+}
+
 export default {
   init,
   save,
+  getAppVersion,
+  setAppVersion,
   setNodeInfo,
   getNodeInfo,
   getDataAge,
