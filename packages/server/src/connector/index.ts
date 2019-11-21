@@ -480,7 +480,6 @@ async function startDataService() {
   getHeaderDataHistory(currentSessionInfo)
 
   notifications.init()
-
   watcher.init()
 
   await subscribeEvents()
