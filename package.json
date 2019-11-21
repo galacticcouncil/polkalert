@@ -1,11 +1,13 @@
 {
   "name": "polkalert",
   "description": "",
-  "version": "1.0.0",
+  "private": true,
+  "version": "0.1.0",
   "engines": {
     "yarn": "^1.10.1"
   },
   "scripts": {
+    "bump": "lerna version --no-push --no-git-tag-version",
     "setup": "node ./setup.js",
     "start": "yarn run-p start:*",
     "start:client": "cd packages/client && yarn dev",
@@ -27,8 +29,8 @@
     "precommit:client": "cd packages/client && yarn precommit"
   },
   "keywords": [],
-  "license": "ISC",
   "devDependencies": {
+    "lerna": "^3.18.5",
     "npm-run-all": "^4.1.5"
   },
   "dependencies": {
