@@ -1,6 +1,6 @@
 {
   "name": "monitor-server",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "type": "commonjs",
@@ -10,7 +10,6 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@polkadot/ts": "^0.1.84",
     "@polkadot/types": "0.97.0-beta.2",
