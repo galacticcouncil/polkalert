@@ -9,24 +9,45 @@ async function addSlashesToValidators(validators: Validator[]) {
     connector.getEraSlashJournal(eraIndex),
     connector.getEraSlashJournal(eraIndex - 1)
   ])
-  const slashes = slashes0.concat(slashes1)
+  let allSlashes = slashes0.concat(slashes1)
 
   let validatorsWithSlashes = validators.map(validator => {
-    validator['slashes'] = slashes
+    const slashes = allSlashes
       .filter(slash => slash.who == validator.accountId)
       .map(slash => slash.amount)
-    return validator
+    return { ...validator, slashes }
   })
   return validatorsWithSlashes
 }
 
+async function addCurrentEraInfoToValidators(validators: Validator[]) {
+  const currentValidators = await connector.getValidators()
+  const validatorsWithCurrentEraInfo = validators.map(validator => {
+    const isCurrent =
+      currentValidators.findIndex(
+        currentValidator =>
+          currentValidator.accountId.toString() ===
+          validator.accountId.toString()
+      ) >= 0
+    let currentValidator = isCurrent
+
+    return { ...validator, currentValidator }
+  })
+
+  return validatorsWithCurrentEraInfo
+}
+
 async function getValidators() {
   const validators = await db.getValidators()
-  let validatorsWithSlashes = await addSlashesToValidators(validators)
-  let validatorsWithOnlineStates = await connector.addDerivedHeartbeatsToValidators(
+  const validatorsWithSlashes = await addSlashesToValidators(validators)
+  const validatorsWithOnlineStates = await connector.addDerivedHeartbeatsToValidators(
     validatorsWithSlashes
   )
-  return validatorsWithOnlineStates
+  const validatorsWithCurrentEraInfo = await addCurrentEraInfoToValidators(
+    validatorsWithOnlineStates
+  )
+
+  return validatorsWithCurrentEraInfo
 }
 
 async function getValidatorInfo(_, { accountId }) {

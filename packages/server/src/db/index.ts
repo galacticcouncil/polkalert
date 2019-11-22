@@ -8,6 +8,7 @@ import { performance } from 'perf_hooks'
 import { NodeInfoStorage } from '../entity/NodeInfoStorage'
 import * as moment from 'moment'
 import { AppVersion } from '../entity/AppVersion'
+import { DerivedStaking } from '@polkadot/api-derive/types'
 
 let connection: Connection = null
 let manager: EntityManager = null
@@ -178,7 +179,7 @@ function createHeaderObject(data) {
   return header
 }
 
-async function save(type, data) {
+async function save(type: string, data) {
   if (type === 'Validator') {
     let validator: Validator = await manager.findOne(
       Validator,
@@ -214,7 +215,7 @@ async function save(type, data) {
   throw new Error('Tried to save unknown entity')
 }
 
-async function bulkSave(type, data) {
+async function bulkSave(type, data: DerivedStaking[] | Header[]) {
   //TODO Make faster
   console.log('DB: bulk saving', data.length, type + 's')
   let performanceStart = performance.now()

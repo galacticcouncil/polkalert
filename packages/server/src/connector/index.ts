@@ -5,11 +5,7 @@ import { formatBalance } from '@polkadot/util'
 import { isNullOrUndefined } from 'util'
 import { Vec } from '@polkadot/types'
 import { DerivedStaking } from '@polkadot/api-derive/types'
-import {
-  ValidatorId,
-  Moment,
-  SlashJournalEntry
-} from '@polkadot/types/interfaces'
+import { ValidatorId, SlashJournalEntry } from '@polkadot/types/interfaces'
 import notifications from '../notifications'
 import watcher from '../watcher'
 
@@ -66,7 +62,7 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
     blockNumbers.map(blockNumber => api.rpc.chain.getBlockHash(blockNumber))
   )
 
-  let enhancedHeaders = await Promise.all(
+  let headers = await Promise.all(
     blockHashes.map(blockHash =>
       api.derive.chain.getHeader(blockHash.toString()).catch(e => {
         console.log('Error getting block', blockHash.toJSON())
@@ -74,28 +70,24 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
     )
   )
 
-  enhancedHeaders = enhancedHeaders.filter(header => (header ? true : false))
-
   let timestamps = api.createType(
     'Vec<Moment>',
     await Promise.all(
-      enhancedHeaders.map(header => {
+      headers.map(header => {
         if (header) return api.query.timestamp.now.at(header.hash)
         return null
       })
     )
   )
-  enhancedHeaders = enhancedHeaders.map((header, index) => {
-    header['timestamp'] = formatTimestamp(timestamps[index])
-    return header
+  let enhancedHeaders = headers.map((header, index) => {
+    const timestamp = timestamps[index].toNumber()
+    if (header) {
+      let hash = header.hash.toString()
+      return { ...header, timestamp, hash }
+    } else return null
   })
 
   return enhancedHeaders
-}
-
-function formatTimestamp(timestamp: Moment) {
-  if (timestamp && timestamp.toNumber) return timestamp.toNumber()
-  return timestamp
 }
 
 async function getDerivedStaking(accounts: Vec<ValidatorId>) {
@@ -162,7 +154,7 @@ async function subscribeHeaders() {
     if (!firstSavedBlock.number) {
       firstSavedBlock.number = number
       firstSavedBlock.hash = hash
-      firstSavedBlock.timestamp = enhancedHeader['timestamp']
+      firstSavedBlock.timestamp = enhancedHeader.timestamp
     } else {
       watcher.setAverageBlockTime(
         (lastSavedBlock.timestamp - firstSavedBlock.timestamp) /
@@ -176,7 +168,7 @@ async function subscribeHeaders() {
 
     lastSavedBlock.number = number
     lastSavedBlock.hash = hash
-    lastSavedBlock.timestamp = enhancedHeader['timestamp']
+    lastSavedBlock.timestamp = enhancedHeader.timestamp
 
     //GET Missing blocks, TODO: this could make hole in the data if missing
     //blocks are pruned or server is turned off while getting missing blocks
@@ -471,7 +463,7 @@ async function startDataService() {
     if (firstBlockData) {
       firstSavedBlock.number = firstBlockData.number.toNumber()
       firstSavedBlock.hash = firstBlockData.hash.toString()
-      firstSavedBlock.timestamp = firstBlockData['timestamp']
+      firstSavedBlock.timestamp = firstBlockData.timestamp
 
       lastSavedBlock = Object.assign({}, firstSavedBlock)
     }
@@ -515,16 +507,19 @@ async function addDerivedHeartbeatsToValidators(validators) {
     })
 
   return validators.map(validator => {
+    let recentlyOnline = false
+
     if (onlineStatus[validator.accountId])
-      validator.recentlyOnline = onlineStatus[validator.accountId].isOnline
-    return validator
+      recentlyOnline = onlineStatus[validator.accountId].isOnline
+
+    return { ...validator, recentlyOnline }
   })
 }
 
 export default {
   connect,
   getEraSlashJournal,
-  //TODO refactor
+  getValidators,
   getNodeInfo: connector.getNodeInfo,
   addDerivedHeartbeatsToValidators
 }
