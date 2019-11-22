@@ -2,14 +2,26 @@ import app from './api'
 import db from './db'
 import connector from './connector'
 import settings from './settings'
+import { readFileSync } from 'fs'
 
 async function main() {
   await db.init()
-  let config = settings.get()
-  let oldNodeInfo = await db.getNodeInfo()
+
+  const oldAppVersion = await db.getAppVersion()
+  const oldNodeInfo = await db.getNodeInfo()
+  const version = JSON.parse(readFileSync('package.json', 'utf8')).version
+  const config = settings.get()
+
+  if (version !== oldAppVersion) {
+    await db.clearDB()
+    db.setAppVersion(version)
+  }
+
+  console.log('*****************')
+  console.log('*** POLKALERT ***')
+  console.log('version:', version)
 
   if (oldNodeInfo) {
-    console.log('connecting to', oldNodeInfo.nodeUrl)
     await connector
       .connect(oldNodeInfo.nodeUrl)
       .catch(e => console.log('unable to connect to previously connected node'))

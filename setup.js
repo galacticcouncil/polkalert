@@ -13,34 +13,42 @@ const defaultOrmConfigFile = serverPath + 'ormconfig.default.json'
 const serverConfigFile = serverPath + 'server-config.json'
 const defaultServerConfigFile = serverPath + 'server-config.default.json'
 
-const dbSettings = yaml.parse(
-  fs.readFileSync(
-    fs.existsSync(dbDockerFile) ? dbDockerFile : defaultDbDockerFile,
-    {
-      encoding: 'utf8'
-    }
-  )
-)
-const ormSettings = JSON.parse(
-  fs.readFileSync(
-    fs.existsSync(ormConfigFile) ? ormConfigFile : defaultOrmConfigFile,
-    {
-      encoding: 'utf8'
-    }
-  )
-)
-const serverSettings = JSON.parse(
-  fs.readFileSync(
-    fs.existsSync(serverConfigFile)
-      ? serverConfigFile
-      : defaultServerConfigFile,
-    {
-      encoding: 'utf8'
-    }
-  )
+const defaultDbSettings = yaml.parse(
+  fs.readFileSync(defaultDbDockerFile, { encoding: 'utf8' })
 )
 
+const defaultOrmSettings = JSON.parse(
+  fs.readFileSync(defaultOrmConfigFile, { encoding: 'utf8' })
+)
+
+const defaultServerSettings = JSON.parse(
+  fs.readFileSync(defaultServerConfigFile, { encoding: 'utf8' })
+)
+
+const initialized =
+  fs.existsSync(dbDockerFile) ||
+  fs.existsSync(ormConfigFile) ||
+  fs.existsSync(serverConfigFile)
+
+let dbSettings = fs.existsSync(dbDockerFile)
+  ? yaml.parse(fs.readFileSync(dbDockerFile, { encoding: 'utf8' }))
+  : defaultDbSettings
+
+let ormSettings = fs.existsSync(ormConfigFile)
+  ? JSON.parse(fs.readFileSync(ormConfigFile, { encoding: 'utf8' }))
+  : defaultOrmSettings
+
+let serverSettings = fs.existsSync(serverConfigFile)
+  ? JSON.parse(fs.readFileSync(serverConfigFile, { encoding: 'utf8' }))
+  : defaultServerSettings
+
 const questions = [
+  {
+    type: initialized ? 'confirm' : null,
+    name: 'reset',
+    message: 'Do you want to reset all settings to defaults?',
+    initial: false
+  },
   // {
   //   type: 'number',
   //   name: 'clientPort',
@@ -51,13 +59,17 @@ const questions = [
     type: 'number',
     name: 'serverPort',
     message: 'Set port for server app',
-    initial: serverSettings.serverPort
+    initial: (prev, values) =>
+      values.reset
+        ? defaultServerSettings.serverPort
+        : serverSettings.serverPort
   },
   {
     type: 'number',
     name: 'databasePort',
-    message: 'Set port for database app',
-    initial: ormSettings.port
+    message: 'Set port for database',
+    initial: (prev, values) =>
+      values.reset ? defaultOrmSettings.port : ormSettings.port
   }
 ]
 
@@ -66,7 +78,13 @@ const questions = [
   const response = await prompts(questions)
   console.log(response)
 
-  let { /* clientPort, */ serverPort, databasePort } = response
+  let { /* clientPort, */ serverPort, databasePort, reset } = response
+
+  if (reset) {
+    serverSettings = defaultServerSettings
+    ormSettings = defaultOrmSettings
+    dbSettings = defaultDbSettings
+  }
 
   serverSettings.serverPort = serverPort
 

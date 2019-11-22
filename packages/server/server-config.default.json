@@ -1,4 +1,22 @@
 {
+  "blockTimeNotificationRatio": 2,
+  "emailHost": null,
+  "emailNotifications": false,
+  "emailPassword": null,
+  "emailPort": null,
+  "emailRecipient": null,
+  "emailUsername": null,
   "serverPort": 4000,
-  "webHooks": []
+  "webHooks": [],
+  "meta": {
+    "blockTimeNotificationRatio": "Multiplier of average block time at which to trigger notifications for node connection problems",
+    "emailHost": "Url of smtp server",
+    "emailNotifications": "Turn email notifications on or off",
+    "emailPassword": "Email server password",
+    "emailPort": "Email server port",
+    "emailRecipient": "Recipient of notification emails",
+    "emailUsername": "Email server username",
+    "serverPort": "Port used to run server app",
+    "webHooks": "Array of urls which should be pinged when notification event occurs"
+  }
 }

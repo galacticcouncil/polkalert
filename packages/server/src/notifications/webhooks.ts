@@ -8,6 +8,12 @@ function init(settings: Settings) {
     webHooks = new WebHooks({
       db: { webHooks: webHookStorage }
     })
+
+    let emitter = webHooks.getEmitter()
+    //emitter.on('*.success', function(shortname, statusCode, body) {})
+    emitter.on('*.failure', function(shortname, statusCode, body) {
+      console.error('Error on trigger webHook' + shortname, statusCode, body)
+    })
   }
 
   set(settings.webHooks)
@@ -19,20 +25,20 @@ function init(settings: Settings) {
 async function set(urlList: string[]) {
   webHookStorage.forEach(url => {
     if (!urlList.includes(url)) {
-      webHooks.add('webHooks', url)
+      webHooks.remove('webHooks', url)
     }
   })
   urlList.forEach(url => {
     if (!webHookStorage.includes(url)) {
-      webHooks.remove('webHooks', url)
+      webHooks.add('webHooks', url)
     }
   })
-  webHookStorage = urlList
+
   return
 }
 
 //TODO: figure out data format, i.e. - type:string, amount:number
-async function send(type, message) {
+async function send(type: string, message: string) {
   webHooks.trigger('webHooks', { type, message })
   return
 }

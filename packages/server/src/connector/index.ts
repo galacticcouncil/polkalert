@@ -11,6 +11,7 @@ import {
   SlashJournalEntry
 } from '@polkadot/types/interfaces'
 import notifications from '../notifications'
+import watcher from '../watcher'
 
 let maxHeaderBatch = 250
 let maxBlockHistory = 15000
@@ -149,6 +150,8 @@ async function subscribeEvents() {
 
 async function subscribeHeaders() {
   const unsubscribe = await api.rpc.chain.subscribeNewHeads(async header => {
+    watcher.ping()
+
     let hash = header.hash.toString()
     let number = header.number.toNumber()
     let missing = 0
@@ -160,6 +163,11 @@ async function subscribeHeaders() {
       firstSavedBlock.number = number
       firstSavedBlock.hash = hash
       firstSavedBlock.timestamp = enhancedHeader['timestamp']
+    } else {
+      watcher.setAverageBlockTime(
+        (lastSavedBlock.timestamp - firstSavedBlock.timestamp) /
+          (lastSavedBlock.number - firstSavedBlock.number)
+      )
     }
 
     missing = lastSavedBlock.number
@@ -170,7 +178,9 @@ async function subscribeHeaders() {
     lastSavedBlock.hash = hash
     lastSavedBlock.timestamp = enhancedHeader['timestamp']
 
-    //GET Missing blocks, TODO: this could make hole in the data if missing blocks are pruned
+    //GET Missing blocks, TODO: this could make hole in the data if missing
+    //blocks are pruned or server is turned off while getting missing blocks
+
     if (missing > 0) {
       console.log('missing', missing, 'headers')
       let missingHeaders = await getPreviousHeaders(
@@ -470,6 +480,7 @@ async function startDataService() {
   getHeaderDataHistory(currentSessionInfo)
 
   notifications.init()
+  watcher.init()
 
   await subscribeEvents()
   await subscribeHeaders()

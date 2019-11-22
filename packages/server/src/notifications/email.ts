@@ -29,16 +29,18 @@ function init(settings: Settings) {
   return
 }
 
-async function send(type, message) {
+async function send(type: string, message: string) {
   if (emailProvider) {
-    let info = await emailProvider.sendMail({
-      from: '"polkalert" <info@polkalert.com>',
-      to: recipient,
-      subject: type,
-      text: message
-    })
+    let info = await emailProvider
+      .sendMail({
+        from: '"polkalert" <info@polkalert.com>',
+        to: recipient,
+        subject: type,
+        text: message
+      })
+      .catch(e => console.log('failed to send email notification', e))
 
-    console.log('Email message sent: %s', info.messageId)
+    if (info) console.log('Email message sent:', info.messageId)
   }
 
   return

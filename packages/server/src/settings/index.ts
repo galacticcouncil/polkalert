@@ -1,9 +1,9 @@
 import { writeFileSync, existsSync, readFileSync } from 'fs'
 import EventEmitter from 'events'
 
-const configFile = './server-config.json'
+const configFile: string = './server-config.json'
 
-const config = existsSync(configFile)
+const config: Settings = existsSync(configFile)
   ? JSON.parse(readFileSync(configFile, { encoding: 'utf8' }))
   : null
 
@@ -12,6 +12,7 @@ if (!config) {
     'Server settings not initialized, please try running "yarn setup" command in the root directory'
   )
 }
+
 let change = new EventEmitter()
 let settings: Settings = Object.assign({}, config)
 
