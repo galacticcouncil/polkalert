@@ -80,11 +80,13 @@ async function connect() {
     specName: api.runtimeVersion.specName.toString(),
     specVersion: api.runtimeVersion.specVersion.toNumber(),
     ss58Format: properties.ss58Format
-      .unwrapOr(new U32(addressDefaults.prefix))
+      .unwrapOr(new U32(api.registry, addressDefaults.prefix))
       .toNumber(),
     systemName: name.toString(),
     systemVersion: version.toString(),
-    tokenDecimals: properties.tokenDecimals.unwrapOr(new U32(12)).toNumber(),
+    tokenDecimals: properties.tokenDecimals
+      .unwrapOr(new U32(api.registry, 12))
+      .toNumber(),
     tokenSymbol: properties.tokenSymbol.unwrapOr('DEV').toString()
   }
   console.log('Connected to:')
