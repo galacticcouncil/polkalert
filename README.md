@@ -1,4 +1,12 @@
-# Project setup
+# Polkalert
+
+Polkalert is an application that runs locally with the validator's Substrate node and provide monitoring and alerting when relevant events happen. Alerts can be customized as emails or programmatically registered through webhooks. Convenient frontend is provided for staking nad settings screen.
+
+Application stores blocks and their meta-data locally in a DB that it provides better performance and analysis of network events.
+
+Stack used: React frontend + Node.js backend (Typescript) + PostgreSQL
+
+## Project setup
 
 1.  Install [node.js](https://nodejs.org/en/)
 2.  Clone the repository
@@ -8,7 +16,7 @@
 6.  Run the `yarn setup` command to setup environment variables and default settings.
 7.  If you don't have docker, install docker and docker-compose `https://docs.docker.com/compose/install/`
 
-# Running the project
+## Running the project
 
 You can run the project via Terminal using the following commands:
 
@@ -22,7 +30,7 @@ You need all of the three parts: client, server and db running to run Polkalert
 
 5.  `yarn stop:db`: Stops db and resets docker interfaces if it doesn't stop automatically
 
-# Other Yarn scripts
+## Other Yarn scripts
 
 Besides the `start` script, there are other ones which can be used to work with the project. They are supposed to be run in Terminal, while being navigated to the root directory of the project. The available scripts are:
 
