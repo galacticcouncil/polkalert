@@ -26,6 +26,7 @@ export const typeDefs = gql`
   type Validator {
     accountId: String
     commissionData: [CommissionData]
+    currentValidator: Boolean
     blocksProducedCount: String
     blocksProduced: [Header]
     slashes: [String]
