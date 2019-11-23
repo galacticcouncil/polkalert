@@ -1,10 +1,12 @@
 # Polkalert
 
-Polkalert is an application that runs locally with the validator's Substrate node and provide monitoring and alerting when relevant events happen. Alerts can be customized as emails or programmatically registered through webhooks. Convenient frontend is provided for staking nad settings screen.
+Polkalert is an application that runs locally with validator's Substrate node and provides monitoring and alerting when relevant events happen. Alerts can be sent via email or programmatically registered through webhooks. Polkalert also provides a convenient GUI for staking info and settings.
 
-Application stores blocks and their meta-data locally in a DB that it provides better performance and analysis of network events.
+Application stores blocks and their meta-data locally in a DB for better performance and analysis of network events.
 
-Stack used: React frontend + Node.js backend (Typescript) + PostgreSQL
+Tech stack:
+- Client (frontend): React.js, TypeScript
+- Server (backend): Node.js, TypeScript, GraphQL, PostgreSQL
 
 ## Project setup
 
@@ -59,6 +61,6 @@ Besides the `start` script, there are other ones which can be used to work with 
 **DEV-IMPORTANT!** Make sure to:
 
 1.  Use [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) and have the `Editor: Format On Save` setting in VSCode turned on to keep the code consistent.
-2.  Always run pre-commit checks before commiting your code. If it won't pass, it won't be able to be built. More info about the checks can be found below.
+2.  Always run pre-commit checks before commiting your code. If the code won't pass the checks, it won't be able to be built.
 3.  Bump version with `yarn bump`
 4.  Check the other `README.md` files located in subfolders (if provided) for further info.
