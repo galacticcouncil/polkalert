@@ -82,7 +82,8 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
   let enhancedHeaders = headers.map((header, index) => {
     const timestamp = timestamps[index].toNumber()
     if (header) {
-      let hash = header.hash.toString()
+      const hash = header.hash.toString()
+      const author = header.author.toString()
       return { ...header, timestamp, hash }
     } else return null
   })
