@@ -84,7 +84,7 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
     if (header) {
       const hash = header.hash.toString()
       const author = header.author.toString()
-      return { ...header, timestamp, hash }
+      return { ...header, author, timestamp, hash }
     } else return null
   })
 
