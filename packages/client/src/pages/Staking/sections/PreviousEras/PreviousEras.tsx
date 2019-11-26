@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 // import { UiOptionType } from 'types'
 import { ValidatorInterface } from 'types'
 // import { Loading, Select } from 'ui'
-import { Loading, Tabs } from 'ui'
+import { Loading } from 'ui'
 import { ValidatorCard } from 'components'
 import { GetValidatorsQuery } from 'apollo/queries'
 import { apiSelector } from 'selectors'
@@ -52,11 +52,11 @@ const PreviousEras = () => {
               ...item,
               commissionData: item.commissionData?.length
                 ? item.commissionData.map(data => ({
-                    ...data,
-                    nominatorData: data.nominatorData
-                      ? JSON.parse(data.nominatorData)
-                      : {}
-                  }))
+                  ...data,
+                  nominatorData: data.nominatorData
+                    ? JSON.parse(data.nominatorData)
+                    : {}
+                }))
                 : [{}]
             }
 
