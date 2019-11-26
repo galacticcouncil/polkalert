@@ -14,6 +14,7 @@ export interface BlockInterface {
 export interface ValidatorInterface {
   accountId: string
   commissionData: CommissionDataInterface[]
+  currentValidator: boolean
   blocksProduced: BlockInterface[]
   slashes: string[]
   recentlyOnline: boolean

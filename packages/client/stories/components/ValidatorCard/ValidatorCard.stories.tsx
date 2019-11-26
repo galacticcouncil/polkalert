@@ -1,6 +1,6 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import { text, number } from '@storybook/addon-knobs'
+import { text, number, boolean } from '@storybook/addon-knobs'
 
 import { ValidatorCard } from 'components'
 
@@ -25,6 +25,7 @@ storiesOf('COMPONENTS|ValidatorCard', module).add('default', () => {
   const bondedFromNominatorsKnob = text('bondedFromNominators', '100', 'props')
   const commissionKnob = text('commission', '1.000', 'props')
   const nominatorsKnob = number('Nominators amount', 10, {})
+  const currentKnob = boolean('current', true, 'props')
 
   return (
     <div style={{ padding: '0 24px' }}>
@@ -40,6 +41,7 @@ storiesOf('COMPONENTS|ValidatorCard', module).add('default', () => {
           accountId: '5H1Dxuh2Ted6XUmAWfzeJvZWDFcNkrpCyQvV5yZafqnnd3V1',
           stake: '10'
         }))}
+        current={currentKnob}
         style={{ margin: '24px auto' }}
       />
     </div>

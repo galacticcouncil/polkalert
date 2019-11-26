@@ -10,6 +10,7 @@ type Props = {
   value: string
   size?: number
   whatIsCopied?: string
+  current?: boolean
   className?: string
   style?: CSS.Properties
 }
@@ -18,6 +19,7 @@ const Identicon = ({
   value,
   size = 48,
   whatIsCopied = 'Address',
+  current = true,
   className = '',
   style
 }: Props) => {
@@ -36,6 +38,7 @@ const Identicon = ({
           fullSize={size}
           theme="polkadot"
           onCopy={copyValue}
+          current={current}
         />
       </S.Wrapper>
       <Snackbar ref={snackbarRef} theme="success">

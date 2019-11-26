@@ -1,6 +1,6 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import { text, number } from '@storybook/addon-knobs'
+import { text, number, boolean } from '@storybook/addon-knobs'
 
 import { Identicon } from 'ui'
 
@@ -12,6 +12,7 @@ storiesOf('UI|Identicon', module).add('default', () => {
   )
   const sizeKnob = number('size', 48, {}, 'props')
   const whatIsCopiedKnob = text('whatIsCopied', 'Address', 'props')
+  const currentKnob = boolean('current', true, 'props')
 
   return (
     <div
@@ -26,6 +27,7 @@ storiesOf('UI|Identicon', module).add('default', () => {
         value={valueKnob}
         size={sizeKnob}
         whatIsCopied={whatIsCopiedKnob}
+        current={current}
       />
     </div>
   )

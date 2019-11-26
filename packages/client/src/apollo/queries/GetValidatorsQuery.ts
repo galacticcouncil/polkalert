@@ -11,6 +11,7 @@ export default gql`
         commission
         sessionId
       }
+      currentValidator
       blocksProduced {
         id
         blockHash
