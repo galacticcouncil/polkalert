@@ -30,7 +30,7 @@ const Tabs = ({ tabs, className = '', style }: Props) => {
           <S.Tab
             key={`tabs-link-${idx}`}
             to={item.href}
-            active={activeTab === idx}
+            active={activeTab === idx ? 1 : 0}
           >
             {item.text}
           </S.Tab>
