@@ -18,10 +18,9 @@ type Props = {
 const Tabs = ({ tabs, className = '', style }: Props) => {
   const { pathname } = useLocation()
   const [activeTab, setActiveTab] = useState<number>(0)
-  const activeRoute = pathname.split('/').pop()
 
   useEffect(() => {
-    setActiveTab(tabs.findIndex(item => item.href === activeRoute))
+    setActiveTab(tabs.findIndex(item => item.href === pathname))
   }, [pathname])
 
   return (
@@ -31,8 +30,7 @@ const Tabs = ({ tabs, className = '', style }: Props) => {
           <S.Tab
             key={`tabs-link-${idx}`}
             to={item.href}
-            activeClassName="active"
-            exact
+            active={activeTab === idx}
           >
             {item.text}
           </S.Tab>

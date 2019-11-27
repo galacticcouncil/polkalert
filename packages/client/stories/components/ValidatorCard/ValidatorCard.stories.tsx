@@ -24,6 +24,7 @@ storiesOf('COMPONENTS|ValidatorCard', module).add('default', () => {
   const bondedSelfKnob = text('bondedSelf', '500', 'props')
   const bondedFromNominatorsKnob = text('bondedFromNominators', '100', 'props')
   const commissionKnob = text('commission', '1.000', 'props')
+  const recentlyOnlineKnob = boolean('recentlyOnline', true, 'props')
   const nominatorsKnob = number('Nominators amount', 10, {})
   const currentKnob = boolean('current', true, 'props')
 
@@ -37,6 +38,7 @@ storiesOf('COMPONENTS|ValidatorCard', module).add('default', () => {
         bondedSelf={bondedSelfKnob}
         bondedFromNominators={bondedFromNominatorsKnob}
         commission={commissionKnob}
+        recentlyOnline={recentlyOnlineKnob}
         nominators={[...Array(nominatorsKnob)].map(_ => ({
           accountId: '5H1Dxuh2Ted6XUmAWfzeJvZWDFcNkrpCyQvV5yZafqnnd3V1',
           stake: '10'

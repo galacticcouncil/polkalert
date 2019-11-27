@@ -17,7 +17,7 @@ export const Inner = styled.div`
 export const Tab = styled(NavLink)`
   width: 156px;
   padding: 10px 25px;
-  color: ${Colors.Gray[100]};
+  color: ${p => (p.active ? Colors.Gray[400] : Colors.Gray[100])};
   font-size: 14px;
   font-weight: 700;
   line-height: 17px;
@@ -26,10 +26,6 @@ export const Tab = styled(NavLink)`
   position: relative;
   z-index: 100;
   display: block;
-
-  &.active {
-    color: ${Colors.Gray[400]};
-  }
 `
 
 export const ActiveTabBackground = styled.div`
