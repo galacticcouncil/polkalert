@@ -28,22 +28,26 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
     {
       name: 'Switch Node',
       icon: '/icons/refresh.svg',
-      href: '/'
+      href: '/',
+      exact: true
     },
     {
       name: 'Staking',
       icon: '/icons/safe.svg',
-      href: '/staking'
+      href: '/staking',
+      exact: false
     },
     {
       name: 'Contact',
       icon: '/icons/mail.svg',
-      href: '/contact'
+      href: '/contact',
+      exact: true
     },
     {
       name: 'Settings',
       icon: '/icons/settings.svg',
-      href: '/settings'
+      href: '/settings',
+      exact: true
     }
   ]
 
@@ -59,7 +63,7 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
                   key={`menuLink-${idx}`}
                   to={item.href}
                   activeClassName="active"
-                  exact
+                  exact={item.exact}
                 >
                   <SVG src={item.icon}>
                     <img src={item.icon} alt={item.href} />

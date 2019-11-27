@@ -27,6 +27,7 @@ type Props = {
   slashes?: string[]
   recentlyOnline?: boolean
   nominators?: Nominator[]
+  current?: boolean
   className?: string
   style?: CSS.Properties
 }
@@ -43,6 +44,7 @@ const ValidatorCard = ({
   slashes,
   recentlyOnline,
   nominators,
+  current = true,
   className = '',
   style
 }: Props) => {
@@ -64,24 +66,33 @@ const ValidatorCard = ({
   }
 
   return (
-    <S.Wrapper fluid className={className} style={style}>
+    <S.Wrapper fluid current={current} className={className} style={style}>
       <S.FirstLine>
         {stashId && (
           <S.Address big>
             <S.OnlineState>
               <S.OnlineStateIcon wasOnline={recentlyOnline}>
-                <SVG src={recentlyOnline ? '/icons/check.svg' : '/icons/close.svg'}>
+                <SVG
+                  src={recentlyOnline ? '/icons/check.svg' : '/icons/close.svg'}
+                >
                   <img
-                    src={recentlyOnline ? '/icons/check.svg' : '/icons/close.svg'}
+                    src={
+                      recentlyOnline ? '/icons/check.svg' : '/icons/close.svg'
+                    }
                     alt={recentlyOnline ? 'Online' : 'Offline'}
                   />
                 </SVG>
               </S.OnlineStateIcon>
               <S.OnlineStateText wasOnline={recentlyOnline}>
-                Reported {recentlyOnline ? 'online' : 'offline'} in the current session
+                Reported {recentlyOnline ? 'online' : 'offline'} in the current
+                session
               </S.OnlineStateText>
             </S.OnlineState>
-            <Identicon value={stashId} size={isDesktop ? 56 : 40} />
+            <Identicon
+              value={stashId}
+              size={isDesktop ? 56 : 40}
+              current={current}
+            />
             <span>
               <div>Validator (Stash)</div>
               <strong>{formatAddress(stashId)}</strong>
@@ -90,7 +101,7 @@ const ValidatorCard = ({
         )}
         {controllerId && (
           <S.Address>
-            <Identicon value={controllerId} size={40} />
+            <Identicon value={controllerId} size={40} current={current} />
             <span>
               <div>Controller</div>
               <strong>{formatAddress(controllerId)}</strong>
@@ -99,7 +110,7 @@ const ValidatorCard = ({
         )}
         {sessionId && (
           <S.Address>
-            <Identicon value={sessionId} size={40} />
+            <Identicon value={sessionId} size={40} current={current} />
             <span>
               <div>Session</div>
               <strong>{formatAddress(sessionId)}</strong>
@@ -123,7 +134,8 @@ const ValidatorCard = ({
           </div>
         )}
         <div>
-          Blocks produced in the last 24h:<span>{blocksProduced?.length || 0}</span>
+          Blocks produced in the last 24h:
+          <span>{blocksProduced?.length || 0}</span>
           {!!blocksProduced?.length && (
             <Button
               theme="outlineMini"
@@ -180,18 +192,14 @@ const ValidatorCard = ({
         <Modal onClose={hideBlocksModal}>
           Numbers of produced blocks:
           {blocksProduced.map((item, idx) => (
-            <S.Block key={`${stashId}-block-${idx}`}>
-              {item.id}
-            </S.Block>
+            <S.Block key={`${stashId}-block-${idx}`}>{item.id}</S.Block>
           ))}
         </Modal>
       )}
       {!!slashes?.length && slashesModalVisible && (
         <Modal onClose={hideSlashesModal}>
           {slashes.map((item, idx) => (
-            <S.Block key={`${stashId}-slash-${idx}`}>
-              {item}
-            </S.Block>
+            <S.Block key={`${stashId}-slash-${idx}`}>{item}</S.Block>
           ))}
         </Modal>
       )}

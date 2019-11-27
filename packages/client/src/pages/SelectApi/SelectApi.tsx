@@ -15,8 +15,8 @@ const SelectApi = () => {
   const dispatch = useDispatch()
 
   const options = [
-    'wss://poc3-rpc.polkadot.io/',
     'wss://kusama-rpc.polkadot.io/',
+    'wss://poc3-rpc.polkadot.io/',
     'wss://substrate-rpc.parity.io/',
     'ws://127.0.0.1:9944',
     'ws://127.0.0.1:9933',

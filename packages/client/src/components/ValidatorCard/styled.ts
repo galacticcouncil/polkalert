@@ -5,9 +5,14 @@ import { Card, Dropdown } from 'ui'
 import { Colors } from 'styles/variables'
 import { device } from 'styles/media'
 
-export const Wrapper = styled(Card)`
+export const Wrapper = styled(Card)<{
+  current: boolean
+}>`
+  ${p => !p.current && `--color: ${Colors.Gray[100]};`};
+
   padding: 16px;
   box-shadow: 0px 2px 16px ${transparentize(0.8, Colors.Black)};
+  opacity: ${p => !p.current && '0.5'};
 
   @media ${device.sm} {
     padding: 24px;
@@ -70,7 +75,7 @@ export const Address = styled.div<{
     }
 
     strong {
-      color: ${Colors.White};
+      color: var(--color, ${Colors.White});
       font-size: 14px;
       line-height: 17px;
     }
@@ -91,7 +96,10 @@ export const OnlineStateIcon = styled.div<{
 }>`
   width: 24px;
   height: 24px;
-  background: ${p => (p.wasOnline ? Colors.Success : Colors.Error)};
+  background: var(
+    --color,
+    ${p => (p.wasOnline ? Colors.Success : Colors.Error)}
+  );
   box-shadow: 0 0 5px ${transparentize(0.5, Colors.Black)};
   border-radius: 50%;
   display: flex;
@@ -121,7 +129,10 @@ export const OnlineStateText = styled.span<{
   wasOnline?: boolean
 }>`
   padding: 0 12px 0 28px;
-  background: ${p => (p.wasOnline ? Colors.Success : Colors.Error)};
+  background: var(
+    --color,
+    ${p => (p.wasOnline ? Colors.Success : Colors.Error)}
+  );
   border-radius: 50px;
   color: ${Colors.White};
   line-height: 24px;
@@ -146,8 +157,13 @@ export const SecondLine = styled.div`
 
     span {
       margin-left: 5px;
-      color: ${Colors.Primary};
+      color: var(--color, ${Colors.Primary});
       font-size: 18px;
+    }
+
+    button:hover {
+      color: var(--color, ${Colors.Primary});
+      border: 2px solid var(--color, ${Colors.Primary});
     }
   }
 `

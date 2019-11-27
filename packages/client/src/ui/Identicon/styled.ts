@@ -16,10 +16,12 @@ export const Icon = styled(Identicon)<{
   fullSize: number
   theme: string
   onCopy: () => void
+  current: boolean
 }>`
   padding: ${p => `${p.fullSize / 8}px`};
   background: ${transparentize(0.5, Colors.White)};
   border-radius: 50%;
+  filter: ${p => !p.current && 'grayscale(1)'};
 
   &:hover {
     background: ${transparentize(0.2, Colors.White)};

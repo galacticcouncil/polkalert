@@ -10,7 +10,6 @@ export const Header = styled.div`
   padding-bottom: 24px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
 
   @media ${device.lg} {
     padding-bottom: 88px;
