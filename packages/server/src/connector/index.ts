@@ -232,8 +232,6 @@ async function updateSessionInfo() {
     eraLength: derivedSessionInfo.eraLength.toNumber(),
     eraProgress: derivedSessionInfo.eraProgress.toNumber(),
     isEpoch: derivedSessionInfo.isEpoch,
-    lastEraLengthChange: derivedSessionInfo.lastEraLengthChange.toNumber(),
-    lastSessionLengthChange: derivedSessionInfo.lastLengthChange.toNumber(),
     sessionIndex: derivedSessionInfo.currentIndex.toNumber(),
     sessionLength: derivedSessionInfo.sessionLength.toNumber(),
     sessionProgress: derivedSessionInfo.sessionProgress.toNumber(),

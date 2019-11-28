@@ -3,8 +3,6 @@ declare type SessionInfo = {
   eraLength: number
   eraProgress: number
   isEpoch: boolean
-  lastEraLengthChange: number
-  lastSessionLengthChange: number
   sessionIndex: number
   sessionLength: number
   sessionProgress: number
