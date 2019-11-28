@@ -11,7 +11,7 @@ export const Wrapper = styled.div`
 
 export const NoWebHooks = styled.div`
   max-width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   color: ${Colors.Gray[100]};
 `
 
