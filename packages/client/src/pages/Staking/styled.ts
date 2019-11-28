@@ -12,7 +12,7 @@ export const Header = styled.div`
   align-items: center;
 
   @media ${device.lg} {
-    padding-bottom: 88px;
+    padding-bottom: 56px;
   }
 `
 

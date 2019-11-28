@@ -51,8 +51,11 @@ export const typeDefs = gql`
 
   type Settings {
     serverPort: Int
+    blockTimeNotificationRatio: Int
+    emailNotifications: Boolean
     emailPort: Int
     emailHost: String
+    emailRecipient: String
     emailUsername: String
     emailPassword: String
     webHooks: [String]

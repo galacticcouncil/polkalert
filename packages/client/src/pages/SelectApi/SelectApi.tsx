@@ -2,17 +2,20 @@ import React, { useContext, useState, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { useMutation } from '@apollo/react-hooks'
 
-import { UiOptionType, SnackbarType } from 'types'
+import { SelectionGroupOption, SnackbarType } from 'types'
 import { ConnectMutation } from 'apollo/mutations'
 import { NavigationContext } from 'contexts'
 import { setApiAction } from 'actions'
-import { useBooleanState } from 'hooks'
+import { useBooleanState, useLocalStorage } from 'hooks'
+import { LS_NODE_INFO } from 'constants/api'
 import { Loading, RadioGroup, Dropdown, Button, Snackbar } from 'ui'
 
 import * as S from './styled'
 
 const SelectApi = () => {
   const dispatch = useDispatch()
+
+  const [, SetLSNodeUrl, RemoveLSNodeUrl] = useLocalStorage(LS_NODE_INFO)
 
   const options = [
     'wss://kusama-rpc.polkadot.io/',
@@ -25,7 +28,7 @@ const SelectApi = () => {
   ]
 
   const { navigateTo } = useContext(NavigationContext)
-  const [apiUrl, setApiUrl] = useState<UiOptionType>(options[0])
+  const [apiUrl, setApiUrl] = useState<SelectionGroupOption>(options[0])
   const [customApiUrl, setCustomApiUrl] = useState<string>('wss://')
   const [loadingVisible, showLoading, hideLoading] = useBooleanState()
   const [connectMutation] = useMutation(ConnectMutation)
@@ -39,15 +42,18 @@ const SelectApi = () => {
 
     if (url === 'Demo') {
       dispatch(setApiAction({ loaded: true, demo: true }))
+      RemoveLSNodeUrl()
       navigateTo('/staking')
     } else {
       connectMutation({ variables: { nodeUrl: url } })
         .then(() => {
-          dispatch(setApiAction({ loaded: true }))
+          dispatch(setApiAction({ loaded: true, demo: false }))
+          SetLSNodeUrl(url)
           navigateTo('/staking')
         })
         .catch(() => {
           if (snackbarRef?.current) snackbarRef.current.open()
+          RemoveLSNodeUrl()
           hideLoading()
         })
     }
@@ -78,12 +84,7 @@ const SelectApi = () => {
             />
           </Dropdown>
         </S.Form>
-        <Button
-          condensed
-          text="Connect"
-          onClick={setApi}
-          style={{ width: '100%' }}
-        />
+        <Button text="Connect" onClick={setApi} style={{ width: '100%' }} />
       </S.Inner>
 
       <Snackbar ref={snackbarRef} theme="error">

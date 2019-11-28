@@ -22,7 +22,7 @@ const App = () => {
   useEffect(() => {
     if (!loading) {
       if (data?.nodeInfo?.chain) {
-        dispatch(setApiAction({ loaded: true }))
+        dispatch(setApiAction({ loaded: true, demo: false }))
 
         if (location.pathname === '/') history.push('/staking')
         setShouldRender(true)
@@ -47,7 +47,7 @@ const App = () => {
               <Route path="/" exact component={SelectApi} />
               <Route path="/staking" component={Staking} />
               <Route path="/contact" exact component={Contact} />
-              <Route path="/settings" exact component={Settings} />
+              <Route path="/settings" component={Settings} />
               <Redirect from="*" to="/" />
             </Switch>
           ) : (

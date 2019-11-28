@@ -2,16 +2,16 @@ import React from 'react'
 import _isEmpty from 'lodash/isEmpty'
 import CSS from 'csstype'
 
-import { UiOptionType } from 'types'
+import { SelectionGroupOption } from 'types'
 
 import * as S from './styled'
 
 type Props = {
   id: string
   label?: string
-  options: UiOptionType[]
-  value: UiOptionType
-  onChange: (option: UiOptionType) => void
+  options: SelectionGroupOption[]
+  value: SelectionGroupOption
+  onChange: (option: SelectionGroupOption) => void
   className?: string
   style?: CSS.Properties
 }
