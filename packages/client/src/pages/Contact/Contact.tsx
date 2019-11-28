@@ -55,7 +55,19 @@ const Contact = () => {
   return (
     <S.Wrapper>
       <S.Form onSubmit={handleFormSubmit}>
-        <PageTitle>Contact Us</PageTitle>
+        <PageTitle style={{ margin: '0' }}>Contact Us</PageTitle>
+        <S.Logo>
+          <span>Made by</span>
+          <a
+            href="https://zeeprime.capital/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <SVG src="/images/zeeprime.svg">
+              <img src="/images/zeeprime.svg" alt="ZeePrime" />
+            </SVG>
+          </a>
+        </S.Logo>
         <Input
           fluid
           required
@@ -83,18 +95,6 @@ const Contact = () => {
         />
         <Button fluid type="submit" text="Submit" />
       </S.Form>
-      <S.Logo>
-        Made by
-        <a
-          href="https://zeeprime.capital/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <SVG src="/images/zeeprime.svg">
-            <img src="/images/zeeprime.svg" alt="ZeePrime" />
-          </SVG>
-        </a>
-      </S.Logo>
 
       {errorModalVisible && (
         <Modal onClose={hideErrorModal}>
