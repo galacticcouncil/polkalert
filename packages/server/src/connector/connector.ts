@@ -32,7 +32,7 @@ async function disconnect() {
     provider = null
   }
 
-  if (provider) await provider.disconnect()
+  if (provider && provider.isConnected()) await provider.disconnect()
 
   api = null
   provider = null

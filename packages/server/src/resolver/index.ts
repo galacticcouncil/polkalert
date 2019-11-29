@@ -3,23 +3,6 @@ import connector from '../connector'
 import { Validator } from '../entity/Validator'
 import settings from '../settings'
 
-async function addSlashesToValidators(validators: Validator[]) {
-  let eraIndex = validators[0].commissionData[0].eraIndex
-  let [slashes0, slashes1] = await Promise.all([
-    connector.getEraSlashJournal(eraIndex),
-    connector.getEraSlashJournal(eraIndex - 1)
-  ])
-  let allSlashes = slashes0.concat(slashes1)
-
-  let validatorsWithSlashes = validators.map(validator => {
-    const slashes = allSlashes
-      .filter(slash => slash.who == validator.accountId)
-      .map(slash => slash.amount)
-    return { ...validator, slashes }
-  })
-  return validatorsWithSlashes
-}
-
 async function addCurrentEraInfoToValidators(validators: Validator[]) {
   const currentValidators = await connector.getValidators()
   const validatorsWithCurrentEraInfo = validators.map(validator => {
@@ -39,9 +22,8 @@ async function addCurrentEraInfoToValidators(validators: Validator[]) {
 
 async function getValidators() {
   const validators = await db.getValidators()
-  const validatorsWithSlashes = await addSlashesToValidators(validators)
   const validatorsWithOnlineStates = await connector.addDerivedHeartbeatsToValidators(
-    validatorsWithSlashes
+    validators
   )
   const validatorsWithCurrentEraInfo = await addCurrentEraInfoToValidators(
     validatorsWithOnlineStates

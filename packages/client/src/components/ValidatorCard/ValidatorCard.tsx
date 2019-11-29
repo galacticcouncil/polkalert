@@ -15,6 +15,11 @@ type Nominator = {
   stake: string
 }
 
+type Slash = {
+  amount: string
+  sessionIndex: number
+}
+
 type Props = {
   stashId?: string
   controllerId?: string
@@ -24,7 +29,7 @@ type Props = {
   bondedFromNominators?: string
   commission?: string
   blocksProduced?: BlockInterface[]
-  slashes?: string[]
+  slashes?: Slash[]
   recentlyOnline?: boolean
   nominators?: Nominator[]
   current?: boolean

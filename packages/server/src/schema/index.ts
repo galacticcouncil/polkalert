@@ -23,13 +23,19 @@ export const typeDefs = gql`
     validator: Validator
   }
 
+  type Slash {
+    id: String
+    amount: String
+    sessionIndex: String
+  }
+
   type Validator {
     accountId: String
     commissionData: [CommissionData]
     currentValidator: Boolean
     blocksProducedCount: String
     blocksProduced: [Header]
-    slashes: [String]
+    slashes: [Slash]
     recentlyOnline: Boolean
   }
 
