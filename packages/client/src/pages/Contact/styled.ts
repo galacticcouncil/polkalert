@@ -5,9 +5,6 @@ import { device } from 'styles/media'
 
 export const Wrapper = styled.div`
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 `
 
 export const Form = styled.form`
@@ -19,16 +16,11 @@ export const Form = styled.form`
 `
 
 export const Logo = styled.div`
-  margin-top: 56px;
+  margin: 24px 0 32px;
   color: ${Colors.Gray[100]};
   display: flex;
   align-self: center;
   align-items: center;
-
-  @media ${device.md} {
-    margin-top: 96px;
-    align-self: flex-end;
-  }
 
   a:hover path {
     fill: ${Colors.Primary};
