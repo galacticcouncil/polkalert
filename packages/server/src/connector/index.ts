@@ -64,9 +64,7 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
 
   let headers = await Promise.all(
     blockHashes.map(blockHash =>
-      api.derive.chain.getHeader(blockHash.toString()).catch(e => {
-        console.log('Error getting block', blockHash.toJSON())
-      })
+      api.derive.chain.getHeader(blockHash.toString())
     )
   )
 
@@ -82,75 +80,73 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
     )
   )
 
-  let enhancedHeaders = Promise.all(
+  let enhancedHeaders = await Promise.all(
     headers.map(async (header, index) => {
-      if (header) {
-        const eventWrapper = events[index]
-        const timestamp: number = timestamps[index].toNumber()
-        const number: number = header.number.toNumber()
-        const hash: string = header.hash.toString()
-        const author: string = header.author.toString()
-        let slashes = []
-        let rewards = []
-        let offences = []
-        let sessionInfo = null
+      if (!header) return null
 
-        for (const record of eventWrapper) {
-          const { event } = record
+      const eventWrapper = events[index]
+      const timestamp: number = timestamps[index].toNumber()
+      const number: number = header.number.toNumber()
+      const hash: string = header.hash.toString()
+      const author: string = header.author.toString()
+      let slashes = []
+      let rewards = []
+      let offences = []
+      let sessionInfo = null
 
-          if (event.method === 'NewSession') {
-            sessionInfo = {
-              sessionIndex: (
-                await api.query.session.currentIndex.at(hash)
-              ).toNumber(),
-              eraIndex: (await api.query.staking.currentEra.at(hash)).toNumber()
+      for (const record of eventWrapper) {
+        const { event } = record
+
+        if (event.method === 'NewSession') {
+          sessionInfo = {
+            sessionIndex: (
+              await api.query.session.currentIndex.at(hash)
+            ).toNumber(),
+            eraIndex: (await api.query.staking.currentEra.at(hash)).toNumber()
+          }
+          await db.bulkSave('Validator', await getValidators(hash))
+        }
+        if (event.method === 'Slash') {
+          slashes = [
+            ...slashes,
+            {
+              accountId: api.createType('AccountId', event.data[0]).toString(),
+              amount: formatBalance(api.createType('Balance', event.data[1]))
             }
-            await db.bulkSave('Validator', await getValidators(hash))
-          }
-          if (event.method === 'Slash') {
-            slashes = [
-              ...slashes,
-              {
-                accountId: api
-                  .createType('AccountId', event.data[0])
-                  .toString(),
-                amount: formatBalance(api.createType('Balance', event.data[1]))
-              }
-            ]
-          }
-          if (event.method === 'Reward') {
-            rewards = [
-              ...rewards,
-              {
-                amount: formatBalance(api.createType('Balance', event.data[0]))
-              }
-            ]
-          }
-          if (event.method === 'Offence') {
-            offences = [
-              ...offences,
-              {
-                kind: api.createType('Kind', event.data[0]).toString(),
-                timeSlot: api
-                  .createType('OpaqueTimeSlot', event.data[1])
-                  .toString()
-              }
-            ]
-          }
+          ]
         }
-
-        if (sessionInfo)
-          sessionInfo = { ...sessionInfo, rewards, offences, slashes }
-
-        return {
-          ...header,
-          author,
-          number,
-          hash,
-          timestamp,
-          sessionInfo
+        if (event.method === 'Reward') {
+          rewards = [
+            ...rewards,
+            {
+              amount: formatBalance(api.createType('Balance', event.data[0]))
+            }
+          ]
         }
-      } else return null
+        if (event.method === 'Offence') {
+          offences = [
+            ...offences,
+            {
+              kind: api.createType('Kind', event.data[0]).toString(),
+              timeSlot: api
+                .createType('OpaqueTimeSlot', event.data[1])
+                .toString()
+            }
+          ]
+        }
+      }
+
+      if (sessionInfo)
+        sessionInfo = { ...sessionInfo, rewards, offences, slashes }
+
+      return {
+        ...header,
+        author,
+        number,
+        hash,
+        timestamp,
+        sessionInfo
+      }
     })
   )
 
@@ -215,6 +211,7 @@ async function subscribeHeaders() {
     if (!firstSavedBlock.number) {
       firstSavedBlock = { number, hash, timestamp: enhancedHeader.timestamp }
     } else {
+      //Theres api for this
       watcher.setAverageBlockTime(
         (lastSavedBlock.timestamp - firstSavedBlock.timestamp) /
           (lastSavedBlock.number - firstSavedBlock.number)
@@ -228,7 +225,7 @@ async function subscribeHeaders() {
     lastSavedBlock = { number, hash, timestamp: enhancedHeader.timestamp }
 
     //GET Missing blocks, TODO: this could make hole in the data if missing
-    //blocks are pruned or server is turned off while getting missing blocks
+    //server is turned off while getting missing blocks
 
     if (missing > 0) {
       console.log('missing', missing, 'headers')
