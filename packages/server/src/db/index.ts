@@ -268,7 +268,7 @@ async function save(type: string, data) {
 async function bulkSave(type, data) {
   console.log('DB: bulk saving', data.length, type + 's')
   let performanceStart = performance.now()
-  for (const record in data) {
+  for (const record of data) {
     await save(type, record)
   }
 
