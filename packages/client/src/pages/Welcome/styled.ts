@@ -7,6 +7,7 @@ import { device } from 'styles/media'
 
 export const Wrapper = styled.div`
   min-height: 100%;
+  margin: 0 -16px;
   padding: 32px 0;
   background-size: 120%;
   display: flex;

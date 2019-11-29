@@ -97,7 +97,7 @@ const SelectApi = () => {
   return (
     <S.Wrapper>
       {loadingVisible && <Loading transparent />}
-      <Container style={{ padding: '0' }}>
+      <Container>
         <S.Inner>
           <S.Info>
             <h1>
