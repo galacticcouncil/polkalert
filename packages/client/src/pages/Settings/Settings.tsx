@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { useDidUpdate } from 'react-hooks-lib'
+import React, { useState, useEffect } from 'react'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 
 import { GetSettingsQuery } from 'apollo/queries'
@@ -18,12 +17,26 @@ const Settings = () => {
   const { data } = useQuery(GetSettingsQuery)
   const [updateSettingsMutation] = useMutation(UpdateSettingsMutation)
 
-  useDidUpdate(() => {
-    if (data.serverPort) setServerPort(data.serverPort)
-    if (data.emailPort) setEmailPort(data.emailPort)
-    if (data.emailHost) setEmailHost(data.emailHost)
-    if (data.emailUsername) setEmailUsername(data.emailUsername)
-    if (data.emailPassword) setEmailPassword(data.emailPassword)
+  useEffect(() => {
+    if (data?.settings?.serverPort) {
+      setServerPort(data.settings.serverPort.toString())
+    }
+
+    if (data?.settings?.emailPort) {
+      setEmailPort(data.settings.emailPort.toString())
+    }
+
+    if (data?.settings?.emailHost) {
+      setEmailHost(data.settings.emailHost)
+    }
+
+    if (data?.settings?.emailUsername) {
+      setEmailUsername(data.settings.emailUsername)
+    }
+
+    if (data?.settings?.emailPassword) {
+      setEmailPassword(data.settings.emailPassword)
+    }
   }, [data])
 
   const handleFormSubmit = () => {

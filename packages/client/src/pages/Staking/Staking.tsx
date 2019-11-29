@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { useDidUpdate } from 'react-hooks-lib'
+import React, { useState, useEffect } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { useQuery } from '@apollo/react-hooks'
 import { useSelector } from 'react-redux'
@@ -42,7 +41,7 @@ const Staking = ({ match }: Props) => {
 
   const { data } = api.demo ? (stakingDemo as QueryResult) : query
 
-  useDidUpdate(() => {
+  useEffect(() => {
     if (data?.validators?.length) {
       // TEMP SOLUTION, THE DATA STRUCTURE WILL CHANGE
       const validatorsFormatted = data.validators.map(item => ({
