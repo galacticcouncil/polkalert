@@ -14,14 +14,14 @@ type Props = {
 
 const EmailSettings = ({ data }: Props) => {
   const [loadingVisible, showLoading, hideLoading] = useBooleanState()
-  const [blockTimeNotificationRatio, setBlockTimeNotificationRatio] = useState<
-    string
-  >('')
   const [emailPort, setEmailPort] = useState<string>('')
   const [emailHost, setEmailHost] = useState<string>('')
   const [emailUsername, setEmailUsername] = useState<string>('')
   const [emailPassword, setEmailPassword] = useState<string>('')
   const [emailRecipient, setEmailRecipient] = useState<string>('')
+  const [blockTimeNotificationRatio, setBlockTimeNotificationRatio] = useState<
+    string
+  >('')
   const [emailNotifications, setEmailNotifications] = useState<boolean>(false)
   const snackbarRef = useRef<SnackbarType>(null)
   const [snackbarTheme, setSnackbarTheme] = useState<SnackbarThemeInterface>({
@@ -96,8 +96,6 @@ const EmailSettings = ({ data }: Props) => {
       })
   }
 
-  // TODO: checkbox for emailNotifications
-
   return (
     <S.Wrapper>
       {loadingVisible && <Loading transparent />}
@@ -134,7 +132,6 @@ const EmailSettings = ({ data }: Props) => {
         <Input
           fluid
           label="Email address of the recipient"
-          type="text"
           tooltip="The email address where the notifications should be delivered."
           value={emailRecipient}
           onChange={e => setEmailRecipient(e.target.value)}
@@ -142,7 +139,7 @@ const EmailSettings = ({ data }: Props) => {
         <Input
           fluid
           label="Block time notification ratio"
-          tooltip="How often you want to receive notifications. The time is calculated as ratio * averageBlockTime."
+          tooltip="How often you want to receive notifications. The time is calculated as averageBlockTime * ratio."
           value={blockTimeNotificationRatio}
           onChange={e =>
             setBlockTimeNotificationRatio(e.target.value.replace(/\D/, ''))

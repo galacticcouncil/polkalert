@@ -20,7 +20,7 @@ const SelectApi = () => {
   const dispatch = useDispatch()
 
   const api = useSelector(apiSelector)
-  const [LSNodeUrl, SetLSNodeUrl, RemoveLSNodeUrl] = useLocalStorage(
+  const [LSNodeUrl, setLSNodeUrl, removeLSNodeUrl] = useLocalStorage(
     LS_NODE_INFO
   )
 
@@ -69,7 +69,7 @@ const SelectApi = () => {
         text: 'Demo mode activated.',
         theme: 'success'
       })
-      RemoveLSNodeUrl()
+      removeLSNodeUrl()
       handleMutationResult(true, true)
     } else {
       connectMutation({ variables: { nodeUrl: url } })
@@ -78,7 +78,7 @@ const SelectApi = () => {
             text: `Successfully connected to ${url}.`,
             theme: 'success'
           })
-          SetLSNodeUrl(url)
+          setLSNodeUrl(url)
           handleMutationResult(true, false)
         })
         .catch(() => {
@@ -87,7 +87,7 @@ const SelectApi = () => {
               'Connection error! Please connect to a node before you continue using Polkalert.',
             theme: 'error'
           })
-          RemoveLSNodeUrl()
+          removeLSNodeUrl()
           handleMutationResult(false, false)
         })
     }
@@ -116,7 +116,7 @@ const SelectApi = () => {
           />
         </Dropdown>
       </S.Inner>
-      <Button text="Connect" onClick={setApi} style={{ width: '100%' }} />
+      <Button fluid text="Connect" onClick={setApi} />
 
       <Snackbar ref={snackbarRef} theme={snackbarTheme.theme}>
         {snackbarTheme.text}

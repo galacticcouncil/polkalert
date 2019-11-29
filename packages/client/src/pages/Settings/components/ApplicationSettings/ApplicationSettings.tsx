@@ -65,7 +65,7 @@ const EmailSettings = ({ data }: Props) => {
         <Input
           fluid
           label="Backend application port"
-          tooltip="The port on which you're running the Polkalert backend (default is 4000)."
+          tooltip="The port on which you're running Polkalert backend (default is 4000)."
           value={serverPort}
           onChange={e => setServerPort(e.target.value)}
         />

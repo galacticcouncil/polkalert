@@ -27,7 +27,7 @@ storiesOf('UI|Identicon', module).add('default', () => {
         value={valueKnob}
         size={sizeKnob}
         whatIsCopied={whatIsCopiedKnob}
-        current={current}
+        current={currentKnob}
       />
     </div>
   )
