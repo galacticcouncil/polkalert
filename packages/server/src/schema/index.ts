@@ -65,11 +65,13 @@ export const typeDefs = gql`
     connect(nodeUrl: String!): String
     updateSettings(
       serverPort: Int
+      blockTimeNotificationRatio: Int
+      emailNotifications: Boolean
       emailPort: Int
       emailHost: String
+      emailRecipient: String
       emailUsername: String
       emailPassword: String
-      emailRecipient: String
       webHooks: [String]
     ): String
   }
