@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import SVG from 'react-inlinesvg'
 import CSS from 'csstype'
 
-import { UiOptionType } from 'types'
+import { SelectionGroupOption } from 'types'
 import { useFocusTracker } from 'hooks'
 
 import * as S from './styled'
@@ -10,9 +10,9 @@ import * as S from './styled'
 type Props = {
   id: string
   fluid?: boolean
-  options: UiOptionType[]
-  value: UiOptionType
-  onChange: (option: UiOptionType) => void
+  options: SelectionGroupOption[]
+  value: SelectionGroupOption
+  onChange: (option: SelectionGroupOption) => void
   className?: string
   style?: CSS.Properties
 }

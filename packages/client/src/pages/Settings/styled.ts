@@ -2,10 +2,12 @@ import styled from 'styled-components'
 
 import { device } from 'styles/media'
 
-export const Wrapper = styled.div`
-  width: 100%;
+export const Wrapper = styled.div``
 
-  @media ${device.md} {
-    width: 400px;
-  }
+export const Header = styled.div`
+  padding-bottom: 56px;
+  display: flex;
+  align-items: center;
 `
+
+export const Content = styled.div``

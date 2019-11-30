@@ -1,0 +1,2 @@
+// Local Storage
+export const ONBOARDING_DONE = 'ONBOARDING/ONBOARDING_DONE'

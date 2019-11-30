@@ -14,6 +14,7 @@ type Props = {
   placeholder?: string
   value: string
   required?: boolean
+  tooltip?: string
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   className?: string
   style?: CSS.Properties
@@ -28,6 +29,7 @@ const Input = ({
   placeholder = '',
   value = '',
   required,
+  tooltip,
   onChange,
   className = '',
   style
@@ -41,7 +43,15 @@ const Input = ({
 
   return (
     <S.Wrapper fluid={fluid} className={className} style={style}>
-      {label && <S.Label>{label}</S.Label>}
+      <S.Label>
+        {tooltip && (
+          <S.Tooltip>
+            <div>?</div>
+            <span>{tooltip}</span>
+          </S.Tooltip>
+        )}
+        {label && <span>{label}</span>}
+      </S.Label>
       <S.InputWrapper invalid={invalid}>
         <S.Input
           name={name}
@@ -50,7 +60,9 @@ const Input = ({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          style={{ padding: type === 'password' ? '12px 4px 12px 14px' : '12px 14px' }}
+          style={{
+            padding: type === 'password' ? '12px 4px 12px 14px' : '12px 14px'
+          }}
         />
         {type === 'password' && (
           <S.VisibilityToggle onClick={() => setValueVisible(!valueVisible)}>

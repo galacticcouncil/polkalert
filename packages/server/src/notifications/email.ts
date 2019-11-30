@@ -25,6 +25,8 @@ function init(settings: Settings) {
         pass: settings.emailPassword
       }
     })
+
+    recipient = settings.emailRecipient
   }
   return
 }

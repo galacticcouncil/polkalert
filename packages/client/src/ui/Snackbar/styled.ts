@@ -40,6 +40,7 @@ export const Wrapper = styled.div<{
   max-width: 400px;
   padding: 12px 20px;
   border-radius: 6px;
+  text-align: center;
   transform: translateX(-50%) scale(1);
   animation: ${p =>
     !p.permanent &&
