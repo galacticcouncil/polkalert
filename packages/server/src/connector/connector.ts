@@ -59,7 +59,12 @@ async function connect() {
   console.log('creating api')
 
   // BUG API Promise doesn't finish if provider crashes on connection
-  api = await ApiPromise.create({ provider })
+  api = await ApiPromise.create({ provider }).catch(e => {
+    console.log(e)
+    return null
+  })
+
+  if (!api) return null
 
   let [properties, chain, name, version] = await Promise.all([
     api.rpc.system.properties(),

@@ -56,17 +56,22 @@ export const typeDefs = gql`
   }
 
   type Settings {
+    blockReceivedLagNotificationDelay: Int
+    noBlocksReceivedNotificationDelay: Int
     serverPort: Int
     emailPort: Int
     emailHost: String
     emailUsername: String
     emailPassword: String
+    emailRecipient: String
     webHooks: [String]
   }
 
   type Mutation {
     connect(nodeUrl: String!): String
     updateSettings(
+      blockReceivedLagNotificationDelay: Int
+      noBlocksReceivedNotificationDelay: Int
       serverPort: Int
       emailPort: Int
       emailHost: String

@@ -14,7 +14,6 @@ let maxBlockHistory = 15000
 
 let api: ApiPromise = null
 let sessionInfo: SessionInfo = null
-let eraIndex: number = null
 let firstSavedBlock: BlockInfo = null
 let lastSavedBlock: BlockInfo = null
 
@@ -169,7 +168,7 @@ async function subscribeEvents() {
       const { event } = record
 
       if (event.method === 'Reward') {
-        console.log('Era #', eraIndex, ' ended')
+        console.log('Session #', sessionInfo.sessionIndex, ' ended')
         console.log(
           'validators were rewarded:',
           formatBalance(api.createType('Balance', event.data[0]))
@@ -199,24 +198,16 @@ async function subscribeEvents() {
 
 async function subscribeHeaders() {
   const unsubscribe = await api.rpc.chain.subscribeNewHeads(async header => {
-    watcher.ping()
-
     let hash = header.hash.toString()
     let number = header.number.toNumber()
     let missing = 0
     let enhancedHeader = (await getBlockHeaders([number]))[0]
+    watcher.ping(enhancedHeader.timestamp)
 
     console.log('new header #:', number, 'with hash:', hash)
 
-    if (!firstSavedBlock.number) {
+    if (!firstSavedBlock.number)
       firstSavedBlock = { number, hash, timestamp: enhancedHeader.timestamp }
-    } else {
-      //Theres api for this
-      watcher.setAverageBlockTime(
-        (lastSavedBlock.timestamp - firstSavedBlock.timestamp) /
-          (lastSavedBlock.number - firstSavedBlock.number)
-      )
-    }
 
     missing = lastSavedBlock.number
       ? number - lastSavedBlock.number - 1
@@ -257,7 +248,7 @@ async function getValidators(at?: string) {
   console.log('getting validators for', at ? 'block ' + at : 'current era')
 
   const validators = at
-    ? await api.query.session.validators.at(at).catch()
+    ? await api.query.session.validators.at(at)
     : await api.query.session.validators()
 
   const validatorInfo = await getDerivedStaking(validators)
@@ -285,11 +276,6 @@ async function updateSessionInfo() {
     sessionLength: derivedSessionInfo.sessionLength.toNumber(),
     sessionProgress: derivedSessionInfo.sessionProgress.toNumber(),
     sessionsPerEra: derivedSessionInfo.sessionsPerEra.toNumber()
-  }
-
-  if (!eraIndex) eraIndex = sessionInfo.eraIndex
-  else if (eraIndex < sessionInfo.eraIndex) {
-    eraIndex = sessionInfo.eraIndex
   }
 
   console.log(sessionInfo)
