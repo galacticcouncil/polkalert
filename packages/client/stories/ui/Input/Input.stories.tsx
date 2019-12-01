@@ -13,6 +13,7 @@ storiesOf('UI|Input', module).add('default', () => {
   const fluidKnob = boolean('fluid', false, 'props')
   const labelKnob = text('label', 'Fancy input', 'props')
   const requiredKnob = boolean('required', false, 'props')
+  const tooltipKnob = text('tooltip', 'Fancy tooltip', 'props')
 
   return (
     <div style={{ padding: 24, display: 'flex', justifyContent: 'center' }}>
@@ -24,6 +25,7 @@ storiesOf('UI|Input', module).add('default', () => {
         placeholder={placeholderKnob}
         value={value}
         required={requiredKnob}
+        tooltip={tooltipKnob}
         onChange={e => setValue(e.target.value)}
       />
     </div>

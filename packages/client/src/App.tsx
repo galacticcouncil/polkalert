@@ -6,7 +6,7 @@ import { useQuery } from '@apollo/react-hooks'
 
 import { NavigationProvider } from 'contexts'
 import { DefaultLayout } from 'layouts'
-import { SelectApi, Staking, Contact, Settings } from 'pages'
+import { Welcome, Staking, Contact, Settings, Onboarding } from 'pages'
 import { Loading } from 'ui'
 import { setApiAction } from 'actions'
 import { GetNodeInfoQuery } from 'apollo/queries'
@@ -22,15 +22,13 @@ const App = () => {
   useEffect(() => {
     if (!loading) {
       if (data?.nodeInfo?.chain) {
-        dispatch(setApiAction({ loaded: true }))
-
+        dispatch(setApiAction({ loaded: true, demo: false }))
         if (location.pathname === '/') history.push('/staking')
         setShouldRender(true)
       } else {
         history.push('/')
         setShouldRender(true)
       }
-
       if (error) {
         history.push('/')
         setShouldRender(true)
@@ -44,10 +42,11 @@ const App = () => {
         <DefaultLayout>
           {shouldRender ? (
             <Switch>
-              <Route path="/" exact component={SelectApi} />
+              <Route path="/" exact component={Welcome} />
               <Route path="/staking" component={Staking} />
               <Route path="/contact" exact component={Contact} />
-              <Route path="/settings" exact component={Settings} />
+              <Route path="/settings" component={Settings} />
+              <Route path="/onboarding" component={Onboarding} />
               <Redirect from="*" to="/" />
             </Switch>
           ) : (

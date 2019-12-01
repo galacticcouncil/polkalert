@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components'
+import { transparentize } from 'polished'
 
 import { Colors } from 'styles/variables'
 import { device } from 'styles/media'
@@ -17,10 +18,12 @@ const loadingCircleAnimation = keyframes`
 
 export const Wrapper = styled.div<{
   apiLoaded: boolean
+  transparent: boolean
 }>`
   width: 100vw;
   height: ${p => (p.apiLoaded ? 'calc(100vh - 66px)' : '100vh')};
-  background: ${Colors.Gray[400]};
+  background: ${p =>
+    p.transparent ? transparentize(0.5, Colors.Gray[400]) : Colors.Gray[400]};
   position: fixed;
   bottom: 0;
   left: 0;

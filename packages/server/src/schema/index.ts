@@ -59,8 +59,11 @@ export const typeDefs = gql`
     blockReceivedLagNotificationDelay: Int
     noBlocksReceivedNotificationDelay: Int
     serverPort: Int
+    blockTimeNotificationRatio: Int
+    emailNotifications: Boolean
     emailPort: Int
     emailHost: String
+    emailRecipient: String
     emailUsername: String
     emailPassword: String
     emailRecipient: String
@@ -73,11 +76,13 @@ export const typeDefs = gql`
       blockReceivedLagNotificationDelay: Int
       noBlocksReceivedNotificationDelay: Int
       serverPort: Int
+      blockTimeNotificationRatio: Int
+      emailNotifications: Boolean
       emailPort: Int
       emailHost: String
+      emailRecipient: String
       emailUsername: String
       emailPassword: String
-      emailRecipient: String
       webHooks: [String]
     ): String
   }

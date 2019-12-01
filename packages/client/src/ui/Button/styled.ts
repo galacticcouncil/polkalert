@@ -1,14 +1,29 @@
-import styled, { css } from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 import { transparentize } from 'polished'
 import CSS from 'csstype'
 
 import { Colors } from 'styles/variables'
+
+const pulsingAnim = keyframes`
+  90% {
+    transform: scale(1);
+  }
+
+  95% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+`
 
 export const Wrapper = styled.button<{
   fluid?: boolean
   theme: string
   disabled?: boolean
   condensed?: boolean
+  pulsing?: boolean
   onClick: () => void
   className?: string
   style?: CSS.Properties
@@ -23,6 +38,11 @@ export const Wrapper = styled.button<{
   font-weight: 700;
   line-height: 17px;
   transition: all 0.2s linear;
+  animation: ${p =>
+    p.pulsing &&
+    css`
+      ${pulsingAnim} 5s ease infinite
+    `};
 
   &:hover {
     border: 3px solid ${transparentize(0.4, Colors.Gray[400])};
@@ -70,6 +90,15 @@ export const Wrapper = styled.button<{
           &:hover {
             border: 2px solid ${Colors.Primary};
             color: ${Colors.Primary};
+          }
+        `
+
+      case 'transparent':
+        return css`
+          color: ${Colors.Gray[100]};
+
+          &:hover {
+            border: 3px solid ${Colors.Gray[200]};
           }
         `
     }

@@ -17,6 +17,45 @@ export const Wrapper = styled.div<{
 
 export const Label = styled.div`
   margin-bottom: 12px;
+  display: flex;
+`
+
+export const Tooltip = styled.div`
+  width: 15px;
+  height: 15px;
+  margin-right: 10px;
+  border-radius: 50%;
+  border: 2px solid ${Colors.Primary};
+  color: ${Colors.Primary};
+  font-size: 10px;
+  position: relative;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+
+  &:hover span {
+    opacity: 1;
+  }
+
+  span {
+    width: 264px;
+    padding: 8px 12px;
+    background: ${Colors.Black};
+    border-radius: 8px;
+    box-shadow: 1px 2px 3px ${transparentize(0.6, Colors.Black)};
+    color: ${Colors.White};
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    position: absolute;
+    top: -8px;
+    left: calc(100% + 8px);
+    pointer-events: none;
+  }
 `
 
 export const InputWrapper = styled.div<{
