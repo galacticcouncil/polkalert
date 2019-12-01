@@ -20,6 +20,11 @@ export interface ValidatorInterface {
   recentlyOnline: boolean
 }
 
+export type Slash = {
+  amount: string
+  sessionIndex: number
+}
+
 // TEMP SOLUTION
 export interface NominatorFormattedInterface {
   accountId: string
@@ -45,6 +50,6 @@ export interface ValidatorFormattedInterface {
   commissionData: CommissionDataFormattedInterface[]
   currentValidator: boolean
   blocksProduced: BlockInterface[]
-  slashes: string[]
+  slashes: Slash[]
   recentlyOnline: boolean
 }

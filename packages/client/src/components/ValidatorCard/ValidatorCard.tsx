@@ -2,7 +2,7 @@ import React from 'react'
 import SVG from 'react-inlinesvg'
 import CSS from 'csstype'
 
-import { BlockInterface } from 'types'
+import { BlockInterface, Slash } from 'types'
 import { Identicon, Button, Modal } from 'ui'
 import { formatAddress } from 'utils'
 import { useMediaQuery, useBooleanState } from 'hooks'
@@ -13,11 +13,6 @@ import * as S from './styled'
 type Nominator = {
   accountId: string
   stake: string
-}
-
-type Slash = {
-  amount: string
-  sessionIndex: number
 }
 
 type Props = {
