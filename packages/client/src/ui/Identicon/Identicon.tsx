@@ -26,7 +26,7 @@ const Identicon = ({
   const snackbarRef = useRef<SnackbarType>(null)
 
   const copyValue = () => {
-    if (snackbarRef && snackbarRef.current) snackbarRef.current.open()
+    if (snackbarRef?.current) snackbarRef.current.open()
   }
 
   return (

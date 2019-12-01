@@ -2,6 +2,7 @@ import React, { forwardRef, useImperativeHandle } from 'react'
 import { createPortal } from 'react-dom'
 import CSS from 'csstype'
 
+import { SnackbarThemeType } from 'types'
 import { useBooleanState } from 'hooks'
 
 import * as S from './styled'
@@ -21,14 +22,12 @@ export const SnackbarThemes = [
   'blue'
 ] as const
 
-type Theme = typeof SnackbarThemes[number]
-
 type Handles = {
   open: () => void
 }
 
 type Props = {
-  theme?: Theme
+  theme?: SnackbarThemeType
   lifetime?: number
   permanent?: boolean
   children?: React.ReactNode[] | React.ReactNode | string

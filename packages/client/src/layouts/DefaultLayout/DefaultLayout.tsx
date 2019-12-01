@@ -26,12 +26,6 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
 
   const links = [
     {
-      name: 'Switch Node',
-      icon: '/icons/refresh.svg',
-      href: '/',
-      exact: true
-    },
-    {
       name: 'Staking',
       icon: '/icons/safe.svg',
       href: '/staking',
@@ -47,7 +41,7 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
       name: 'Settings',
       icon: '/icons/settings.svg',
       href: '/settings',
-      exact: true
+      exact: false
     }
   ]
 
@@ -56,7 +50,10 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
       {(forceShowSidebar || api.loaded) &&
         (isDesktop ? (
           <S.Sidebar>
-            <S.Logo src="/images/logo.svg" onClick={() => navigateTo('/')} />
+            <S.Logo
+              src="/images/logo.svg"
+              onClick={() => navigateTo('/staking')}
+            />
             <nav>
               {links.map((item, idx) => (
                 <S.MenuLink

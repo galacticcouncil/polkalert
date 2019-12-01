@@ -23,7 +23,8 @@ export const Sidebar = styled.div`
 `
 
 export const Logo = styled.img`
-  max-width: 110px;
+  width: 110px;
+  height: auto;
   position: absolute;
   top: 56px;
   left: 15px;

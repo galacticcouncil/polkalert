@@ -9,7 +9,8 @@ export const ButtonThemes = [
   'primary',
   'error',
   'outline',
-  'outlineMini'
+  'outlineMini',
+  'transparent'
 ] as const
 
 type ButtonType = 'button' | 'submit' | 'reset' | undefined
@@ -23,6 +24,7 @@ type Props = {
   disabled?: boolean
   condensed?: boolean
   text: string
+  pulsing?: boolean
   onClick?: () => void
   className?: string
   style?: CSS.Properties
@@ -35,6 +37,7 @@ const Button = ({
   disabled,
   condensed,
   text,
+  pulsing,
   onClick,
   className = '',
   style
@@ -45,6 +48,7 @@ const Button = ({
     theme={ButtonThemes.includes(theme) ? theme : 'primary'}
     disabled={disabled}
     condensed={condensed}
+    pulsing={pulsing}
     onClick={onClick || NOOP}
     className={className}
     style={style}

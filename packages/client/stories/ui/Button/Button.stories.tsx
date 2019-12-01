@@ -5,10 +5,11 @@ import { boolean, select, text } from '@storybook/addon-knobs'
 import { Button, ButtonThemes } from 'ui'
 
 storiesOf('UI|Button', module).add('default', () => {
-  const fluidKnob = boolean('Fluid', false, 'props')
-  const disabledKnob = boolean('Disabled', false, 'props')
-  const themeKnob = select('Theme', ButtonThemes, 'primary', 'props')
-  const condensedKnob = boolean('Condensed', false, 'props')
+  const fluidKnob = boolean('fluid', false, 'props')
+  const disabledKnob = boolean('disabled', false, 'props')
+  const themeKnob = select('theme', ButtonThemes, 'primary', 'props')
+  const condensedKnob = boolean('condensed', false, 'props')
+  const pulsingKnob = boolean('pulsing', false, 'props')
   const textKnob = text('Text', 'Button', 'props')
 
   return (
@@ -18,6 +19,7 @@ storiesOf('UI|Button', module).add('default', () => {
         disabled={disabledKnob}
         theme={themeKnob}
         condensed={condensedKnob}
+        pulsing={pulsingKnob}
         text={textKnob}
       />
     </div>

@@ -1,4 +1,5 @@
+export { default as Welcome } from './Welcome'
 export { default as Staking } from './Staking'
-export { default as SelectApi } from './SelectApi'
 export { default as Contact } from './Contact'
 export { default as Settings } from './Settings'
+export { default as Onboarding } from './Onboarding'
