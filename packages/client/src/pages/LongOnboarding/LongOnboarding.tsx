@@ -10,7 +10,7 @@ import { Loading, Input, Checkbox, Button, Modal } from 'ui'
 
 import * as S from './styled'
 
-const Onboarding = () => {
+const LongOnboarding = () => {
   const dispatch = useDispatch()
 
   const { navigateTo } = useContext(NavigationContext)
@@ -238,4 +238,4 @@ const Onboarding = () => {
   )
 }
 
-export default Onboarding
+export default LongOnboarding
