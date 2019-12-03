@@ -1,6 +1,13 @@
-import { Entity, Column, OneToMany, PrimaryColumn, ManyToOne } from 'typeorm'
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToOne
+} from 'typeorm'
 import { Validator } from './Validator'
-import { Era } from './Era'
+import { SessionInfo } from './SessionInfo'
 
 @Entity()
 export class Header {
@@ -10,12 +17,19 @@ export class Header {
   @Column()
   blockHash: string
 
+  @OneToOne(
+    type => SessionInfo,
+    sessionInfo => sessionInfo.header
+  )
+  @JoinColumn()
+  sessionInfo: SessionInfo
+
   @Column({ type: 'bigint' })
   timestamp: number
 
-  @ManyToOne(type => Validator, validator => validator.blocksProduced)
+  @ManyToOne(
+    type => Validator,
+    validator => validator.blocksProduced
+  )
   validator: Validator
-
-  @ManyToOne(type => Era, era => era.blockHeaders)
-  era: Era
 }
