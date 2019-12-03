@@ -26,7 +26,7 @@ function init() {
 function getTimeoutMessage() {
   return (
     "node didn't receive blocks for " +
-    noBlocksReceivedNotificationDelay +
+    noBlocksReceivedNotificationDelay / 1000 +
     'seconds, check your connection.\n' +
     'If you think this message is false alarm,' +
     'check your settings'
