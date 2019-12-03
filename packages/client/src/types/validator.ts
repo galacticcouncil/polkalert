@@ -20,7 +20,7 @@ export interface ValidatorInterface {
   recentlyOnline: boolean
 }
 
-export type Slash = {
+export interface SlashInterface {
   amount: string
   sessionIndex: number
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import SVG from 'react-inlinesvg'
 import CSS from 'csstype'
 
-import { BlockInterface, Slash } from 'types'
+import { BlockInterface, SlashInterface } from 'types'
 import { Identicon, Button, Modal } from 'ui'
 import { formatAddress } from 'utils'
 import { useMediaQuery, useBooleanState } from 'hooks'
@@ -24,7 +24,7 @@ type Props = {
   bondedFromNominators?: string
   commission?: string
   blocksProduced?: BlockInterface[]
-  slashes?: Slash[]
+  slashes?: SlashInterface[]
   recentlyOnline?: boolean
   nominators?: Nominator[]
   current?: boolean
