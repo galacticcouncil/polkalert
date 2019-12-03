@@ -50,6 +50,6 @@ export interface ValidatorFormattedInterface {
   commissionData: CommissionDataFormattedInterface[]
   currentValidator: boolean
   blocksProduced: BlockInterface[]
-  slashes: Slash[]
+  slashes: SlashInterface[]
   recentlyOnline: boolean
 }

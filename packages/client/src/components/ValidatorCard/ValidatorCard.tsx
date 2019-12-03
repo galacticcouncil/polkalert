@@ -199,7 +199,9 @@ const ValidatorCard = ({
       {!!slashes?.length && slashesModalVisible && (
         <Modal onClose={hideSlashesModal}>
           {slashes.map((item, idx) => (
-            <S.Block key={`${stashId}-slash-${idx}`}>{item}</S.Block>
+            <S.Block key={`${stashId}-slash-${idx}`}>
+              Amount: {item.amount}, Session: {item.sessionIndex}
+            </S.Block>
           ))}
         </Modal>
       )}
