@@ -2,7 +2,7 @@ import React from 'react'
 import SVG from 'react-inlinesvg'
 import CSS from 'csstype'
 
-import { BlockInterface } from 'types'
+import { BlockInterface, SlashInterface } from 'types'
 import { Identicon, Button, Modal } from 'ui'
 import { formatAddress } from 'utils'
 import { useMediaQuery, useBooleanState } from 'hooks'
@@ -24,7 +24,7 @@ type Props = {
   bondedFromNominators?: string
   commission?: string
   blocksProduced?: BlockInterface[]
-  slashes?: string[]
+  slashes?: SlashInterface[]
   recentlyOnline?: boolean
   nominators?: Nominator[]
   current?: boolean
@@ -199,7 +199,9 @@ const ValidatorCard = ({
       {!!slashes?.length && slashesModalVisible && (
         <Modal onClose={hideSlashesModal}>
           {slashes.map((item, idx) => (
-            <S.Block key={`${stashId}-slash-${idx}`}>{item}</S.Block>
+            <S.Block key={`${stashId}-slash-${idx}`}>
+              Amount: {item.amount}, Session: {item.sessionIndex}
+            </S.Block>
           ))}
         </Modal>
       )}

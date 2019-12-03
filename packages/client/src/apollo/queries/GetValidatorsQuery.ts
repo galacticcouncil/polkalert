@@ -16,7 +16,10 @@ export default gql`
         id
         blockHash
       }
-      slashes
+      slashes {
+        amount
+        sessionIndex
+      }
       recentlyOnline
     }
   }

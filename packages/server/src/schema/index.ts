@@ -23,13 +23,19 @@ export const typeDefs = gql`
     validator: Validator
   }
 
+  type Slash {
+    id: String
+    amount: String
+    sessionIndex: String
+  }
+
   type Validator {
     accountId: String
     commissionData: [CommissionData]
     currentValidator: Boolean
     blocksProducedCount: String
     blocksProduced: [Header]
-    slashes: [String]
+    slashes: [Slash]
     recentlyOnline: Boolean
   }
 
@@ -50,6 +56,8 @@ export const typeDefs = gql`
   }
 
   type Settings {
+    blockReceivedLagNotificationDelay: Int
+    noBlocksReceivedNotificationDelay: Int
     serverPort: Int
     blockTimeNotificationRatio: Int
     emailNotifications: Boolean
@@ -58,12 +66,15 @@ export const typeDefs = gql`
     emailRecipient: String
     emailUsername: String
     emailPassword: String
+    emailRecipient: String
     webHooks: [String]
   }
 
   type Mutation {
     connect(nodeUrl: String!): String
     updateSettings(
+      blockReceivedLagNotificationDelay: Int
+      noBlocksReceivedNotificationDelay: Int
       serverPort: Int
       blockTimeNotificationRatio: Int
       emailNotifications: Boolean

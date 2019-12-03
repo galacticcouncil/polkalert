@@ -1,5 +1,11 @@
 import 'reflect-metadata'
-import { createConnection, Connection, EntityManager, LessThan } from 'typeorm'
+import {
+  createConnection,
+  Connection,
+  EntityManager,
+  LessThan,
+  getConnectionOptions
+} from 'typeorm'
 import { Header } from '../entity/Header'
 import { Validator } from '../entity/Validator'
 import { CommissionData } from '../entity/CommissionData'
@@ -8,7 +14,8 @@ import { performance } from 'perf_hooks'
 import { NodeInfoStorage } from '../entity/NodeInfoStorage'
 import * as moment from 'moment'
 import { AppVersion } from '../entity/AppVersion'
-import { DerivedStaking } from '@polkadot/api-derive/types'
+import { SessionInfo } from '../entity/SessionInfo'
+import { Slash } from '../entity/Slash'
 
 let connection: Connection = null
 let manager: EntityManager = null
@@ -54,16 +61,29 @@ async function getDataAge() {
     .humanize()
 }
 
-async function init() {
+async function init(reset = false) {
   if (connection) await disconnect()
+  let connectionOptions = await getConnectionOptions()
+
   connection =
-    (await createConnection().catch(error => console.log(error))) || null
+    (await createConnection({
+      ...connectionOptions,
+      synchronize: reset
+    }).catch(async error => {
+      if (error.code === '23502') {
+        reset = true
+      } else {
+        console.log(error)
+      }
+    })) || null
 
   if (!connection) {
-    console.log('Cannot create connection to database, retrying...')
-    console.log('Please make sure the database is running')
-    await new Promise(resolve => setTimeout(resolve, retryInterval))
-    await init()
+    if (!reset) {
+      console.log('Cannot create connection to database, retrying...')
+      console.log('Please make sure the database is running')
+      await new Promise(resolve => setTimeout(resolve, retryInterval))
+    }
+    await init(reset)
   } else {
     manager = connection.manager
 
@@ -118,7 +138,6 @@ async function removeComissionObject(data) {
     }
   })
 
-  //TODO look if transaction:true is needed
   await manager
     .remove(commissionData, {
       transaction: true
@@ -179,6 +198,15 @@ function createHeaderObject(data) {
   return header
 }
 
+function createSessionInfoEntity(data) {
+  const sessionInfo = new SessionInfo()
+  sessionInfo.eraIndex = data.eraIndex
+  sessionInfo.id = data.sessionIndex
+  sessionInfo.offences = data.offences
+  sessionInfo.rewards = data.rewards
+  return sessionInfo
+}
+
 async function save(type: string, data) {
   if (type === 'Validator') {
     let validator: Validator = await manager.findOne(
@@ -202,10 +230,32 @@ async function save(type: string, data) {
   }
 
   if (type === 'Header') {
-    const validator: Validator = await getValidator(normalizeHash(data.author))
     let header = await manager.findOne(Header, normalizeNumber(data.number))
 
-    if (!header) header = createHeaderObject(data)
+    if (header) return
+
+    const validator: Validator = await getValidator(normalizeHash(data.author))
+    header = createHeaderObject(data)
+
+    if (data.sessionInfo) {
+      const sessionInfo = createSessionInfoEntity(data.sessionInfo)
+      header.sessionInfo = sessionInfo
+      await manager.save(sessionInfo)
+
+      const slashes = data.sessionInfo.slashes
+      if (slashes && slashes.length) {
+        for (const slashData of slashes) {
+          const slash = new Slash()
+          slash.amount = slashData.amount
+          slash.sessionIndex = data.sessionInfo.sessionIndex
+          slash.validator = await getValidator(
+            normalizeHash(slashData.accountId)
+          )
+          slash.sessionInfo = sessionInfo
+          manager.save(slash)
+        }
+      }
+    }
 
     header.validator = validator
     await manager.save(header)
@@ -215,12 +265,11 @@ async function save(type: string, data) {
   throw new Error('Tried to save unknown entity')
 }
 
-async function bulkSave(type, data: DerivedStaking[] | Header[]) {
-  //TODO Make faster
+async function bulkSave(type, data) {
   console.log('DB: bulk saving', data.length, type + 's')
   let performanceStart = performance.now()
-  for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
-    await save(type, data[dataIndex])
+  for (const record of data) {
+    await save(type, record)
   }
 
   console.log(
@@ -249,13 +298,12 @@ async function getValidators() {
   console.log('DB: getting all validators')
   let performanceStart = performance.now()
   let allValidators: Validator[] = await manager.find(Validator, {
-    relations: ['commissionData', 'blocksProduced']
+    relations: ['commissionData', 'blocksProduced', 'slashes']
   })
 
-  //TODO look into performance with query countRelationAndMap
   allValidators = allValidators.map(validator => {
-    validator.blocksProducedCount = validator.blocksProduced.length
-    return validator
+    let blocksProducedCount = validator.blocksProduced.length
+    return { ...validator, blocksProducedCount }
   })
 
   console.log(

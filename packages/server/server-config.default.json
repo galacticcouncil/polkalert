@@ -1,5 +1,6 @@
 {
-  "blockTimeNotificationRatio": 2,
+  "blockReceivedLagNotificationDelay": 2,
+  "noBlocksReceivedNotificationDelay": 180,
   "emailHost": null,
   "emailNotifications": false,
   "emailPassword": null,
@@ -9,7 +10,8 @@
   "serverPort": 4000,
   "webHooks": [],
   "meta": {
-    "blockTimeNotificationRatio": "Multiplier of average block time at which to trigger notifications for node connection problems",
+    "blockReceivedLagNotificationDelay": "Delay after which notification for lagging network will be sent in seconds",
+    "noBlocksReceivedNotificationDelay": "Delay after which notification for no blocks received will be sent in seconds",
     "emailHost": "Url of smtp server",
     "emailNotifications": "Turn email notifications on or off",
     "emailPassword": "Email server password",
