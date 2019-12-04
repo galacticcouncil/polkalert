@@ -12,7 +12,7 @@
   "author": "",
   "devDependencies": {
     "@polkadot/ts": "^0.1.86",
-    "@polkadot/types": "0.98.0-beta.0",
+    "@polkadot/types": "^0.98.0-beta.6",
     "@types/node": "^12.7.11",
     "@types/nodemailer": "^6.2.2",
     "nodemon": "^1.19.3",
@@ -20,8 +20,8 @@
     "typescript": "^3.7.0"
   },
   "dependencies": {
-    "@polkadot/api": "0.98.0-beta.0",
-    "@polkadot/api-derive": "0.98.0-beta.0",
+    "@polkadot/api": "^0.98.0-beta.6",
+    "@polkadot/api-derive": "^0.98.0-beta.6",
     "apollo-server": "^2.9.5",
     "graphql": "^14.5.8",
     "levelup": "^4.3.2",

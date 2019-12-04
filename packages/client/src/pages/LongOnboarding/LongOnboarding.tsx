@@ -24,14 +24,11 @@ const LongOnboarding = () => {
   const [emailUsername, setEmailUsername] = useState<string>('')
   const [emailPassword, setEmailPassword] = useState<string>('')
   const [emailRecipient, setEmailRecipient] = useState<string>('')
-  const [blockTimeNotificationRatio, setBlockTimeNotificationRatio] = useState<
-    string
-  >('')
   const [emailNotifications, setEmailNotifications] = useState<boolean>(false)
 
   const [updateSettingsMutation] = useMutation(UpdateSettingsMutation)
 
-  const STEPS_AMOUNT = 7
+  const STEPS_AMOUNT = 6
 
   const handlePrev = () => {
     if (step > 0) setStep(step - 1)
@@ -51,7 +48,6 @@ const LongOnboarding = () => {
         emailUsername,
         emailPassword,
         emailRecipient,
-        blockTimeNotificationRatio: parseInt(blockTimeNotificationRatio),
         emailNotifications
       }
     })
@@ -154,21 +150,6 @@ const LongOnboarding = () => {
             label="Type the value into this input"
             value={emailRecipient}
             onChange={e => setEmailRecipient(e.target.value)}
-          />
-        </S.ScrollerItem>
-
-        <S.ScrollerItem>
-          <S.ScrollerItemName>Block time notification ratio</S.ScrollerItemName>
-          <S.ScrollerItemText>
-            How often you want to receive notifications. The time is calculated
-            as <code>averageBlockTime * ratio</code>.
-          </S.ScrollerItemText>
-          <Input
-            label="Type the value into this input"
-            value={blockTimeNotificationRatio}
-            onChange={e =>
-              setBlockTimeNotificationRatio(e.target.value.replace(/\D/, ''))
-            }
           />
         </S.ScrollerItem>
 

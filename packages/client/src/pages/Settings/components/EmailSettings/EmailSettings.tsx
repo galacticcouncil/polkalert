@@ -52,10 +52,6 @@ const EmailSettings = ({ data }: Props) => {
       setEmailRecipient(data.emailRecipient)
     }
 
-    if (data?.blockTimeNotificationRatio) {
-      setBlockTimeNotificationRatio(data.blockTimeNotificationRatio.toString())
-    }
-
     if (data?.emailNotifications) {
       setEmailNotifications(data.emailNotifications)
     }
@@ -76,7 +72,6 @@ const EmailSettings = ({ data }: Props) => {
         emailUsername,
         emailPassword,
         emailRecipient,
-        blockTimeNotificationRatio: parseInt(blockTimeNotificationRatio),
         emailNotifications
       }
     })
@@ -135,15 +130,6 @@ const EmailSettings = ({ data }: Props) => {
           tooltip="The email address where the notifications should be delivered."
           value={emailRecipient}
           onChange={e => setEmailRecipient(e.target.value)}
-        />
-        <Input
-          fluid
-          label="Block time notification ratio"
-          tooltip="How often you want to receive notifications. The time is calculated as averageBlockTime * ratio."
-          value={blockTimeNotificationRatio}
-          onChange={e =>
-            setBlockTimeNotificationRatio(e.target.value.replace(/\D/, ''))
-          }
         />
         <Checkbox
           label="I want to receive email notifications"

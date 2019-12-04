@@ -23,9 +23,6 @@ const ShortOnboarding = () => {
   const [emailUsername, setEmailUsername] = useState<string>('')
   const [emailPassword, setEmailPassword] = useState<string>('')
   const [emailRecipient, setEmailRecipient] = useState<string>('')
-  const [blockTimeNotificationRatio, setBlockTimeNotificationRatio] = useState<
-    string
-  >('')
   const [emailNotifications, setEmailNotifications] = useState<boolean>(false)
 
   const [updateSettingsMutation] = useMutation(UpdateSettingsMutation)
@@ -40,7 +37,6 @@ const ShortOnboarding = () => {
         emailUsername,
         emailPassword,
         emailRecipient,
-        blockTimeNotificationRatio: parseInt(blockTimeNotificationRatio),
         emailNotifications
       }
     })
@@ -105,15 +101,6 @@ const ShortOnboarding = () => {
             tooltip="The email address where the notifications should be delivered."
             value={emailRecipient}
             onChange={e => setEmailRecipient(e.target.value)}
-          />
-          <Input
-            fluid
-            label="Block time notification ratio"
-            tooltip="How often you want to receive notifications. The time is calculated as averageBlockTime * ratio."
-            value={blockTimeNotificationRatio}
-            onChange={e =>
-              setBlockTimeNotificationRatio(e.target.value.replace(/\D/, ''))
-            }
           />
           <Checkbox
             label="I want to receive email notifications"
