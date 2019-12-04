@@ -26,7 +26,7 @@ function set(options: Settings) {
 
   change.emit('change')
 
-  return 'success'
+  return settings
 }
 
 function get() {

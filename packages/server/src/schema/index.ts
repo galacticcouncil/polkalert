@@ -81,7 +81,7 @@ export const typeDefs = gql`
       emailUsername: String
       emailPassword: String
       webHooks: [String]
-    ): String
+    ): Settings
   }
 
   type Query {
