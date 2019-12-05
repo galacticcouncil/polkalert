@@ -31,11 +31,8 @@ const SelectApi = () => {
   )
 
   const options = [
-    'wss://kusama-rpc.polkadot.io/',
-    'wss://poc3-rpc.polkadot.io/',
-    'wss://substrate-rpc.parity.io/',
+    'wss://cc3-5.kusama.network/',
     'ws://127.0.0.1:9944',
-    'ws://127.0.0.1:9933',
     'Demo',
     'Custom'
   ]
@@ -158,10 +155,8 @@ const SelectApi = () => {
           <S.ModalText>
             This is the first time you&apos;re running Polkalert outside of the
             Demo mode. You have to <strong>set a few things up</strong> to get
-            the <strong>full functionality</strong>. We&apos;d like to walk you
-            through the setup. We won&apos;t ask you again, but you can always
-            tweak the Settings on your own. Do you want to go through the setup{' '}
-            <strong>now</strong>?
+            the <strong>full functionality</strong>. Do you want to go through
+            the setup <strong>now</strong>?
           </S.ModalText>
           <S.ModalActions>
             <Button

@@ -6,7 +6,7 @@ import { useQuery } from '@apollo/react-hooks'
 
 import { NavigationProvider } from 'contexts'
 import { DefaultLayout } from 'layouts'
-import { Welcome, Staking, Contact, Settings, Onboarding } from 'pages'
+import { Welcome, Staking, Contact, Settings, ShortOnboarding } from 'pages'
 import { Loading } from 'ui'
 import { setApiAction } from 'actions'
 import { GetNodeInfoQuery } from 'apollo/queries'
@@ -46,7 +46,7 @@ const App = () => {
               <Route path="/staking" component={Staking} />
               <Route path="/contact" exact component={Contact} />
               <Route path="/settings" component={Settings} />
-              <Route path="/onboarding" component={Onboarding} />
+              <Route path="/onboarding" component={ShortOnboarding} />
               <Redirect from="*" to="/" />
             </Switch>
           ) : (

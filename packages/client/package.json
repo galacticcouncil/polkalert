@@ -1,13 +1,13 @@
 {
   "name": "polkalert-client",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "",
   "scripts": {
     "dev": "webpack-dev-server --hot --config webpack.config.js --mode development",
     "build": "webpack -p --config webpack.config.js",
     "storybook": "start-storybook -s ./public -p 6006",
     "build-storybook": "build-storybook",
-    "precommit": "tsc && node node_modules/eslint/bin/eslint.js '**/*.ts?'"
+    "lint": "tsc && node node_modules/eslint/bin/eslint.js '**/*.ts?'"
   },
   "repository": {
     "type": "git",

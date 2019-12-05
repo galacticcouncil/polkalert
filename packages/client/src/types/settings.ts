@@ -1,6 +1,7 @@
 export interface SettingsInterface {
+  blockReceivedLagNotificationDelay: number
+  noBlocksReceivedNotificationDelay: number
   serverPort: number
-  blockTimeNotificationRatio: number
   emailNotifications: boolean
   emailPort: number
   emailHost: string

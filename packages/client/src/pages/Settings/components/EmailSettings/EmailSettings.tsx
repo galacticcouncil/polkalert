@@ -19,9 +19,14 @@ const EmailSettings = ({ data }: Props) => {
   const [emailUsername, setEmailUsername] = useState<string>('')
   const [emailPassword, setEmailPassword] = useState<string>('')
   const [emailRecipient, setEmailRecipient] = useState<string>('')
-  const [blockTimeNotificationRatio, setBlockTimeNotificationRatio] = useState<
-    string
-  >('')
+  const [
+    blockReceivedLagNotificationDelay,
+    setBlockReceivedLagNotificationDelay
+  ] = useState<string>('')
+  const [
+    noBlocksReceivedNotificationDelay,
+    setNoBlocksReceivedNotificationDelay
+  ] = useState<string>('')
   const [emailNotifications, setEmailNotifications] = useState<boolean>(false)
   const snackbarRef = useRef<SnackbarType>(null)
   const [snackbarTheme, setSnackbarTheme] = useState<SnackbarThemeInterface>({
@@ -32,6 +37,18 @@ const EmailSettings = ({ data }: Props) => {
   const [updateSettingsMutation] = useMutation(UpdateSettingsMutation)
 
   useEffect(() => {
+    if (data?.blockReceivedLagNotificationDelay) {
+      setBlockReceivedLagNotificationDelay(
+        data.blockReceivedLagNotificationDelay.toString()
+      )
+    }
+
+    if (data?.noBlocksReceivedNotificationDelay) {
+      setNoBlocksReceivedNotificationDelay(
+        data.noBlocksReceivedNotificationDelay.toString()
+      )
+    }
+
     if (data?.emailPort) {
       setEmailPort(data.emailPort.toString())
     }
@@ -52,10 +69,6 @@ const EmailSettings = ({ data }: Props) => {
       setEmailRecipient(data.emailRecipient)
     }
 
-    if (data?.blockTimeNotificationRatio) {
-      setBlockTimeNotificationRatio(data.blockTimeNotificationRatio.toString())
-    }
-
     if (data?.emailNotifications) {
       setEmailNotifications(data.emailNotifications)
     }
@@ -71,12 +84,17 @@ const EmailSettings = ({ data }: Props) => {
 
     updateSettingsMutation({
       variables: {
+        blockReceivedLagNotificationDelay: parseInt(
+          blockReceivedLagNotificationDelay
+        ),
+        noBlocksReceivedNotificationDelay: parseInt(
+          noBlocksReceivedNotificationDelay
+        ),
         emailPort: parseInt(emailPort),
         emailHost,
         emailUsername,
         emailPassword,
         emailRecipient,
-        blockTimeNotificationRatio: parseInt(blockTimeNotificationRatio),
         emailNotifications
       }
     })
@@ -100,6 +118,20 @@ const EmailSettings = ({ data }: Props) => {
     <S.Wrapper>
       {loadingVisible && <Loading transparent />}
       <S.Inner>
+        <Input
+          fluid
+          label="Notification delay for network lag"
+          tooltip="Delay after which a notification about lagging network will be sent (in seconds)."
+          value={blockReceivedLagNotificationDelay}
+          onChange={e => setBlockReceivedLagNotificationDelay(e.target.value)}
+        />
+        <Input
+          fluid
+          label="Notification delay for no blocks"
+          tooltip="Delay after which a notification about no blocks received will be sent (in seconds)."
+          value={noBlocksReceivedNotificationDelay}
+          onChange={e => setNoBlocksReceivedNotificationDelay(e.target.value)}
+        />
         <Input
           fluid
           label="Server URL for outgoing emails"
@@ -135,15 +167,6 @@ const EmailSettings = ({ data }: Props) => {
           tooltip="The email address where the notifications should be delivered."
           value={emailRecipient}
           onChange={e => setEmailRecipient(e.target.value)}
-        />
-        <Input
-          fluid
-          label="Block time notification ratio"
-          tooltip="How often you want to receive notifications. The time is calculated as averageBlockTime * ratio."
-          value={blockTimeNotificationRatio}
-          onChange={e =>
-            setBlockTimeNotificationRatio(e.target.value.replace(/\D/, ''))
-          }
         />
         <Checkbox
           label="I want to receive email notifications"
