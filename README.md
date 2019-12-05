@@ -5,6 +5,7 @@ Polkalert is an application that runs locally with validator's Substrate node an
 Application stores blocks and their meta-data locally in a DB for better performance and analysis of network events.
 
 Tech stack:
+
 - Client (frontend): React.js, TypeScript
 - Server (backend): Node.js, TypeScript, GraphQL, PostgreSQL
 
@@ -55,12 +56,12 @@ Besides the `start` script, there are other ones which can be used to work with 
 - `yarn storybook`: Runs Storybook (visual documentation of the client)
 
 - `yarn bump`: Updates project version. Do this before pushing
-- `yarn precommit`: Runs pre-commit checks on the whole project
-- `yarn precommit:client`: Runs pre-commit checks only on the client
+- `yarn lint`: Runs code checks on the whole project
+- `yarn lint:client`: Runs code checks only on the client
 
 **DEV-IMPORTANT!** Make sure to:
 
 1.  Use [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) and have the `Editor: Format On Save` setting in VSCode turned on to keep the code consistent.
-2.  Always run pre-commit checks before commiting your code. If the code won't pass the checks, it won't be able to be built.
+2.  Always run `yarn lint` before commiting your code. If the code won't pass the checks, it won't be able to be built.
 3.  Bump version with `yarn bump`
 4.  Check the other `README.md` files located in subfolders (if provided) for further info.

@@ -25,11 +25,8 @@ const SelectApi = () => {
   )
 
   const options = [
-    'wss://kusama-rpc.polkadot.io/',
-    'wss://poc3-rpc.polkadot.io/',
-    'wss://substrate-rpc.parity.io/',
+    'wss://cc3-5.kusama.network/',
     'ws://127.0.0.1:9944',
-    'ws://127.0.0.1:9933',
     'Demo',
     'Custom'
   ]

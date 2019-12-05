@@ -18,6 +18,14 @@ const ShortOnboarding = () => {
   const [successModalVisible, showSuccessModal] = useBooleanState()
   const [errorModalVisible, showErrorModal, hideErrorModal] = useBooleanState()
 
+  const [
+    blockReceivedLagNotificationDelay,
+    setBlockReceivedLagNotificationDelay
+  ] = useState<string>('')
+  const [
+    noBlocksReceivedNotificationDelay,
+    setNoBlocksReceivedNotificationDelay
+  ] = useState<string>('')
   const [emailPort, setEmailPort] = useState<string>('')
   const [emailHost, setEmailHost] = useState<string>('')
   const [emailUsername, setEmailUsername] = useState<string>('')
@@ -32,6 +40,12 @@ const ShortOnboarding = () => {
 
     updateSettingsMutation({
       variables: {
+        blockReceivedLagNotificationDelay: parseInt(
+          blockReceivedLagNotificationDelay
+        ),
+        noBlocksReceivedNotificationDelay: parseInt(
+          noBlocksReceivedNotificationDelay
+        ),
         emailPort: parseInt(emailPort),
         emailHost,
         emailUsername,
@@ -66,6 +80,20 @@ const ShortOnboarding = () => {
       <S.Inner>
         <S.Form>
           <PageTitle>Email notifications setup</PageTitle>
+          <Input
+            fluid
+            label="Notification delay for network lag"
+            tooltip="Delay after which a notification about lagging network will be sent (in seconds)."
+            value={blockReceivedLagNotificationDelay}
+            onChange={e => setBlockReceivedLagNotificationDelay(e.target.value)}
+          />
+          <Input
+            fluid
+            label="Notification delay for no blocks"
+            tooltip="Delay after which a notification about no blocks received will be sent (in seconds)."
+            value={noBlocksReceivedNotificationDelay}
+            onChange={e => setNoBlocksReceivedNotificationDelay(e.target.value)}
+          />
           <Input
             fluid
             label="Server URL for outgoing emails"
