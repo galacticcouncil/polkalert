@@ -8,7 +8,7 @@ import {
   ValidatorFormattedInterface,
   MatchInterface
 } from 'types'
-import { GetValidatorsQuery } from 'apollo/queries'
+import VALIDATORS_QUERY from 'apollo/queries/validators'
 import { apiSelector } from 'selectors'
 import { Tabs } from 'ui'
 import stakingDemo from 'mocks/staking'
@@ -35,7 +35,7 @@ const Staking = ({ match }: Props) => {
   const [currentValidators, setCurrentValidators] = useState<VFI>([])
   const [previousValidators, setPreviousValidators] = useState<VFI>([])
   const api = useSelector(apiSelector)
-  const query = useQuery(GetValidatorsQuery, {
+  const query = useQuery(VALIDATORS_QUERY, {
     pollInterval: 10000
   })
 

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 
 export default gql`
-  mutation ConnectMutation($nodeUrl: String!) {
+  mutation Connect($nodeUrl: String!) {
     connect(nodeUrl: $nodeUrl)
   }
 `

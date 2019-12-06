@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux'
 import { useMutation } from '@apollo/react-hooks'
 import SVG from 'react-inlinesvg'
 
+import CONNECT_MUTATION from 'apollo/mutations/connect'
 import { SelectionGroupOption, SnackbarType } from 'types'
-import { ConnectMutation } from 'apollo/mutations'
 import { NavigationContext } from 'contexts'
 import { setApiAction } from 'actions'
 import { useBooleanState, useLocalStorage } from 'hooks'
@@ -41,7 +41,7 @@ const SelectApi = () => {
   const [apiUrl, setApiUrl] = useState<SelectionGroupOption>(options[0])
   const [customApiUrl, setCustomApiUrl] = useState<string>('wss://')
   const [loadingVisible, showLoading, hideLoading] = useBooleanState()
-  const [connectMutation] = useMutation(ConnectMutation)
+  const [connectMutation] = useMutation(CONNECT_MUTATION)
   const snackbarRef = useRef<SnackbarType>(null)
   const [
     onboardingModalVisible,
