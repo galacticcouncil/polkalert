@@ -216,3 +216,17 @@ export const Block = styled.div`
     margin-left: 16px;
   }
 `
+
+export const Slash = styled.div`
+  &:not(:last-of-type) {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid ${Colors.Gray[200]};
+  }
+
+  strong {
+    margin-left: 2px;
+    color: ${Colors.Primary};
+    font-size: 16px;
+  }
+`

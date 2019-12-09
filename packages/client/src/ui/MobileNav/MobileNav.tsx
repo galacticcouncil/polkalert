@@ -11,6 +11,7 @@ type Link = {
   name: string
   icon: string
   href: string
+  exact: boolean
 }
 
 type Props = {
@@ -49,7 +50,7 @@ const MobileNav = ({ forceActive, links = [], forceShowSidebar }: Props) => {
             to={item.href}
             activeClassName="active"
             onClick={() => setIsActive(false)}
-            exact
+            exact={item.exact}
           >
             <SVG src={item.icon}>
               <img src={item.icon} alt={item.href} />

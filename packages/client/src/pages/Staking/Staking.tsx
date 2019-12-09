@@ -17,12 +17,10 @@ import { ValidatorList } from './components'
 
 import * as S from './styled'
 
-type Data = {
-  validators: ValidatorInterface[]
-}
-
 type QueryResult = {
-  data: Data
+  data: {
+    validators: ValidatorInterface[]
+  }
 }
 
 type VFI = ValidatorFormattedInterface[]
