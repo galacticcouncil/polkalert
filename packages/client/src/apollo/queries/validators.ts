@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 
 export default gql`
-  query GetValidatorsQuery {
+  query Validators {
     validators {
       accountId
       commissionData {

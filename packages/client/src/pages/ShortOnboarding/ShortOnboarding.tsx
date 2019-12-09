@@ -2,11 +2,17 @@ import React, { useContext, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useMutation } from '@apollo/react-hooks'
 
-import { UpdateSettingsMutation } from 'apollo/mutations'
+import UPDATESETTINGS_MUTATION from 'apollo/mutations/updateSettings'
+import { SettingsInterface } from 'types'
 import { setApiAction } from 'actions'
 import { NavigationContext } from 'contexts'
 import { useBooleanState } from 'hooks'
-import { Loading, PageTitle, Input, Checkbox, Button, Modal } from 'ui'
+import { Loading, Button, Modal } from 'ui'
+import {
+  General,
+  Email,
+  Webhooks
+} from 'pages/Settings/components/NotificationsSettings/components'
 
 import * as S from './styled'
 
@@ -18,22 +24,39 @@ const ShortOnboarding = () => {
   const [successModalVisible, showSuccessModal] = useBooleanState()
   const [errorModalVisible, showErrorModal, hideErrorModal] = useBooleanState()
 
-  const [
-    blockReceivedLagNotificationDelay,
-    setBlockReceivedLagNotificationDelay
-  ] = useState<string>('')
-  const [
-    noBlocksReceivedNotificationDelay,
-    setNoBlocksReceivedNotificationDelay
-  ] = useState<string>('')
-  const [emailPort, setEmailPort] = useState<string>('')
-  const [emailHost, setEmailHost] = useState<string>('')
-  const [emailUsername, setEmailUsername] = useState<string>('')
-  const [emailPassword, setEmailPassword] = useState<string>('')
-  const [emailRecipient, setEmailRecipient] = useState<string>('')
-  const [emailNotifications, setEmailNotifications] = useState<boolean>(false)
+  const [formFields, setFormFields] = useState<SettingsInterface>({
+    blockReceivedLagNotificationDelay: '',
+    noBlocksReceivedNotificationDelay: '',
+    serverPort: '',
+    emailNotifications: false,
+    emailPort: '',
+    emailHost: '',
+    emailRecipient: '',
+    emailUsername: '',
+    emailPassword: ''
+  })
+  const [webHooks, setWebHooks] = useState<string[]>([])
 
-  const [updateSettingsMutation] = useMutation(UpdateSettingsMutation)
+  const [updateSettingsMutation] = useMutation(UPDATESETTINGS_MUTATION)
+
+  const handleOnChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    numbersOnly: boolean
+  ) => {
+    const { name, value } = e.target
+
+    setFormFields({
+      ...formFields,
+      [name]: numbersOnly ? value.replace(/\D/, '') : value
+    })
+  }
+
+  const handleToggleEmailNotifications = () => {
+    setFormFields({
+      ...formFields,
+      emailNotifications: !formFields.emailNotifications
+    })
+  }
 
   const handleFormSubmit = () => {
     showLoading()
@@ -41,17 +64,19 @@ const ShortOnboarding = () => {
     updateSettingsMutation({
       variables: {
         blockReceivedLagNotificationDelay: parseInt(
-          blockReceivedLagNotificationDelay
+          formFields.blockReceivedLagNotificationDelay
         ),
         noBlocksReceivedNotificationDelay: parseInt(
-          noBlocksReceivedNotificationDelay
+          formFields.noBlocksReceivedNotificationDelay
         ),
-        emailPort: parseInt(emailPort),
-        emailHost,
-        emailUsername,
-        emailPassword,
-        emailRecipient,
-        emailNotifications
+        serverPort: parseInt(formFields.serverPort),
+        emailNotifications: formFields.emailNotifications,
+        emailPort: parseInt(formFields.emailPort),
+        emailHost: formFields.emailHost,
+        emailRecipient: formFields.emailRecipient,
+        emailUsername: formFields.emailUsername,
+        emailPassword: formFields.emailPassword,
+        webHooks
       }
     })
       .then(() => {
@@ -79,62 +104,17 @@ const ShortOnboarding = () => {
       {loadingVisible && <Loading transparent />}
       <S.Inner>
         <S.Form>
-          <PageTitle>Email notifications setup</PageTitle>
-          <Input
-            fluid
-            label="Notification delay for network lag"
-            tooltip="Delay after which a notification about lagging network will be sent (in seconds)."
-            value={blockReceivedLagNotificationDelay}
-            onChange={e => setBlockReceivedLagNotificationDelay(e.target.value)}
-          />
-          <Input
-            fluid
-            label="Notification delay for no blocks"
-            tooltip="Delay after which a notification about no blocks received will be sent (in seconds)."
-            value={noBlocksReceivedNotificationDelay}
-            onChange={e => setNoBlocksReceivedNotificationDelay(e.target.value)}
-          />
-          <Input
-            fluid
-            label="Server URL for outgoing emails"
-            tooltip="The emailing server, which you want to use for sending out email notifications, for example smtp.gmail.com."
-            value={emailHost}
-            onChange={e => setEmailHost(e.target.value)}
-          />
-          <Input
-            fluid
-            label="SMTP port"
-            tooltip="The port you want to use for sending out email notifications. Common ports for SMTP are 25, 2525 or 587. For Secure SMTP (SSL / TLS) it's 465, 25, 587 or 2526 (Elastic Email)."
-            value={emailPort}
-            onChange={e => setEmailPort(e.target.value.replace(/\D/, ''))}
-          />
-          <Input
-            fluid
-            label="Email login"
-            tooltip="This account will be used for sending out email notifications."
-            value={emailUsername}
-            onChange={e => setEmailUsername(e.target.value)}
-          />
-          <Input
-            fluid
-            label="Email password"
-            type="password"
-            tooltip="This account will be used for sending out email notifications."
-            value={emailPassword}
-            onChange={e => setEmailPassword(e.target.value)}
-          />
-          <Input
-            fluid
-            label="Email address of the recipient"
-            tooltip="The email address where the notifications should be delivered."
-            value={emailRecipient}
-            onChange={e => setEmailRecipient(e.target.value)}
-          />
-          <Checkbox
-            label="I want to receive email notifications"
-            value={emailNotifications}
-            onChange={setEmailNotifications}
-          />
+          <div>
+            <General data={formFields} onChange={handleOnChange} />
+            <Email
+              data={formFields}
+              onChange={handleOnChange}
+              onToggle={handleToggleEmailNotifications}
+            />
+          </div>
+          <div>
+            <Webhooks data={webHooks} onChange={setWebHooks} />
+          </div>
         </S.Form>
         <S.Buttons>
           <Button text="Cancel" theme="outline" onClick={handleContinue} />

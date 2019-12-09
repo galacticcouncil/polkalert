@@ -1,9 +1,12 @@
 import gql from 'graphql-tag'
 
+import settingsFragment from 'apollo/fragments/settings'
+
 export default gql`
-  mutation UpdateSettingsMutation(
+  mutation UpdateSettings(
+    $blockReceivedLagNotificationDelay: Int
+    $noBlocksReceivedNotificationDelay: Int
     $serverPort: Int
-    $blockTimeNotificationRatio: Int
     $emailNotifications: Boolean
     $emailPort: Int
     $emailHost: String
@@ -13,8 +16,9 @@ export default gql`
     $webHooks: [String]
   ) {
     updateSettings(
+      blockReceivedLagNotificationDelay: $blockReceivedLagNotificationDelay
+      noBlocksReceivedNotificationDelay: $noBlocksReceivedNotificationDelay
       serverPort: $serverPort
-      blockTimeNotificationRatio: $blockTimeNotificationRatio
       emailNotifications: $emailNotifications
       emailPort: $emailPort
       emailHost: $emailHost
@@ -22,6 +26,9 @@ export default gql`
       emailUsername: $emailUsername
       emailPassword: $emailPassword
       webHooks: $webHooks
-    )
+    ) {
+      ...SettingsFragment
+    }
   }
+  ${settingsFragment}
 `

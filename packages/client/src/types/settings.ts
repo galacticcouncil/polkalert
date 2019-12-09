@@ -1,12 +1,12 @@
 export interface SettingsInterface {
-  blockReceivedLagNotificationDelay: number
-  noBlocksReceivedNotificationDelay: number
-  serverPort: number
+  blockReceivedLagNotificationDelay: string
+  noBlocksReceivedNotificationDelay: string
+  serverPort: string
   emailNotifications: boolean
-  emailPort: number
+  emailPort: string
   emailHost: string
   emailRecipient: string
   emailUsername: string
   emailPassword: string
-  webHooks: string[]
+  webHooks?: string[]
 }

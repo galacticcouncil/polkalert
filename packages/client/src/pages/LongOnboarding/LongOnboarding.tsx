@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useMutation } from '@apollo/react-hooks'
 
-import { UpdateSettingsMutation } from 'apollo/mutations'
+import UPDATESETTINGS_MUTATION from 'apollo/mutations/updateSettings'
 import { setApiAction } from 'actions'
 import { NavigationContext } from 'contexts'
 import { useBooleanState } from 'hooks'
@@ -26,7 +26,7 @@ const LongOnboarding = () => {
   const [emailRecipient, setEmailRecipient] = useState<string>('')
   const [emailNotifications, setEmailNotifications] = useState<boolean>(false)
 
-  const [updateSettingsMutation] = useMutation(UpdateSettingsMutation)
+  const [updateSettingsMutation] = useMutation(UPDATESETTINGS_MUTATION)
 
   const STEPS_AMOUNT = 6
 

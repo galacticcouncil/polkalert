@@ -9,7 +9,7 @@ import { DefaultLayout } from 'layouts'
 import { Welcome, Staking, Contact, Settings, ShortOnboarding } from 'pages'
 import { Loading } from 'ui'
 import { setApiAction } from 'actions'
-import { GetNodeInfoQuery } from 'apollo/queries'
+import NODEINFO_QUERY from 'apollo/queries/nodeInfo'
 
 const history = createBrowserHistory()
 
@@ -17,7 +17,7 @@ const App = () => {
   const dispatch = useDispatch()
 
   const [shouldRender, setShouldRender] = useState<boolean>(false)
-  const { data, error, loading } = useQuery(GetNodeInfoQuery)
+  const { data, error, loading } = useQuery(NODEINFO_QUERY)
 
   useEffect(() => {
     if (!loading) {
