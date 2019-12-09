@@ -7,7 +7,7 @@ import {
   SnackbarType,
   SnackbarThemeInterface
 } from 'types'
-import { ConnectMutation } from 'apollo/mutations'
+import CONNECT_MUTATION from 'apollo/mutations/connect'
 import { setApiAction } from 'actions'
 import { apiSelector } from 'selectors'
 import { useBooleanState, useLocalStorage } from 'hooks'
@@ -37,12 +37,12 @@ const SelectApi = () => {
       ? LSNodeUrl
       : 'Custom'
   const defaultCustomUrl =
-    selectedOption === 'Custom' && LSNodeUrl ? LSNodeUrl : 'wss://'
+    (selectedOption === 'Custom' && LSNodeUrl) || 'wss://'
 
   const [apiUrl, setApiUrl] = useState<SelectionGroupOption>(selectedOption)
   const [customApiUrl, setCustomApiUrl] = useState<string>(defaultCustomUrl)
   const [loadingVisible, showLoading, hideLoading] = useBooleanState()
-  const [connectMutation] = useMutation(ConnectMutation)
+  const [connectMutation] = useMutation(CONNECT_MUTATION)
   const snackbarRef = useRef<SnackbarType>(null)
   const [snackbarTheme, setSnackbarTheme] = useState<SnackbarThemeInterface>({
     text: 'Something went wrong. Please try again.',
@@ -113,7 +113,7 @@ const SelectApi = () => {
           />
         </Dropdown>
       </S.Inner>
-      <Button fluid text="Connect" onClick={setApi} />
+      <Button text="Connect" onClick={setApi} />
 
       <Snackbar ref={snackbarRef} theme={snackbarTheme.theme}>
         {snackbarTheme.text}
