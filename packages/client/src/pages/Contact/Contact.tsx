@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import SVG from 'react-inlinesvg'
 
 import { PageTitle, Input, Textarea, Button, Modal } from 'ui'
 import { encodeURI } from 'utils'
@@ -55,19 +54,7 @@ const Contact = () => {
   return (
     <S.Wrapper>
       <S.Form onSubmit={handleFormSubmit}>
-        <PageTitle style={{ margin: '0' }}>Contact Us</PageTitle>
-        <S.Logo>
-          <span>Made by</span>
-          <a
-            href="https://zeeprime.capital/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <SVG src="/images/zeeprime.svg">
-              <img src="/images/zeeprime.svg" alt="ZeePrime" />
-            </SVG>
-          </a>
-        </S.Logo>
+        <PageTitle>Contact Us</PageTitle>
         <Input
           fluid
           required

@@ -58,6 +58,17 @@ const MobileNav = ({ forceActive, links = [], forceShowSidebar }: Props) => {
             <div>{item.name}</div>
           </S.MenuLink>
         ))}
+        <S.ZeePrime
+          href="https://zeeprime.capital/"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setIsActive(false)}
+        >
+          <SVG src="/images/zeeprime.svg">
+            <img src="/images/zeeprime.svg" alt="Zee Prime Capital" />
+          </SVG>
+          <div>Visit Our Website</div>
+        </S.ZeePrime>
       </Dropdown>
     </S.Wrapper>
   )
