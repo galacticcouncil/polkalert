@@ -7,8 +7,11 @@ import { readFileSync } from 'fs'
 async function main() {
   await db.init()
 
-  const oldAppVersion = await db.getAppVersion()
-  const oldNodeInfo = await db.getNodeInfo()
+  const oldAppVersion = await db.getAppVersion().catch(() => {
+    console.log('error getting app version')
+    return null
+  })
+
   const version = JSON.parse(readFileSync('package.json', 'utf8')).version
   const config = settings.get()
 
@@ -16,6 +19,10 @@ async function main() {
     await db.clearDB()
     db.setAppVersion(version)
   }
+
+  const oldNodeInfo = await db.getNodeInfo().catch(() => {
+    console.log('error getting node info')
+  })
 
   console.log('*****************')
   console.log('*** POLKALERT ***')
