@@ -1,6 +1,6 @@
 {
   "name": "polkalert-client",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "",
   "scripts": {
     "dev": "webpack-dev-server --hot --config webpack.config.js --mode development",
