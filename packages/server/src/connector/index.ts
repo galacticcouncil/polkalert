@@ -4,7 +4,7 @@ import { ApiPromise } from '@polkadot/api'
 import { formatBalance } from '@polkadot/util'
 import { isNullOrUndefined } from 'util'
 import { Vec } from '@polkadot/types'
-import { DerivedStaking } from '@polkadot/api-derive/types'
+import { DerivedStakingQuery } from '@polkadot/api-derive/types'
 import { ValidatorId } from '@polkadot/types/interfaces'
 import notifications from '../notifications'
 import watcher from '../watcher'
@@ -153,9 +153,9 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
 }
 
 async function getDerivedStaking(accounts: Vec<ValidatorId>) {
-  const derivedStakingRequests: Promise<DerivedStaking>[] = accounts.map(
+  const derivedStakingRequests: Promise<DerivedStakingQuery>[] = accounts.map(
     account => {
-      return api.derive.staking.info(account.toString())
+      return api.derive.staking.query(account.toString())
     }
   )
 
@@ -363,7 +363,8 @@ async function connect(nodeUrl: string) {
 
 async function waitUntilSynced() {
   const health = await api.rpc.system.health()
-  if (health.isSyncing) {
+  if (health.isSyncing.isTrue) {
+    console.log(health.isSyncing.isTrue)
     console.log('Node is syncing, waiting to finish')
     console.log(
       'Current block height:',

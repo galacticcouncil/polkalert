@@ -164,22 +164,12 @@ function createCommissionObject(data) {
   commissionData.controllerId = normalizeHash(data.controllerId)
   commissionData.nominatorData = createNominatorObjectString(data.stakers)
 
-  commissionData.sessionId = normalizeHash(data.sessionId)
-  commissionData.nextSessionId = normalizeHash(data.nextSessionId)
-  commissionData.sessionIds = data.sessionIds
-    ? JSON.stringify(
-        data.sessionIds.map(id => {
-          return normalizeHash(id)
-        })
-      )
-    : undefined
-  commissionData.nextSessionIds = data.nextSessionIds
-    ? JSON.stringify(
-        data.nextSessionIds.map(id => {
-          return normalizeHash(id)
-        })
-      )
-    : undefined
+  commissionData.sessionIds = data.sessionIds.map(sessionId =>
+    normalizeHash(sessionId)
+  )
+  commissionData.nextSessionIds = data.sessionIds.map(sessionId =>
+    normalizeHash(sessionId)
+  )
 
   return commissionData
 }
@@ -305,6 +295,8 @@ async function getValidators() {
     let blocksProducedCount = validator.blocksProduced.length
     return { ...validator, blocksProducedCount }
   })
+
+  console.log(allValidators[0].commissionData)
 
   console.log(
     'DB: got all validators:Performance',

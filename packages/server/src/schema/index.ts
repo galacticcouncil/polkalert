@@ -10,10 +10,8 @@ export const typeDefs = gql`
     nominatorData: String
     commission: String
     validator: Validator
-    sessionId: String
-    nextSessionId: String
-    sessionIds: String
-    nextSessionIds: String
+    sessionIds: [String]
+    nextSessionIds: [String]
   }
 
   type Header {

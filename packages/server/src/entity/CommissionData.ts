@@ -25,18 +25,15 @@ export class CommissionData {
   @Column({ nullable: true })
   commission: string
 
-  @Column({ nullable: true })
-  sessionId: string
+  @Column('text', { array: true, nullable: true })
+  sessionIds: string[]
 
-  @Column({ nullable: true })
-  nextSessionId: string
+  @Column('text', { array: true, nullable: true })
+  nextSessionIds: string[]
 
-  @Column({ nullable: true })
-  sessionIds: string
-
-  @Column({ nullable: true })
-  nextSessionIds: string
-
-  @ManyToOne(type => Validator, validator => validator.commissionData)
+  @ManyToOne(
+    type => Validator,
+    validator => validator.commissionData
+  )
   validator: Validator
 }
