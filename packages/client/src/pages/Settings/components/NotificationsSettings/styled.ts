@@ -10,6 +10,6 @@ export const Inner = styled.div`
   grid-column-gap: 112px;
 
   @media ${device.md} {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 `
