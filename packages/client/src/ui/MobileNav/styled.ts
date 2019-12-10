@@ -3,6 +3,34 @@ import { NavLink } from 'react-router-dom'
 
 import { Colors } from 'styles/variables'
 
+const linkStyles = css`
+  padding: 16px;
+  border-top: 1px solid ${Colors.Gray[200]};
+  color: ${Colors.Gray[100]};
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  &:not(.active):hover {
+    color: ${Colors.White};
+  }
+
+  &.active {
+    color: ${Colors.Primary};
+  }
+
+  svg,
+  img {
+    width: 22px;
+    height: 22px;
+    margin-right: 16px;
+  }
+
+  path {
+    fill: currentColor;
+  }
+`
+
 export const Wrapper = styled.div`
   width: 100%;
   background: ${Colors.Gray[400]};
@@ -88,34 +116,9 @@ export const MenuLink = styled(NavLink)<{
   activeClassName: string
   onClick: () => void
 }>`
-  padding: 16px;
-  border-top: 1px solid ${Colors.Gray[200]};
-  color: ${Colors.Gray[100]};
-  display: flex;
-  align-items: center;
+  ${linkStyles};
+`
 
-  &:not(.active):hover {
-    color: ${Colors.White};
-
-    svg path {
-      fill: ${Colors.White};
-    }
-  }
-
-  &.active {
-    color: ${Colors.Primary};
-
-    svg path {
-      fill: ${Colors.Primary};
-    }
-  }
-
-  svg {
-    width: 22px;
-    margin-right: 16px;
-
-    path {
-      fill: ${Colors.Gray[100]};
-    }
-  }
+export const ZeePrime = styled.a`
+  ${linkStyles};
 `
