@@ -4,6 +4,12 @@ import connector from './connector'
 import settings from './settings'
 import { readFileSync } from 'fs'
 
+
+process.on('unhandledRejection', error => {
+  console.log('unhandledRejection');
+  console.error(error);
+});
+
 async function main() {
   await db.init()
 
