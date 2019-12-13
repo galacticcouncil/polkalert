@@ -36,7 +36,9 @@ async function disconnect() {
     provider = null
   }
 
-  if (provider && provider.isConnected()) await provider.disconnect()
+  try { 
+    await provider.disconnect() 
+  } catch(e){}
 
   api = null
   provider = null

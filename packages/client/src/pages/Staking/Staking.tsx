@@ -8,6 +8,7 @@ import {
   ValidatorFormattedInterface,
   MatchInterface
 } from 'types'
+import DATAAGE_QUERY from 'apollo/queries/dataAge'
 import VALIDATORS_QUERY from 'apollo/queries/validators'
 import { apiSelector } from 'selectors'
 import { Tabs } from 'ui'
@@ -38,6 +39,7 @@ const Staking = ({ match }: Props) => {
   })
 
   const { data } = api.demo ? (stakingDemo as QueryResult) : query
+  const dataAge = useQuery(DATAAGE_QUERY)
 
   useEffect(() => {
     if (data?.validators?.length) {
@@ -78,6 +80,11 @@ const Staking = ({ match }: Props) => {
             }
           ]}
         />
+        {dataAge?.data?.dataAge && (
+          <S.DataAge>
+            Data age: <strong>{dataAge.data.dataAge}</strong>
+          </S.DataAge>
+        )}
       </S.Header>
       <S.Content>
         <Switch>
