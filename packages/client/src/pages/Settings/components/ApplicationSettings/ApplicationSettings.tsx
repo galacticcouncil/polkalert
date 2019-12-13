@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useMutation } from '@apollo/react-hooks'
 
-import { UpdateSettingsMutation } from 'apollo/mutations'
+import UPDATESETTINGS_MUTATION from 'apollo/mutations/updateSettings'
 import { SettingsInterface, SnackbarType, SnackbarThemeInterface } from 'types'
 import { useBooleanState } from 'hooks'
 import { Loading, Input, Button, Snackbar } from 'ui'
@@ -12,7 +12,7 @@ type Props = {
   data: SettingsInterface
 }
 
-const EmailSettings = ({ data }: Props) => {
+const ApplicationSettings = ({ data }: Props) => {
   const [loadingVisible, showLoading, hideLoading] = useBooleanState()
   const [serverPort, setServerPort] = useState<string>('')
   const snackbarRef = useRef<SnackbarType>(null)
@@ -21,7 +21,7 @@ const EmailSettings = ({ data }: Props) => {
     theme: 'error'
   })
 
-  const [updateSettingsMutation] = useMutation(UpdateSettingsMutation)
+  const [updateSettingsMutation] = useMutation(UPDATESETTINGS_MUTATION)
 
   useEffect(() => {
     if (data?.serverPort) {
@@ -79,4 +79,4 @@ const EmailSettings = ({ data }: Props) => {
   )
 }
 
-export default EmailSettings
+export default ApplicationSettings

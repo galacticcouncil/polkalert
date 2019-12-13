@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { transparentize } from 'polished'
 
-import { Card, Dropdown } from 'ui'
+import { Card, Divider, Dropdown } from 'ui'
 import { Colors } from 'styles/variables'
 import { device } from 'styles/media'
 
@@ -168,29 +168,17 @@ export const SecondLine = styled.div`
   }
 `
 
-export const NominatorsDropdownButton = styled.div<{
+export const NominatorsDropdownButton = styled(Divider)<{
   isOpen: boolean
 }>`
   margin: 24px 0 12px;
-  display: flex;
-  align-items: center;
 
   @media ${device.lg} {
     margin: 48px 0 12px;
   }
 
-  &:after {
-    content: ' ';
-    width: 100%;
-    height: 1px;
-    margin-left: 8px;
-    background: ${Colors.Gray[200]};
-    display: block;
-    flex: 1;
-  }
-
   button {
-    color: ${Colors.Gray[100]};
+    color: inherit;
     display: flex;
     align-items: center;
 
@@ -204,7 +192,7 @@ export const NominatorsDropdownButton = styled.div<{
     }
 
     svg path {
-      fill: ${Colors.Gray[100]};
+      fill: currentColor;
     }
   }
 `
@@ -226,5 +214,19 @@ export const Block = styled.div`
 
   span {
     margin-left: 16px;
+  }
+`
+
+export const Slash = styled.div`
+  &:not(:last-of-type) {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid ${Colors.Gray[200]};
+  }
+
+  strong {
+    margin-left: 2px;
+    color: ${Colors.Primary};
+    font-size: 16px;
   }
 `

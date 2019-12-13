@@ -112,7 +112,20 @@ export default {
               '0x243a6c8ef50da5b466265d2c78e8b70328b971a169d94116cc484300388d149b'
           }
         ],
-        slashes: [],
+        slashes: [
+          {
+            amount: '100 KSM',
+            sessionIndex: '123'
+          },
+          {
+            amount: '200 KSM',
+            sessionIndex: '321'
+          },
+          {
+            amount: '300 KSM',
+            sessionIndex: '321'
+          }
+        ],
         recentlyOnline: false
       },
       {
@@ -616,7 +629,7 @@ export default {
           {
             controllerId: '5FuraxNKCzXbcgyWQrwHfFPqQPp3mG8xBcTqGe2zg5V7p2Pn',
             bondedSelf: '5.049 DOT',
-            nominatorData: null,
+            nominatorData: "",
             commission: '0',
             sessionId: '5HSPnwrw1SQxpPXWNhiBgP2dybduhYHsc9t1ENuJu8gB31tW'
           }

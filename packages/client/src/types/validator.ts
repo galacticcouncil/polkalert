@@ -11,18 +11,18 @@ export interface BlockInterface {
   blockHash: string
 }
 
+export interface SlashInterface {
+  amount: string
+  sessionIndex: string
+}
+
 export interface ValidatorInterface {
   accountId: string
   commissionData: CommissionDataInterface[]
   currentValidator: boolean
   blocksProduced: BlockInterface[]
-  slashes: string[]
+  slashes: SlashInterface[]
   recentlyOnline: boolean
-}
-
-export interface SlashInterface {
-  amount: string
-  sessionIndex: number
 }
 
 // TEMP SOLUTION

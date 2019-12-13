@@ -134,7 +134,7 @@ const ValidatorCard = ({
           </div>
         )}
         <div>
-          Blocks produced in the last 24h:
+          Blocks produced:
           <span>{blocksProduced?.length || 0}</span>
           {!!blocksProduced?.length && (
             <Button
@@ -199,9 +199,14 @@ const ValidatorCard = ({
       {!!slashes?.length && slashesModalVisible && (
         <Modal onClose={hideSlashesModal}>
           {slashes.map((item, idx) => (
-            <S.Block key={`${stashId}-slash-${idx}`}>
-              Amount: {item.amount}, Session: {item.sessionIndex}
-            </S.Block>
+            <S.Slash key={`${stashId}-slash-${idx}`}>
+              <div>
+                Amount: <strong>{item.amount}</strong>
+              </div>
+              <div>
+                Session: <strong>{item.sessionIndex}</strong>
+              </div>
+            </S.Slash>
           ))}
         </Modal>
       )}

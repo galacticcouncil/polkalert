@@ -8,7 +8,8 @@ import {
   ValidatorFormattedInterface,
   MatchInterface
 } from 'types'
-import { GetValidatorsQuery } from 'apollo/queries'
+import DATAAGE_QUERY from 'apollo/queries/dataAge'
+import VALIDATORS_QUERY from 'apollo/queries/validators'
 import { apiSelector } from 'selectors'
 import { Tabs } from 'ui'
 import stakingDemo from 'mocks/staking'
@@ -17,12 +18,10 @@ import { ValidatorList } from './components'
 
 import * as S from './styled'
 
-type Data = {
-  validators: ValidatorInterface[]
-}
-
 type QueryResult = {
-  data: Data
+  data: {
+    validators: ValidatorInterface[]
+  }
 }
 
 type VFI = ValidatorFormattedInterface[]
@@ -35,11 +34,12 @@ const Staking = ({ match }: Props) => {
   const [currentValidators, setCurrentValidators] = useState<VFI>([])
   const [previousValidators, setPreviousValidators] = useState<VFI>([])
   const api = useSelector(apiSelector)
-  const query = useQuery(GetValidatorsQuery, {
+  const query = useQuery(VALIDATORS_QUERY, {
     pollInterval: 10000
   })
 
   const { data } = api.demo ? (stakingDemo as QueryResult) : query
+  const dataAge = useQuery(DATAAGE_QUERY)
 
   useEffect(() => {
     if (data?.validators?.length) {
@@ -80,6 +80,11 @@ const Staking = ({ match }: Props) => {
             }
           ]}
         />
+        {dataAge?.data?.dataAge && (
+          <S.DataAge>
+            Data age: <strong>{dataAge.data.dataAge}</strong>
+          </S.DataAge>
+        )}
       </S.Header>
       <S.Content>
         <Switch>

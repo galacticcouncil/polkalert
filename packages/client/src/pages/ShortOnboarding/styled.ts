@@ -16,17 +16,35 @@ export const Wrapper = styled.div`
 `
 
 export const Inner = styled.div`
-  width: 350px;
-  max-width: 100%;
+  width: 100%;
+
+  @media ${device.md} {
+    width: 704px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  @media ${device.lg} {
+    width: 1024px;
+  }
 `
 
 export const Form = styled.div`
+  width: 100%;
   padding-bottom: 16px;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-column-gap: 112px;
+
+  @media ${device.md} {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `
 
 export const Buttons = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   grid-column-gap: 16px;
 `
 

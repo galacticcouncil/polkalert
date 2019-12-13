@@ -2,16 +2,11 @@ import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { useQuery } from '@apollo/react-hooks'
 
-import { GetSettingsQuery } from 'apollo/queries'
+import SETTINGS_QUERY from 'apollo/queries/settings'
 import { MatchInterface } from 'types'
 import { Tabs } from 'ui'
 
-import {
-  NodeUrlSettings,
-  EmailSettings,
-  WebhookSettings,
-  ApplicationSettings
-} from './components'
+import { NodeUrlSettings, NotificationsSettings } from './components'
 
 import * as S from './styled'
 
@@ -20,7 +15,7 @@ type Props = {
 }
 
 const Settings = ({ match }: Props) => {
-  const { data } = useQuery(GetSettingsQuery)
+  const { data } = useQuery(SETTINGS_QUERY)
 
   return (
     <S.Wrapper>
@@ -32,17 +27,13 @@ const Settings = ({ match }: Props) => {
               href: '/settings/node-url'
             },
             {
-              text: 'Email',
-              href: '/settings/email'
-            },
-            {
-              text: 'Webhooks',
-              href: '/settings/webhooks'
-            },
-            {
-              text: 'Application',
-              href: '/settings/application'
+              text: 'Notifications',
+              href: '/settings/notifications'
             }
+            // {
+            //   text: 'Application',
+            //   href: '/settings/application'
+            // }
           ]}
         />
       </S.Header>
@@ -54,24 +45,19 @@ const Settings = ({ match }: Props) => {
             component={NodeUrlSettings}
           />
           <Route
-            path={`${match.path}/email`}
-            exact
-            render={props => <EmailSettings data={data?.settings} {...props} />}
-          />
-          <Route
-            path={`${match.path}/webhooks`}
+            path={`${match.path}/notifications`}
             exact
             render={props => (
-              <WebhookSettings data={data?.settings} {...props} />
+              <NotificationsSettings data={data?.settings} {...props} />
             )}
           />
-          <Route
+          {/* <Route
             path={`${match.path}/application`}
             exact
             render={props => (
               <ApplicationSettings data={data?.settings} {...props} />
             )}
-          />
+          /> */}
           <Redirect from="*" to={`${match.path}/node-url`} />
         </Switch>
       </S.Content>

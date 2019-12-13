@@ -4,7 +4,7 @@ import { ApiPromise } from '@polkadot/api'
 import { formatBalance } from '@polkadot/util'
 import { isNullOrUndefined } from 'util'
 import { Vec } from '@polkadot/types'
-import { DerivedStaking } from '@polkadot/api-derive/types'
+import { DerivedStakingQuery } from '@polkadot/api-derive/types'
 import { ValidatorId } from '@polkadot/types/interfaces'
 import notifications from '../notifications'
 import watcher from '../watcher'
@@ -153,9 +153,9 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
 }
 
 async function getDerivedStaking(accounts: Vec<ValidatorId>) {
-  const derivedStakingRequests: Promise<DerivedStaking>[] = accounts.map(
+  const derivedStakingRequests: Promise<DerivedStakingQuery>[] = accounts.map(
     account => {
-      return api.derive.staking.info(account.toString())
+      return api.derive.staking.query(account)
     }
   )
 
@@ -355,9 +355,23 @@ async function connect(nodeUrl: string) {
 
   await db.setNodeInfo(nodeInfo)
 
+  await waitUntilSynced()
   startDataService()
 
   return nodeUrl
+}
+
+async function waitUntilSynced() {
+  const health = await api.rpc.system.health()
+  if (health.isSyncing.toString() === "true") {
+    console.log('Node is syncing, waiting to finish')
+    console.log(
+      'Current block height:',
+      (await api.rpc.chain.getHeader()).number.toNumber()
+    )
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    await waitUntilSynced()
+  } else return
 }
 
 async function startDataService() {
@@ -404,7 +418,6 @@ async function startDataService() {
   return
 }
 
-//TODO MOVE/REFACTOR
 async function addDerivedHeartbeatsToValidators(validators) {
   let accountIds = validators.map(validator => validator.accountId)
   let onlineStatus = await api.derive.imOnline
