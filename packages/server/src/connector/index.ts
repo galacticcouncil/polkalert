@@ -97,6 +97,7 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
       for (const record of eventWrapper) {
         const { event } = record
 
+        //TODO: save sessionInfo for validator in this session
         if (event.method === 'NewSession') {
           sessionInfo = {
             sessionIndex: (
@@ -136,8 +137,14 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
         }
       }
 
-      if (sessionInfo)
+      if (sessionInfo) {
         sessionInfo = { ...sessionInfo, rewards, offences, slashes }
+        console.log(
+          'Got session info for block: #',
+          header.number.toNumber(),
+          sessionInfo
+        )
+      }
 
       return {
         ...header,

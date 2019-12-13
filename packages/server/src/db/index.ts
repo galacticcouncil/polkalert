@@ -308,6 +308,12 @@ async function getValidators() {
     return { ...validator, blocksProducedCount }
   })
 
+  allValidators.forEach(validator => {
+    validator.commissionData = validator.commissionData.sort((a, b) => {
+      return b.sessionIndex - a.sessionIndex
+    })
+  })
+
   console.log(
     'DB: got all validators:Performance',
     performance.now() - performanceStart,
