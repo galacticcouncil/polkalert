@@ -28,6 +28,7 @@ const ValidatorList = ({ validators }: Props) => (
           }
           commission={item.commissionData[0].commission}
           blocksProduced={item.blocksProduced}
+          blocksProducedCount={item.blocksProducedCount}
           slashes={item.slashes}
           recentlyOnline={item.recentlyOnline}
           nominators={item.commissionData[0].nominatorData?.stakers}

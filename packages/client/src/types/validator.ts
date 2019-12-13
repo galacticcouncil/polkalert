@@ -21,6 +21,7 @@ export interface ValidatorInterface {
   commissionData: CommissionDataInterface[]
   currentValidator: boolean
   blocksProduced: BlockInterface[]
+  blocksProducedCount: number
   slashes: SlashInterface[]
   recentlyOnline: boolean
 }
@@ -50,6 +51,7 @@ export interface ValidatorFormattedInterface {
   commissionData: CommissionDataFormattedInterface[]
   currentValidator: boolean
   blocksProduced: BlockInterface[]
+  blocksProducedCount: number
   slashes: SlashInterface[]
   recentlyOnline: boolean
 }

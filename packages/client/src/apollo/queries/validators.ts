@@ -17,6 +17,7 @@ export default gql`
         id
         blockHash
       }
+      blocksProducedCount
       slashes {
         amount
         sessionIndex

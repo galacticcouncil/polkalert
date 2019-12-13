@@ -24,6 +24,7 @@ type Props = {
   bondedFromNominators?: string
   commission?: string
   blocksProduced?: BlockInterface[]
+  blocksProducedCount?: number
   slashes?: SlashInterface[]
   recentlyOnline?: boolean
   nominators?: Nominator[]
@@ -41,6 +42,7 @@ const ValidatorCard = ({
   bondedFromNominators = '0.000',
   commission,
   blocksProduced,
+  blocksProducedCount,
   slashes,
   recentlyOnline,
   nominators,
@@ -135,8 +137,8 @@ const ValidatorCard = ({
         )}
         <div>
           Blocks produced:
-          <span>{blocksProduced?.length || 0}</span>
-          {!!blocksProduced?.length && (
+          <span>{blocksProducedCount || 0}</span>
+          {!!blocksProducedCount && (
             <Button
               theme="outlineMini"
               text="Show"
