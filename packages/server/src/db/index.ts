@@ -282,7 +282,7 @@ async function bulkSave(type, data) {
 
 async function getValidatorInfo(id) {
   return await manager.findOne(Validator, id, {
-    relations: ['commissionData', 'blocksProduced']
+    relations: ['commissionData', 'blocksProduced', 'slashes']
   })
 }
 
