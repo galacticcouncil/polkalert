@@ -9,6 +9,7 @@
   "emailUsername": null,
   "serverPort": 4000,
   "webHooks": [],
+  "maxDataAge": 24,
   "meta": {
     "blockReceivedLagNotificationDelay": "Delay after which notification for lagging network will be sent in seconds",
     "noBlocksReceivedNotificationDelay": "Delay after which notification for no blocks received will be sent in seconds",
@@ -19,6 +20,7 @@
     "emailRecipient": "Recipient of notification emails",
     "emailUsername": "Email server username",
     "serverPort": "Port used to run server app",
-    "webHooks": "Array of urls which should be pinged when notification event occurs"
+    "webHooks": "Array of urls which should be pinged when notification event occurs",
+    "maxDataAge": "Maximum age for blocks stored in database, in hours "
   }
 }

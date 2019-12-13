@@ -9,4 +9,5 @@ declare type Settings = {
   emailPassword?: string
   emailRecipient?: string
   webHooks?: string[]
+  maxDataAge?: number
 }
