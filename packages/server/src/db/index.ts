@@ -307,8 +307,6 @@ async function getValidators() {
     'ms'
   )
 
-  console.log(allValidators[0].blocksProducedCount)
-
   return allValidators
 }
 
