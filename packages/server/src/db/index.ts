@@ -308,8 +308,6 @@ async function getValidators() {
     return { ...validator, blocksProducedCount }
   })
 
-  console.log(allValidators[0].commissionData)
-
   console.log(
     'DB: got all validators:Performance',
     performance.now() - performanceStart,
