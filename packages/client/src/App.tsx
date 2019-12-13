@@ -47,7 +47,7 @@ const App = () => {
               <Route path="/contact" exact component={Contact} />
               <Route path="/settings" component={Settings} />
               <Route path="/onboarding" component={ShortOnboarding} />
-              <Redirect from="*" to="/" />
+              <Redirect from="*" to="/staking" />
             </Switch>
           ) : (
             <Loading />

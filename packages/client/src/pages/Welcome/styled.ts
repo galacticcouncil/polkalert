@@ -28,7 +28,7 @@ export const Inner = styled.div`
   align-items: center;
 
   @media ${device.md} {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   > div:last-of-type {
@@ -153,7 +153,7 @@ export const ModalText = styled.div`
 
 export const ModalActions = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   grid-column-gap: 8px;
 
   button {

@@ -69,6 +69,16 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
                 </S.MenuLink>
               ))}
             </nav>
+            <S.ZeePrime
+              href="https://zeeprime.capital/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>Made by</span>
+              <SVG src="/images/zeeprime.svg">
+                <img src="/images/zeeprime.svg" alt="Zee Prime Capital" />
+              </SVG>
+            </S.ZeePrime>
           </S.Sidebar>
         ) : (
           <MobileNav links={links} forceShowSidebar={forceShowSidebar} />

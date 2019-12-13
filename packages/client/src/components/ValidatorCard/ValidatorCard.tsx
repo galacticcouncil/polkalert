@@ -134,7 +134,7 @@ const ValidatorCard = ({
           </div>
         )}
         <div>
-          Blocks produced in the last 24h:
+          Blocks produced:
           <span>{blocksProduced?.length || 0}</span>
           {!!blocksProduced?.length && (
             <Button
