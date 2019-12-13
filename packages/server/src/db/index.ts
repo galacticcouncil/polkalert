@@ -13,10 +13,10 @@ import { CommissionData } from '../entity/CommissionData'
 import { formatBalance } from '@polkadot/util'
 import { performance } from 'perf_hooks'
 import { NodeInfoStorage } from '../entity/NodeInfoStorage'
-import * as moment from 'moment'
 import { AppVersion } from '../entity/AppVersion'
 import { SessionInfo } from '../entity/SessionInfo'
 import { Slash } from '../entity/Slash'
+import humanizeDuration from 'humanize-duration'
 
 let connection: Connection = null
 let manager: EntityManager = null
@@ -47,7 +47,7 @@ async function clearDB() {
 }
 
 async function disconnect() {
-  clearInterval(pruningInterval)
+  clearTimeout(pruningInterval)
   await connection.close()
   validatorMap = {}
   manager = null
@@ -57,10 +57,7 @@ async function disconnect() {
 
 async function getDataAge() {
   let firstHeader = await getFirstHeader()
-  let lastHeader = await getLastHeader()
-  return moment
-    .duration(lastHeader.timestamp - firstHeader.timestamp)
-    .humanize()
+  return humanizeDuration(Date.now() - firstHeader.timestamp, {round: true})
 }
 
 async function init(reset = false) {
@@ -88,25 +85,26 @@ async function init(reset = false) {
     await init(reset)
   } else {
     manager = connection.manager
-    setPruningInterval()
-  }
 
-  if (!settingsListener) {
-    settingsListener = settings.onChange(setPruningInterval)
+    startPruningInterval()
+
+    if (!settingsListener) {
+      settingsListener = settings.onChange(startPruningInterval)
+    }
   }
 
   return
 }
 
-async function setPruningInterval() {
+async function startPruningInterval() {
   maxDataAge = settings.get().maxDataAge
-  pruningInterval = setInterval(async () => {
-    let lastHeader = await getLastHeader()
-    if (manager && lastHeader)
+  
+    if (manager){
       manager.delete(Header, {
-        timestamp: LessThan(lastHeader.timestamp - maxDataAge * 3600 * 1000)
-      })
-  }, pruning * 1000)
+        timestamp: LessThan(Date.now() - maxDataAge * 3600 * 1000)
+      }).catch(e => {console.log(e)})
+      pruningInterval = setTimeout(startPruningInterval, pruning * 1000)
+    }
 }
 
 function normalizeNumber(number) {

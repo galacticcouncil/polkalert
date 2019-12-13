@@ -8,6 +8,7 @@ import { DerivedStakingQuery } from '@polkadot/api-derive/types'
 import { ValidatorId } from '@polkadot/types/interfaces'
 import notifications from '../notifications'
 import watcher from '../watcher'
+import settings from '../settings'
 
 let maxHeaderBatch = 100
 let maxBlockHistory = 15000
@@ -296,6 +297,8 @@ async function testPruning(blockNumber: number) {
 async function getHeaderDataHistory() {
   let lastBlockNumber = (await api.rpc.chain.getHeader()).number.toNumber()
   let firstBlock = firstSavedBlock.number
+  let expectedBlockTime = api.consts.babe.expectedBlockTime.toNumber()
+  maxBlockHistory = settings.get().maxDataAge * 3600000 / expectedBlockTime
 
   if (lastBlockNumber - firstBlock < maxBlockHistory) {
     let headers = await getPreviousHeaders(
