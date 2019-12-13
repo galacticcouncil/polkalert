@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import settings from '../settings'
 import {
   createConnection,
   Connection,
@@ -22,12 +23,13 @@ let manager: EntityManager = null
 let nodeInfo: NodeInfo = null
 let validatorMap = {}
 let retryInterval: number = 5000
+let settingsListener: NodeJS.EventEmitter = null
 
 //TODO: Config
 //number of seconds to prune blocks
 let pruning = 180
 //max number of hours for storing blocks
-let maxDataAge = 24
+let maxDataAge: number = null
 //interval function
 let pruningInterval = null
 
@@ -86,16 +88,25 @@ async function init(reset = false) {
     await init(reset)
   } else {
     manager = connection.manager
-
-    pruningInterval = setInterval(async () => {
-      let lastHeader = await getLastHeader()
-      if (manager && lastHeader)
-        manager.delete(Header, {
-          timestamp: LessThan(lastHeader.timestamp - maxDataAge * 3600 * 1000)
-        })
-    }, pruning * 1000)
+    setPruningInterval()
   }
+
+  if (!settingsListener) {
+    settingsListener = settings.onChange(setPruningInterval)
+  }
+
   return
+}
+
+async function setPruningInterval() {
+  maxDataAge = settings.get().maxDataAge
+  pruningInterval = setInterval(async () => {
+    let lastHeader = await getLastHeader()
+    if (manager && lastHeader)
+      manager.delete(Header, {
+        timestamp: LessThan(lastHeader.timestamp - maxDataAge * 3600 * 1000)
+      })
+  }, pruning * 1000)
 }
 
 function normalizeNumber(number) {
