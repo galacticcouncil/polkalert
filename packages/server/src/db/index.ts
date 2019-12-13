@@ -302,7 +302,7 @@ async function getValidators() {
   })
 
   allValidators = allValidators.map(validator => {
-    let blocksProducedCount = validator.blocksProduced.length
+    let blocksProducedCount = validator.blocksProduced ? validator.blocksProduced.length : 0
     return { ...validator, blocksProducedCount }
   })
 

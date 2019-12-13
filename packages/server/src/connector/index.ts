@@ -355,7 +355,7 @@ async function connect(nodeUrl: string) {
 
   await db.setNodeInfo(nodeInfo)
 
-  waitUntilSynced()
+  await waitUntilSynced()
   startDataService()
 
   return nodeUrl
@@ -363,14 +363,14 @@ async function connect(nodeUrl: string) {
 
 async function waitUntilSynced() {
   const health = await api.rpc.system.health()
-  if (health.isSyncing) {
+  if (health.isSyncing.toString() === "true") {
     console.log('Node is syncing, waiting to finish')
     console.log(
       'Current block height:',
       (await api.rpc.chain.getHeader()).number.toNumber()
     )
     await new Promise(resolve => setTimeout(resolve, 3000))
-    waitUntilSynced()
+    await waitUntilSynced()
   } else return
 }
 
