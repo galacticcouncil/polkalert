@@ -57,7 +57,7 @@ async function disconnect() {
 
 async function getDataAge() {
   let firstHeader = await getFirstHeader()
-  return humanizeDuration(Date.now() - firstHeader.timestamp, {round: true})
+  return humanizeDuration(Date.now() - firstHeader.timestamp, { round: true })
 }
 
 async function init(reset = false) {
@@ -98,13 +98,14 @@ async function init(reset = false) {
 
 async function startPruningInterval() {
   maxDataAge = settings.get().maxDataAge
-  
-    if (manager){
-      manager.delete(Header, {
-        timestamp: LessThan(Date.now() - maxDataAge * 3600 * 1000)
-      }).catch(e => {console.log(e)})
-      pruningInterval = setTimeout(startPruningInterval, pruning * 1000)
-    }
+
+  if (manager) {
+    manager.delete(Header, {
+      timestamp: LessThan(Date.now() - maxDataAge * 3600 * 1000)
+    })
+
+    pruningInterval = setTimeout(startPruningInterval, pruning * 1000)
+  }
 }
 
 function normalizeNumber(number) {
@@ -301,7 +302,9 @@ async function getValidators() {
   })
 
   allValidators = allValidators.map(validator => {
-    let blocksProducedCount = validator.blocksProduced ? validator.blocksProduced.length : 0
+    let blocksProducedCount = validator.blocksProduced
+      ? validator.blocksProduced.length
+      : 0
     return { ...validator, blocksProducedCount }
   })
 
