@@ -1,6 +1,10 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import U32 from '@polkadot/types/primitive/U32'
 import addressDefaults from '@polkadot/util-crypto/address/defaults'
+import { IdentityTypes } from 'edgeware-node-types/dist/identity'
+import { SignalingTypes } from 'edgeware-node-types/dist/signaling'
+import { TreasuryRewardTypes } from 'edgeware-node-types/dist/treasuryReward'
+import { VotingTypes } from 'edgeware-node-types/dist/voting'
 
 let nodeUrl: string = null
 let nodeInfo: NodeInfo = null
@@ -61,7 +65,17 @@ async function connect() {
   console.log('creating api')
 
   // BUG API Promise doesn't finish if provider crashes on connection
-  api = await ApiPromise.create({ provider }).catch(e => {
+  api = await ApiPromise.create({
+    typesSpec: {
+      edgeware: {
+        ...IdentityTypes,
+        ...SignalingTypes,
+        ...TreasuryRewardTypes,
+        ...VotingTypes,
+      }
+    },
+    provider: provider 
+  }).catch(e => {
     console.log(e)
     return null
   })

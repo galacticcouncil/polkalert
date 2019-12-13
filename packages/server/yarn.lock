@@ -1410,6 +1410,11 @@ duplexer3@^0.1.4:
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"
   integrity sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=
 
+edgeware-node-types@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/edgeware-node-types/-/edgeware-node-types-1.1.0.tgz#ce6f773d6907fde929395347d997e21bc37afa87"
+  integrity sha512-0e56OWLDowEvEj30mJ+Sp72WlaGayRobxE7q3vSBTH1wNiPTafLQ53NMCO68j6V0aTycMzC373VR08iGKoDf5g==
+
 ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"

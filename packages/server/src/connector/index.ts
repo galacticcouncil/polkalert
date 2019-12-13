@@ -155,7 +155,7 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
 async function getDerivedStaking(accounts: Vec<ValidatorId>) {
   const derivedStakingRequests: Promise<DerivedStakingQuery>[] = accounts.map(
     account => {
-      return api.derive.staking.query(account.toString())
+      return api.derive.staking.query(account)
     }
   )
 
@@ -418,7 +418,6 @@ async function startDataService() {
   return
 }
 
-//TODO MOVE/REFACTOR
 async function addDerivedHeartbeatsToValidators(validators) {
   let accountIds = validators.map(validator => validator.accountId)
   let onlineStatus = await api.derive.imOnline
