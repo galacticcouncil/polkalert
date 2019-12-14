@@ -17,6 +17,7 @@ import { AppVersion } from '../entity/AppVersion'
 import { SessionInfo } from '../entity/SessionInfo'
 import { Slash } from '../entity/Slash'
 import humanizeDuration from 'humanize-duration'
+import { ValidatorPrefsTo196, ValidatorPrefs } from '@polkadot/types/interfaces'
 
 let connection: Connection = null
 let manager: EntityManager = null
@@ -57,7 +58,9 @@ async function disconnect() {
 
 async function getDataAge() {
   let firstHeader = await getFirstHeader()
-  return humanizeDuration(Date.now() - firstHeader.timestamp, { round: true })
+  return firstHeader
+    ? humanizeDuration(Date.now() - firstHeader.timestamp, { round: true })
+    : null
 }
 
 async function init(reset = false) {
@@ -159,6 +162,7 @@ async function removeComissionObject(data) {
 
 function createCommissionObject(data) {
   const commissionData = new CommissionData()
+  const validatorPrefs: ValidatorPrefs = data.validatorPrefs
 
   commissionData.eraIndex = normalizeNumber(data.eraIndex)
   commissionData.sessionIndex = normalizeNumber(data.sessionIndex)
@@ -168,7 +172,7 @@ function createCommissionObject(data) {
     : undefined
 
   commissionData.commission = data.validatorPrefs
-    ? formatBalance(data.validatorPrefs.validatorPayment)
+    ? (validatorPrefs.commission.toNumber() / 10000000).toFixed(2) + '%'
     : undefined
 
   commissionData.controllerId = normalizeHash(data.controllerId)
