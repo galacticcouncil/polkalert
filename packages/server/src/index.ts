@@ -4,17 +4,15 @@ import connector from './connector'
 import settings from './settings'
 import { readFileSync } from 'fs'
 
-
 process.on('unhandledRejection', error => {
-  console.log('unhandledRejection');
-  console.error(error);
-});
+  console.log('unhandledRejection')
+  console.error(error)
+})
 
 async function main() {
   await db.init()
 
   const oldAppVersion = await db.getAppVersion().catch(() => {
-    console.log('error getting app version')
     return null
   })
 

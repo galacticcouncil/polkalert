@@ -75,23 +75,29 @@ const questions = [
 
 ;(async () => {
   console.log('Polkalert setup')
-  const response = await prompts(questions)
-  console.log(response)
+  let resetArg = process.argv.indexOf('--reset') !== -1
+  let response = { serverPort: null, databasePort: null, reset: null }
+
+  if (!resetArg) {
+    response = await prompts(questions)
+    console.log(response)
+  }
 
   let { /* clientPort, */ serverPort, databasePort, reset } = response
 
-  if (reset) {
+  if (reset || resetArg) {
     serverSettings = defaultServerSettings
     ormSettings = defaultOrmSettings
     dbSettings = defaultDbSettings
   }
 
-  serverSettings.serverPort = serverPort
+  if (serverPort) serverSettings.serverPort = serverPort
 
-  ormSettings.port = databasePort
-
-  dbSettings.services['monitor-db'].ports = [databasePort + ':5432']
-  dbSettings.services['monitor-db'].expose = [databasePort]
+  if (databasePort) {
+    ormSettings.port = databasePort
+    dbSettings.services['monitor-db'].ports = [databasePort + ':5432']
+    dbSettings.services['monitor-db'].expose = [databasePort]
+  }
 
   fs.writeFileSync(dbDockerFile, yaml.stringify(dbSettings, null, 2))
   fs.writeFileSync(ormConfigFile, JSON.stringify(ormSettings, null, 2))
