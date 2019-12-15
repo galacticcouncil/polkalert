@@ -64,6 +64,7 @@ async function init(reset = false) {
   if (connection) await disconnect()
   let connectionOptions = await getConnectionOptions()
 
+  //TODO: handle connection disconnect
   connection =
     (await createConnection({
       ...connectionOptions,
@@ -100,9 +101,11 @@ async function startPruningInterval() {
   maxDataAge = settings.get().maxDataAge
 
   if (manager) {
-    manager.delete(Header, {
-      timestamp: LessThan(Date.now() - maxDataAge * 3600 * 1000)
-    })
+    manager
+      .delete(Header, {
+        timestamp: LessThan(Date.now() - maxDataAge * 3600 * 1000)
+      })
+      .catch(e => {})
 
     pruningInterval = setTimeout(startPruningInterval, pruning * 1000)
   }
