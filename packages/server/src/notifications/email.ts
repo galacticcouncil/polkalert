@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'
 
 let emailProvider: Mail = null
-let recipient = null
+let recipient: string = null
 
 function init(settings: Settings) {
   if (emailProvider) {

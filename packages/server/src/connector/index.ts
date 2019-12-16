@@ -5,15 +5,26 @@ import { formatBalance } from '@polkadot/util'
 import { isNullOrUndefined } from 'util'
 import { Vec } from '@polkadot/types'
 import { DerivedStakingQuery } from '@polkadot/api-derive/types'
-import { ValidatorId } from '@polkadot/types/interfaces'
+import { ValidatorId, EventRecord } from '@polkadot/types/interfaces'
 import notifications from '../notifications'
 import watcher from '../watcher'
 import settings from '../settings'
+import { Validator } from '../entity/Validator'
+import {
+  BlockInfo,
+  SessionInfo,
+  EnhancedDerivedStakingQuery,
+  EnhancedHeader,
+  HeaderSessionInfo,
+  EventOffence,
+  EventReward,
+  EventSlash
+} from '../types/connector'
 
 let maxHeaderBatch = 100
 let maxBlockHistory = 15000
 
-let api: ApiPromise = null
+let api: ApiPromise | null = null
 let sessionInfo: SessionInfo = null
 let firstSavedBlock: BlockInfo = null
 let lastSavedBlock: BlockInfo = null
@@ -22,7 +33,7 @@ async function getPreviousHeaders(
   numberOfHeaders: number,
   startFromBlock: number
 ) {
-  let oldHeaders = []
+  let oldHeaders: EnhancedHeader[] = []
   console.log('getting', numberOfHeaders, 'previous headers')
 
   let blockNumbers = Array.from(
@@ -44,7 +55,7 @@ async function getPreviousHeaders(
   return oldHeaders
 }
 
-async function getBlockHeaders(blockNumbers: Array<number>) {
+async function getBlockHeaders(blockNumbers: number[]) {
   let blocksAvailable = true
   if (blockNumbers.length > 1) {
     blocksAvailable = await testPruning(blockNumbers[blockNumbers.length - 1])
@@ -74,13 +85,13 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
     )
   )
 
-  let events = await Promise.all(
+  let events: Vec<EventRecord>[] = await Promise.all(
     headers.map(header =>
       header ? api.query.system.events.at(header.hash) : null
     )
   )
 
-  let enhancedHeaders = await Promise.all(
+  let enhancedHeaders: EnhancedHeader[] = await Promise.all(
     headers.map(async (header, index) => {
       if (!header) return null
 
@@ -89,10 +100,10 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
       const number: number = header.number.toNumber()
       const hash: string = header.hash.toString()
       const author: string = header.author.toString()
-      let slashes = []
-      let rewards = []
-      let offences = []
-      let sessionInfo = null
+      let slashes: EventSlash[] = []
+      let rewards: EventReward[] = []
+      let offences: EventOffence[] = []
+      let sessionInfo: HeaderSessionInfo = null
 
       for (const record of eventWrapper) {
         const { event } = record
@@ -140,7 +151,6 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
         sessionInfo = { ...sessionInfo, rewards, offences, slashes }
 
       return {
-        ...header,
         author,
         number,
         hash,
@@ -236,7 +246,7 @@ async function subscribeHeaders() {
       return
     }
 
-    await db.save('Header', enhancedHeader)
+    await db.saveHeader(enhancedHeader)
 
     return
   })
@@ -255,9 +265,11 @@ async function getValidators(at?: string) {
   const validatorInfo = await getDerivedStaking(validators)
   let eraIndex = sessionInfo.eraIndex
   let sessionIndex = sessionInfo.sessionIndex
-  let enhancedValidatorInfo = validatorInfo.map(validatorInfo => {
-    return { ...validatorInfo, eraIndex, sessionIndex }
-  })
+  let enhancedValidatorInfo: EnhancedDerivedStakingQuery[] = validatorInfo.map(
+    validatorInfo => {
+      return { ...validatorInfo, eraIndex, sessionIndex }
+    }
+  )
 
   return enhancedValidatorInfo
 }
@@ -421,13 +433,8 @@ async function startDataService() {
   return
 }
 
-async function addDerivedHeartbeatsToValidators(validators) {
-  let accountIds = validators.map(validator => validator.accountId)
-  let onlineStatus = await api.derive.imOnline
-    .receivedHeartbeats(accountIds)
-    .catch(e => {
-      console.log('Error getting heartbeats:', e)
-    })
+async function addDerivedHeartbeatsToValidators(validators: Validator[]) {
+  let onlineStatus = await api.derive.imOnline.receivedHeartbeats()
 
   return validators.map(validator => {
     let recentlyOnline = false

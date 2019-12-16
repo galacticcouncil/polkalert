@@ -1,7 +1,7 @@
 import WebHooks from 'node-webhooks'
 
 let webHookStorage: string[] = []
-let webHooks = null
+let webHooks: any = null
 
 function init(settings: Settings) {
   if (!webHooks) {
@@ -11,9 +11,12 @@ function init(settings: Settings) {
 
     let emitter = webHooks.getEmitter()
     //emitter.on('*.success', function(shortname, statusCode, body) {})
-    emitter.on('*.failure', function(shortname, statusCode, body) {
-      console.error('Error on trigger webHook' + shortname, statusCode, body)
-    })
+    emitter.on(
+      '*.failure',
+      (shortname: string, statusCode: string, body: string) => {
+        console.error('Error on trigger webHook' + shortname, statusCode, body)
+      }
+    )
   }
 
   set(settings.webHooks)

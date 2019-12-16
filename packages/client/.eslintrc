@@ -3,11 +3,9 @@
   "extends": [
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
+    "prettier/@typescript-eslint"
   ],
-  "plugins": [
-    "react-hooks"
-  ],
+  "plugins": ["react-hooks"],
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module",
@@ -46,9 +44,7 @@
         "args": "after-used"
       }
     ],
-    "no-console": [
-      "error"
-    ],
+    "no-console": ["error"],
     "space-before-function-paren": [
       "error",
       {
@@ -66,10 +62,7 @@
     "react/no-direct-mutation-state": "error",
     "react/no-unknown-property": "error",
     "react/no-unused-prop-types": "error",
-    "react/prefer-es6-class": [
-      "error",
-      "always"
-    ],
+    "react/prefer-es6-class": ["error", "always"],
     "react/prop-types": "error",
     "react/require-render-return": "error",
     "react-hooks/rules-of-hooks": "error",

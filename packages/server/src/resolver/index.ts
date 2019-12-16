@@ -22,28 +22,28 @@ async function addCurrentEraInfoToValidators(validators: Validator[]) {
 
 async function getValidators() {
   const validators = await db.getValidators()
-  const validatorsWithOnlineStates = await connector.addDerivedHeartbeatsToValidators(
+  const validatorsWithCurrentEraInfo = await addCurrentEraInfoToValidators(
     validators
   )
-  const validatorsWithCurrentEraInfo = await addCurrentEraInfoToValidators(
-    validatorsWithOnlineStates
+  const validatorsWithOnlineStates = await connector.addDerivedHeartbeatsToValidators(
+    validatorsWithCurrentEraInfo
   )
 
-  return validatorsWithCurrentEraInfo
+  return validatorsWithOnlineStates
 }
 
-async function getValidatorInfo(_, { accountId }) {
+async function getValidatorInfo(_: any, { accountId }: { accountId: string }) {
   console.log('getting validator', accountId)
   return await db.getValidatorInfo(accountId)
 }
 
-async function connect(_, { nodeUrl }) {
+async function connect(_: any, { nodeUrl }: { nodeUrl: string }) {
   return connector.connect(nodeUrl).catch(e => {
     console.log('error while connecting:', e)
   })
 }
 
-function updateSettings(_, config) {
+function updateSettings(_: any, config: Settings) {
   return settings.set(config)
 }
 
