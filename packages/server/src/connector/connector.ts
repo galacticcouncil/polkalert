@@ -5,6 +5,7 @@ import { IdentityTypes } from 'edgeware-node-types/dist/identity'
 import { SignalingTypes } from 'edgeware-node-types/dist/signaling'
 import { TreasuryRewardTypes } from 'edgeware-node-types/dist/treasuryReward'
 import { VotingTypes } from 'edgeware-node-types/dist/voting'
+import db from '../db'
 
 let nodeUrl: string = null
 let nodeInfo: NodeInfo = null
@@ -28,17 +29,19 @@ async function disconnect() {
 
   console.log('Disconnecting API')
 
-  if (subscriptions.length)
+  if (subscriptions.length) {
     subscriptions.forEach(async unsubscribe => await unsubscribe())
+    subscriptions = []
+  }
 
   if (api) {
     await api.disconnect()
     provider = null
   }
 
-  try { 
-    await provider.disconnect() 
-  } catch(e){}
+  try {
+    await provider.disconnect()
+  } catch (e) {}
 
   api = null
   provider = null
@@ -71,10 +74,10 @@ async function connect() {
         ...IdentityTypes,
         ...SignalingTypes,
         ...TreasuryRewardTypes,
-        ...VotingTypes,
+        ...VotingTypes
       }
     },
-    provider: provider 
+    provider: provider
   }).catch(e => {
     console.log(e)
     return null
@@ -88,8 +91,6 @@ async function connect() {
     api.rpc.system.name(),
     api.rpc.system.version()
   ])
-
-  // Got default info from https://github.com/polkadot-js/apps/blob/master/packages/react-api/src/Api.tsx
 
   nodeInfo = {
     chain: chain.toString(),
@@ -110,6 +111,20 @@ async function connect() {
       .toNumber(),
     tokenSymbol: properties.tokenSymbol.unwrapOr('DEV').toString()
   }
+
+  const savedNodeInfo = await db.getNodeInfo()
+  if (savedNodeInfo) {
+    if (
+      savedNodeInfo.genesisHash !== nodeInfo.genesisHash ||
+      savedNodeInfo.implementationName !== nodeInfo.implementationName ||
+      savedNodeInfo.specName !== nodeInfo.specName
+    ) {
+      console.log('Chain switched, clearing database...')
+      await db.clearDB()
+    }
+  }
+
+  await db.setNodeInfo(nodeInfo)
   console.log('Connected to:')
   console.log(nodeInfo)
 

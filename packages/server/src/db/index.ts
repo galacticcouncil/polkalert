@@ -290,6 +290,7 @@ async function getLastHeader() {
 async function getValidators() {
   console.log('DB: getting all validators')
   let performanceStart = performance.now()
+  //TODO limit commissionData and slashes
   let allValidators: Validator[] = await manager.find(Validator, {
     relations: ['commissionData', 'blocksProduced', 'slashes']
   })
