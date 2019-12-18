@@ -131,24 +131,11 @@ function createNominatorObjectString({ stakers }: EnhancedDerivedStakingQuery) {
   return JSON.stringify(nominatorObject)
 }
 
-async function removeComissionObject(data: EnhancedDerivedStakingQuery) {
-  const commissionData = await manager.find(CommissionData, {
+async function getCommissionData(accountId: string, sessionIndex: number) {
+  return manager.find(CommissionData, {
     relations: ['validator'],
-    where: {
-      validator: {
-        accountId: data.accountId.toString()
-      },
-      sessionIndex: data.sessionIndex
-    }
+    where: { validator: accountId, sessionIndex }
   })
-
-  await manager
-    .remove(commissionData, {
-      transaction: true
-    })
-    .catch(e => console.log('Error removing commissionData'))
-
-  return
 }
 
 function createCommissionObject(data: EnhancedDerivedStakingQuery) {
@@ -239,17 +226,20 @@ async function saveValidator(data: EnhancedDerivedStakingQuery) {
     data.accountId.toString()
   )
 
-  if (validator) {
-    await removeComissionObject(data)
-  } else {
+  if (!validator) {
     validator = createValidatorObject(data)
+    await manager.save(validator)
   }
 
-  let commission: CommissionData = createCommissionObject(data)
-  commission.validator = validator
+  let commission: CommissionData = (
+    await getCommissionData(data.accountId.toString(), data.sessionIndex)
+  )[0]
 
-  await manager.save(validator)
-  await manager.save(commission)
+  if (!commission) {
+    commission = createCommissionObject(data)
+    commission.validator = validator
+    await manager.save(commission)
+  }
 
   return
 }
