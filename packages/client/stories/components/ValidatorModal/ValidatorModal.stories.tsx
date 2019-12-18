@@ -1,7 +1,8 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
 
-import { PageTitle, Table } from 'ui'
+import { PageTitle, Identicon, Table } from 'ui'
+import { formatAddress } from 'utils'
 import { NOOP } from 'utils'
 
 import * as S from 'components/ValidatorModal/styled'
@@ -10,6 +11,38 @@ storiesOf('COMPONENTS|ValidatorModal', module).add('default', () => {
   return (
     <S.Wrapper onClose={NOOP}>
       <S.Content>
+        <PageTitle style={{ marginBottom: '24px' }}>Session IDs</PageTitle>
+        <S.Addresses>
+          {[...Array(7)].map((_, idx) => (
+            <S.Address key={`storybook-validatorModal-sessionId-${idx}`}>
+              <Identicon
+                value="GARHv4dakmEBS3W4PDUtsXmnsu8NN91kGQDyP9h9FFXaTof"
+                size={40}
+              />
+              <span>
+                {formatAddress(
+                  'GARHv4dakmEBS3W4PDUtsXmnsu8NN91kGQDyP9h9FFXaTof'
+                )}
+              </span>
+            </S.Address>
+          ))}
+        </S.Addresses>
+        <PageTitle style={{ marginBottom: '24px' }}>Next session IDs</PageTitle>
+        <S.Addresses>
+          {[...Array(7)].map((_, idx) => (
+            <S.Address key={`storybook-validatorModal-nextSessionId-${idx}`}>
+              <Identicon
+                value="GARHv4dakmEBS3W4PDUtsXmnsu8NN91kGQDyP9h9FFXaTof"
+                size={40}
+              />
+              <span>
+                {formatAddress(
+                  'GARHv4dakmEBS3W4PDUtsXmnsu8NN91kGQDyP9h9FFXaTof'
+                )}
+              </span>
+            </S.Address>
+          ))}
+        </S.Addresses>
         <PageTitle style={{ marginBottom: '24px' }}>Slashes</PageTitle>
         <Table
           id="storybook-validatorModal-slashes"

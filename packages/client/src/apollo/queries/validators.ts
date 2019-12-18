@@ -9,8 +9,6 @@ export default gql`
         bondedSelf
         nominatorData
         commission
-        sessionIds
-        nextSessionIds
       }
       currentValidator
       blocksProducedCount

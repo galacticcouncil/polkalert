@@ -30,8 +30,6 @@ const ValidatorList = ({ loading, validators }: Props) => (
           blocksProducedCount={item.blocksProducedCount}
           slashes={item.slashes}
           recentlyOnline={item.recentlyOnline}
-          sessionIds={item.commissionData.sessionIds}
-          nextSessionIds={item.commissionData.nextSessionIds}
           nominators={item.commissionData.nominatorData?.stakers}
           current={item.currentValidator}
         />

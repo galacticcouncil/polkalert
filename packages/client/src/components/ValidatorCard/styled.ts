@@ -213,17 +213,3 @@ export const DropdownList = styled(Dropdown)`
   flex-wrap: wrap;
   align-items: flex-start;
 `
-
-export const Slash = styled.div`
-  &:not(:last-of-type) {
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid ${Colors.Gray[200]};
-  }
-
-  strong {
-    margin-left: 2px;
-    color: ${Colors.Primary};
-    font-size: 16px;
-  }
-`

@@ -2,7 +2,8 @@ import React from 'react'
 import { useQuery } from '@apollo/react-hooks'
 
 import VALIDATORINFO_QUERY from 'apollo/queries/validatorInfo'
-import { PageTitle, Table } from 'ui'
+import { PageTitle, Identicon, Table } from 'ui'
+import { formatAddress } from 'utils'
 
 import * as S from './styled'
 
@@ -21,6 +22,32 @@ const ValidatorModal = ({ onClose, accountId }: Props) => {
   return (
     <S.Wrapper onClose={onClose}>
       <S.Content>
+        <PageTitle style={{ marginBottom: '24px' }}>Session IDs</PageTitle>
+        <S.Addresses>
+          {data?.validator?.commissionData?.sessionIds ? (
+            data.validator.commissionData.sessionIds.map((item, idx) => (
+              <S.Address key={`validatorModal-sessionId-${idx}`}>
+                <Identicon value={item} size={40} />
+                <span>{formatAddress(item)}</span>
+              </S.Address>
+            ))
+          ) : (
+            <S.NoData>No data available.</S.NoData>
+          )}
+        </S.Addresses>
+        <PageTitle style={{ marginBottom: '24px' }}>Next session IDs</PageTitle>
+        <S.Addresses>
+          {data?.validator?.commissionData?.nextSessionIds ? (
+            data.validator.commissionData.nextSessionIds.map((item, idx) => (
+              <S.Address key={`validatorModal-nextSessionId-${idx}`}>
+                <Identicon value={item} size={40} />
+                <span>{formatAddress(item)}</span>
+              </S.Address>
+            ))
+          ) : (
+            <S.NoData>No data available.</S.NoData>
+          )}
+        </S.Addresses>
         <PageTitle style={{ marginBottom: '24px' }}>Slashes</PageTitle>
         <Table
           id="validatorModal-slashes"

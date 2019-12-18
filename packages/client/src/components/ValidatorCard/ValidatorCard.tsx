@@ -27,8 +27,6 @@ type Props = {
   blocksProducedCount?: number
   slashes?: SlashInterface[]
   recentlyOnline?: boolean
-  sessionIds?: string[]
-  nextSessionIds?: string[]
   nominators?: Nominator[]
   current?: boolean
   className?: string
@@ -45,18 +43,12 @@ const ValidatorCard = ({
   commission,
   blocksProducedCount,
   slashes,
-  sessionIds,
-  nextSessionIds,
   recentlyOnline,
   nominators,
   current = true,
   className = '',
   style
 }: Props) => {
-  const [sessionIdsVisible, setSessionIdsVisible] = useState<boolean>(false)
-  const [nextSessionIdsVisible, setNextSessionIdsVisible] = useState<boolean>(
-    false
-  )
   const [nominatorsVisible, setNominatorsVisible] = useState<boolean>(false)
   const [infoModalVisible, showInfoModal, hideInfoModal] = useBooleanState()
   const isDesktop = useMediaQuery(device.lg)
@@ -139,58 +131,6 @@ const ValidatorCard = ({
           </div>
         </S.InfoColumn>
       </S.Info>
-      {!!sessionIds?.length && (
-        <>
-          <S.DropdownButton isOpen={sessionIdsVisible}>
-            <button onClick={() => setSessionIdsVisible(!sessionIdsVisible)}>
-              <SVG src="/icons/arrow-down.svg">
-                <img src="/icons/arrow-down.svg" alt="toggle" />
-              </SVG>
-              Session IDs ({sessionIds.length})
-            </button>
-          </S.DropdownButton>
-          <S.DropdownList isOpen={sessionIdsVisible}>
-            {sessionIds.map((item, idx) => (
-              <S.Address
-                nominator
-                key={`validator-${stashId}-sessionId-${idx}`}
-              >
-                <Identicon value={item} size={40} />
-                <span>
-                  <div>{formatAddress(item)}</div>
-                </span>
-              </S.Address>
-            ))}
-          </S.DropdownList>
-        </>
-      )}
-      {!!nextSessionIds?.length && (
-        <>
-          <S.DropdownButton isOpen={nextSessionIdsVisible}>
-            <button
-              onClick={() => setNextSessionIdsVisible(!nextSessionIdsVisible)}
-            >
-              <SVG src="/icons/arrow-down.svg">
-                <img src="/icons/arrow-down.svg" alt="toggle" />
-              </SVG>
-              Next session IDs ({nextSessionIds.length})
-            </button>
-          </S.DropdownButton>
-          <S.DropdownList isOpen={nextSessionIdsVisible}>
-            {nextSessionIds.map((item, idx) => (
-              <S.Address
-                nominator
-                key={`validator-${stashId}-nextSessionId-${idx}`}
-              >
-                <Identicon value={item} size={40} />
-                <span>
-                  <div>{formatAddress(item)}</div>
-                </span>
-              </S.Address>
-            ))}
-          </S.DropdownList>
-        </>
-      )}
       {!!nominators?.length && (
         <>
           <S.DropdownButton isOpen={nominatorsVisible}>
