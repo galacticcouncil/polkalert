@@ -248,7 +248,10 @@ async function getValidators(at?: string | Hash) {
   console.log(
     'getting validators for',
     at
-      ? 'block #' + at + ' in session #' + (await getSessionInfo()).sessionIndex
+      ? 'block #' +
+          at +
+          ' in session #' +
+          (await api.query.session.currentIndex.at(at))
       : 'current era'
   )
 
