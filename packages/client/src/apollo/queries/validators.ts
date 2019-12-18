@@ -13,10 +13,6 @@ export default gql`
         nextSessionIds
       }
       currentValidator
-      blocksProduced {
-        id
-        blockHash
-      }
       blocksProducedCount
       slashes {
         amount

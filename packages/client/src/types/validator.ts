@@ -43,14 +43,14 @@ export interface CommissionDataFormattedInterface {
   bondedSelf: string
   nominatorData: NominatorDataFormattedInterface
   commission: string
-  sessionId: string
+  sessionIds: string[]
+  nextSessionIds: string[]
 }
 
 export interface ValidatorFormattedInterface {
   accountId: string
-  commissionData: CommissionDataFormattedInterface[]
+  commissionData: CommissionDataFormattedInterface
   currentValidator: boolean
-  blocksProduced: BlockInterface[]
   blocksProducedCount: number
   slashes: SlashInterface[]
   recentlyOnline: boolean

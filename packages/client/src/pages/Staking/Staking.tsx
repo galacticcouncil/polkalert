@@ -33,6 +33,7 @@ type Props = {
 const Staking = ({ match }: Props) => {
   const [currentValidators, setCurrentValidators] = useState<VFI>([])
   const [previousValidators, setPreviousValidators] = useState<VFI>([])
+  const [loading, setLoading] = useState<boolean>(true)
   const api = useSelector(apiSelector)
   const query = useQuery(VALIDATORS_QUERY, {
     pollInterval: 10000
@@ -47,12 +48,12 @@ const Staking = ({ match }: Props) => {
       const validatorsFormatted = data.validators.map(item => ({
         ...item,
         commissionData: item.commissionData?.length
-          ? item.commissionData.map(data => ({
-            ...data,
-            nominatorData: data.nominatorData
-              ? JSON.parse(data.nominatorData)
+          ? {
+            ...item.commissionData[0],
+            nominatorData: item.commissionData[0].nominatorData
+              ? JSON.parse(item.commissionData[0].nominatorData)
               : {}
-          }))
+          }
           : [{}]
       }))
 
@@ -62,6 +63,7 @@ const Staking = ({ match }: Props) => {
       setPreviousValidators(
         validatorsFormatted.filter(item => !item.currentValidator)
       )
+      setLoading(false)
     }
   }, [data])
 
@@ -92,14 +94,22 @@ const Staking = ({ match }: Props) => {
             path={`${match.path}/current-era`}
             exact
             render={props => (
-              <ValidatorList validators={currentValidators} {...props} />
+              <ValidatorList
+                loading={loading}
+                validators={currentValidators}
+                {...props}
+              />
             )}
           />
           <Route
             path={`${match.path}/previous-eras`}
             exact
             render={props => (
-              <ValidatorList validators={previousValidators} {...props} />
+              <ValidatorList
+                loading={loading}
+                validators={previousValidators}
+                {...props}
+              />
             )}
           />
           <Redirect from="*" to={`${match.path}/current-era`} />
