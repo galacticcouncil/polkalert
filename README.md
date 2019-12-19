@@ -29,7 +29,7 @@ You can run the project via Terminal using the following commands:
 
 You need all of the three parts: client, server and db running to run Polkalert
 
-4.  `yarn start`: Shortcut which runs the whole project. The client, db and the server parts will run on the ports mentioned above by default or on ports you configured via setup script. Note that you will not have full control over each process if you run the app this way.
+4.  `yarn start`: Shortcut which runs the whole project. The client, db and the server parts will run on the ports mentioned above by default or on ports you configured via the setup script. Note that you will not have full control over each process if you run the app this way.
 
 5.  `yarn stop:db`: Stops db and resets docker interfaces if it doesn't stop automatically
 
@@ -42,6 +42,10 @@ Besides the `start` script, there are other ones which can be used to work with 
 - `yarn install:server`: Installs only the server dependencies
 
 - `yarn setup`: Setup project environment variables and default settings
+
+- `yarn reset`: Resets the database and server to it's default state.
+- `yarn reset:db`: Resets the database to it's default state.
+- `yarn reset:server`: Resets the server to it's default state.
 
 - `yarn build`: Builds the whole project for production
 - `yarn build:client`: Builds only the client for production
