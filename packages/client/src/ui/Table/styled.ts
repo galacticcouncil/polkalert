@@ -12,7 +12,6 @@ export const Inner = styled.div`
 
 export const Table = styled.table`
   width: 100%;
-  word-break: break-all;
 
   thead {
     th {
@@ -33,6 +32,7 @@ export const Table = styled.table`
         padding: 20px 32px;
         background: ${Colors.Gray[300]};
         color: ${Colors.White};
+        word-break: break-all;
       }
     }
   }

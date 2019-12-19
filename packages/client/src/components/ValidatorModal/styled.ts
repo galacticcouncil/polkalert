@@ -5,7 +5,12 @@ import { Colors } from 'styles/variables'
 import { device } from 'styles/media'
 
 export const Wrapper = styled(FullScreenModal)`
+  padding: 56px 24px;
   z-index: 9300;
+
+  @media ${device.md} {
+    padding: 80px 56px;
+  }
 `
 
 export const Content = styled.div`
@@ -15,7 +20,7 @@ export const Content = styled.div`
 `
 
 export const Addresses = styled.div`
-  padding-bottom: 80px;
+  padding-bottom: 64px;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;

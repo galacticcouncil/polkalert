@@ -15,7 +15,7 @@ const fadeIn = keyframes`
 `
 
 export const Wrapper = styled.div`
-  padding: 48px;
+  padding: 24px;
   overflow-y: auto;
   background: ${Colors.Gray[400]};
   color: ${Colors.Gray[100]};
@@ -25,6 +25,10 @@ export const Wrapper = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
+
+  @media ${device.md} {
+    padding: 48px;
+  }
 `
 
 export const Close = styled(SVG)`

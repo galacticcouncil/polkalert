@@ -5,12 +5,12 @@ import { Colors } from 'styles/variables'
 import { device } from 'styles/media'
 
 export const Wrapper = styled.div`
-  max-width: 100%;
   width: 100%;
   padding: 0 0 16px;
   border-bottom: 2px solid ${Colors.Gray[200]};
 
   @media ${device.md} {
+    max-width: 100%;
     width: auto;
     padding: 5px;
     border-radius: 50px;
