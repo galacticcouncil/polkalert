@@ -36,11 +36,13 @@ const Staking = ({ match }: Props) => {
   const [loading, setLoading] = useState<boolean>(true)
   const api = useSelector(apiSelector)
   const query = useQuery(VALIDATORS_QUERY, {
-    pollInterval: 10000
+    pollInterval: 15000
   })
 
   const { data } = api.demo ? (stakingDemo as QueryResult) : query
-  const dataAge = useQuery(DATAAGE_QUERY)
+  const dataAge = useQuery(DATAAGE_QUERY, {
+    pollInterval: 15000
+  })
 
   useEffect(() => {
     if (data?.validators?.length) {
@@ -49,11 +51,11 @@ const Staking = ({ match }: Props) => {
         ...item,
         commissionData: item.commissionData?.length
           ? {
-            ...item.commissionData[0],
-            nominatorData: item.commissionData[0].nominatorData
-              ? JSON.parse(item.commissionData[0].nominatorData)
-              : {}
-          }
+              ...item.commissionData[0],
+              nominatorData: item.commissionData[0].nominatorData
+                ? JSON.parse(item.commissionData[0].nominatorData)
+                : {}
+            }
           : [{}]
       }))
 
