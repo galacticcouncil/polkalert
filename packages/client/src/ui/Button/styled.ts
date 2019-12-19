@@ -49,7 +49,7 @@ export const Wrapper = styled.button<{
   }
 
   &:disabled {
-    background: ${Colors.Gray[100]};
+    filter: grayscale(1);
     opacity: 0.5;
     cursor: not-allowed;
   }

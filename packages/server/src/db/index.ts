@@ -285,7 +285,7 @@ async function bulkSave(type, data) {
 
 async function getValidatorInfo(id) {
   return await manager.findOne(Validator, id, {
-    relations: ['commissionData', 'blocksProduced']
+    relations: ['commissionData', 'blocksProduced', 'slashes']
   })
 }
 
@@ -301,14 +301,7 @@ async function getValidators() {
   console.log('DB: getting all validators')
   let performanceStart = performance.now()
   let allValidators: Validator[] = await manager.find(Validator, {
-    relations: ['commissionData', 'blocksProduced', 'slashes']
-  })
-
-  allValidators = allValidators.map(validator => {
-    let blocksProducedCount = validator.blocksProduced
-      ? validator.blocksProduced.length
-      : 0
-    return { ...validator, blocksProducedCount }
+    relations: ['commissionData', 'slashes']
   })
 
   console.log(
@@ -316,6 +309,7 @@ async function getValidators() {
     performance.now() - performanceStart,
     'ms'
   )
+
   return allValidators
 }
 

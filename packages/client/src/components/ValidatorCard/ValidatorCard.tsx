@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import SVG from 'react-inlinesvg'
 import CSS from 'csstype'
 
-import { BlockInterface, SlashInterface } from 'types'
-import { Identicon, Button, Modal } from 'ui'
+import { SlashInterface } from 'types'
+import { Identicon } from 'ui'
+import { ValidatorModal } from 'components'
 import { formatAddress } from 'utils'
 import { useMediaQuery, useBooleanState } from 'hooks'
 
@@ -16,14 +17,14 @@ type Nominator = {
 }
 
 type Props = {
+  hideInfoButton?: boolean
   stashId?: string
   controllerId?: string
-  sessionId?: string
   bondedTotal?: string
   bondedSelf?: string
   bondedFromNominators?: string
   commission?: string
-  blocksProduced?: BlockInterface[]
+  blocksProducedCount?: number
   slashes?: SlashInterface[]
   recentlyOnline?: boolean
   nominators?: Nominator[]
@@ -33,14 +34,14 @@ type Props = {
 }
 
 const ValidatorCard = ({
+  hideInfoButton,
   stashId,
   controllerId,
-  sessionId,
   bondedTotal = '0.000',
   bondedSelf = '0.000',
   bondedFromNominators = '0.000',
   commission,
-  blocksProduced,
+  blocksProducedCount,
   slashes,
   recentlyOnline,
   nominators,
@@ -48,26 +49,21 @@ const ValidatorCard = ({
   className = '',
   style
 }: Props) => {
-  const [nominatorsVisible, showNominators, hideNominators] = useBooleanState()
-  const [
-    blocksModalVisible,
-    showBlocksModal,
-    hideBlocksModal
-  ] = useBooleanState()
-  const [
-    slashesModalVisible,
-    showSlashesModal,
-    hideSlashesModal
-  ] = useBooleanState()
+  const [nominatorsVisible, setNominatorsVisible] = useState<boolean>(false)
+  const [infoModalVisible, showInfoModal, hideInfoModal] = useBooleanState()
   const isDesktop = useMediaQuery(device.lg)
-
-  const toggleNominatorsVisible = () => {
-    nominatorsVisible ? hideNominators() : showNominators()
-  }
 
   return (
     <S.Wrapper fluid current={current} className={className} style={style}>
-      <S.FirstLine>
+      {!hideInfoButton && (
+        <S.DetailsButton
+          theme="outlineMini"
+          text="Info"
+          onClick={showInfoModal}
+          style={{ marginLeft: 'auto', alignSelf: 'flex-start' }}
+        />
+      )}
+      <S.Addresses>
         {stashId && (
           <S.Address big>
             <S.OnlineState>
@@ -108,66 +104,44 @@ const ValidatorCard = ({
             </span>
           </S.Address>
         )}
-        {sessionId && (
-          <S.Address>
-            <Identicon value={sessionId} size={40} current={current} />
-            <span>
-              <div>Session</div>
-              <strong>{formatAddress(sessionId)}</strong>
-            </span>
-          </S.Address>
-        )}
-      </S.FirstLine>
-      <S.SecondLine>
-        <div>
-          Bonded - total:<span>{bondedTotal}</span>
-        </div>
-        <div>
-          Bonded - self:<span>{bondedSelf}</span>
-        </div>
-        <div>
-          Bonded - from nominators:<span>{bondedFromNominators}</span>
-        </div>
-        {commission && (
-          <div className="flex">
-            Commission:<span>{commission}</span>
+      </S.Addresses>
+      <S.Info>
+        <S.InfoColumn>
+          <div>
+            Bonded - total:<span>{bondedTotal}</span>
           </div>
-        )}
-        <div>
-          Blocks produced:
-          <span>{blocksProduced?.length || 0}</span>
-          {!!blocksProduced?.length && (
-            <Button
-              theme="outlineMini"
-              text="Show"
-              onClick={showBlocksModal}
-              style={{ marginLeft: '16px' }}
-            />
+          <div>
+            Bonded - self:<span>{bondedSelf}</span>
+          </div>
+          <div>
+            Bonded - nominators:<span>{bondedFromNominators}</span>
+          </div>
+        </S.InfoColumn>
+        <S.InfoColumn>
+          {commission && (
+            <div>
+              Commission:<span>{commission}</span>
+            </div>
           )}
-        </div>
-        <div>
-          Slashes:<span>{slashes?.length || 0}</span>
-          {!!slashes?.length && (
-            <Button
-              theme="outlineMini"
-              text="Show"
-              onClick={showSlashesModal}
-              style={{ marginLeft: '16px' }}
-            />
-          )}
-        </div>
-      </S.SecondLine>
-      {nominators && !!nominators.length && (
+          <div>
+            Blocks produced:<span>{blocksProducedCount || 0}</span>
+          </div>
+          <div>
+            Slashes:<span>{slashes?.length || 0}</span>
+          </div>
+        </S.InfoColumn>
+      </S.Info>
+      {!!nominators?.length && (
         <>
-          <S.NominatorsDropdownButton isOpen={nominatorsVisible}>
-            <button onClick={toggleNominatorsVisible}>
+          <S.DropdownButton isOpen={nominatorsVisible}>
+            <button onClick={() => setNominatorsVisible(!nominatorsVisible)}>
               <SVG src="/icons/arrow-down.svg">
                 <img src="/icons/arrow-down.svg" alt="toggle" />
               </SVG>
               Nominators ({nominators.length})
             </button>
-          </S.NominatorsDropdownButton>
-          <S.NominatorsDropdownList isOpen={nominatorsVisible}>
+          </S.DropdownButton>
+          <S.DropdownList isOpen={nominatorsVisible}>
             {nominators.map(
               (item, idx) =>
                 item.accountId &&
@@ -184,31 +158,12 @@ const ValidatorCard = ({
                   </S.Address>
                 )
             )}
-          </S.NominatorsDropdownList>
+          </S.DropdownList>
         </>
       )}
 
-      {!!blocksProduced?.length && blocksModalVisible && (
-        <Modal onClose={hideBlocksModal}>
-          Numbers of produced blocks:
-          {blocksProduced.map((item, idx) => (
-            <S.Block key={`${stashId}-block-${idx}`}>{item.id}</S.Block>
-          ))}
-        </Modal>
-      )}
-      {!!slashes?.length && slashesModalVisible && (
-        <Modal onClose={hideSlashesModal}>
-          {slashes.map((item, idx) => (
-            <S.Slash key={`${stashId}-slash-${idx}`}>
-              <div>
-                Amount: <strong>{item.amount}</strong>
-              </div>
-              <div>
-                Session: <strong>{item.sessionIndex}</strong>
-              </div>
-            </S.Slash>
-          ))}
-        </Modal>
+      {!hideInfoButton && stashId && infoModalVisible && (
+        <ValidatorModal onClose={hideInfoModal} accountId={stashId} />
       )}
     </S.Wrapper>
   )
