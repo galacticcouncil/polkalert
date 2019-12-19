@@ -1,4 +1,10 @@
-import { Entity, PrimaryColumn, OneToMany, Column } from 'typeorm'
+import {
+  Entity,
+  PrimaryColumn,
+  OneToMany,
+  Column,
+  RelationCount
+} from 'typeorm'
 import { Header } from './Header'
 import { CommissionData } from './CommissionData'
 import { Slash } from './Slash'
@@ -26,6 +32,6 @@ export class Validator {
   )
   blocksProduced: Header[]
 
-  @Column({ nullable: true })
+  @RelationCount((validator: Validator) => validator.blocksProduced)
   blocksProducedCount: number
 }

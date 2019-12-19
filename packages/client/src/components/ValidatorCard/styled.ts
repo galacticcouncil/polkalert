@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { transparentize } from 'polished'
 
-import { Card, Divider, Dropdown } from 'ui'
+import { Button, Card, Divider, Dropdown } from 'ui'
 import { Colors } from 'styles/variables'
 import { device } from 'styles/media'
 
@@ -13,6 +13,7 @@ export const Wrapper = styled(Card)<{
   padding: 16px;
   box-shadow: 0px 2px 16px ${transparentize(0.8, Colors.Black)};
   opacity: ${p => !p.current && '0.5'};
+  position: relative;
 
   @media ${device.sm} {
     padding: 24px;
@@ -31,7 +32,23 @@ export const Wrapper = styled(Card)<{
   }
 `
 
-export const FirstLine = styled.div`
+export const DetailsButton = styled(Button)`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  @media ${device.sm} {
+    top: 24px;
+    right: 24px;
+  }
+
+  @media ${device.lg} {
+    top: 32px;
+    right: 32px;
+  }
+`
+
+export const Addresses = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -143,40 +160,34 @@ export const OnlineStateText = styled.span<{
   align-items: center;
 `
 
-export const SecondLine = styled.div`
-  padding-top: 24px;
+export const Info = styled.div`
+  padding: 24px 0;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-column-gap: 24px;
 
+  @media ${device.md} {
+    padding: 24px 0 48px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+`
+
+export const InfoColumn = styled.div`
   div {
     padding-top: 8px;
     white-space: nowrap;
-
-    &.flex {
-      display: flex;
-      align-items: center;
-    }
 
     span {
       margin-left: 5px;
       color: var(--color, ${Colors.Primary});
       font-size: 18px;
     }
-
-    button:hover {
-      color: var(--color, ${Colors.Primary});
-      border: 2px solid var(--color, ${Colors.Primary});
-    }
   }
 `
 
-export const NominatorsDropdownButton = styled(Divider)<{
+export const DropdownButton = styled(Divider)<{
   isOpen: boolean
 }>`
-  margin: 24px 0 12px;
-
-  @media ${device.lg} {
-    margin: 48px 0 12px;
-  }
-
   button {
     color: inherit;
     display: flex;
@@ -197,36 +208,8 @@ export const NominatorsDropdownButton = styled(Divider)<{
   }
 `
 
-export const NominatorsDropdownList = styled(Dropdown)`
+export const DropdownList = styled(Dropdown)`
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-`
-
-export const Block = styled.div`
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-
-  div {
-    display: flex;
-  }
-
-  span {
-    margin-left: 16px;
-  }
-`
-
-export const Slash = styled.div`
-  &:not(:last-of-type) {
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid ${Colors.Gray[200]};
-  }
-
-  strong {
-    margin-left: 2px;
-    color: ${Colors.Primary};
-    font-size: 16px;
-  }
 `
