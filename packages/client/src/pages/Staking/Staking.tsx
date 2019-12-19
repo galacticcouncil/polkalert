@@ -51,11 +51,11 @@ const Staking = ({ match }: Props) => {
         ...item,
         commissionData: item.commissionData?.length
           ? {
-            ...item.commissionData[0],
-            nominatorData: item.commissionData[0].nominatorData
-              ? JSON.parse(item.commissionData[0].nominatorData)
-              : {}
-          }
+              ...item.commissionData[0],
+              nominatorData: item.commissionData[0].nominatorData
+                ? JSON.parse(item.commissionData[0].nominatorData)
+                : {}
+            }
           : [{}]
       }))
 
