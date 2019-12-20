@@ -1,11 +1,12 @@
 {
   "parser": "@typescript-eslint/parser",
   "extends": [
-    "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended",
     "prettier/@typescript-eslint"
   ],
-  "plugins": ["react-hooks"],
+  "plugins": ["@typescript-eslint", "react-hooks", "prettier"],
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module",
@@ -16,56 +17,6 @@
     }
   },
   "rules": {
-    "indent": [
-      "error",
-      2,
-      {
-        "SwitchCase": 1,
-        "VariableDeclarator": {
-          "var": 2,
-          "let": 2,
-          "const": 3
-        },
-        "MemberExpression": 1,
-        "FunctionDeclaration": {
-          "parameters": 1
-        },
-        "CallExpression": {
-          "arguments": 1
-        },
-        "ArrayExpression": 1,
-        "ObjectExpression": 1
-      }
-    ],
-    "no-unused-vars": [
-      "error",
-      {
-        "vars": "local",
-        "args": "after-used"
-      }
-    ],
-    "no-console": ["error"],
-    "space-before-function-paren": [
-      "error",
-      {
-        "anonymous": "never",
-        "named": "never"
-      }
-    ],
-    "no-trailing-spaces": "error",
-    "no-multiple-empty-lines": "error",
-    "react/jsx-no-duplicate-props": "error",
-    "react/jsx-no-target-blank": "error",
-    "react/jsx-no-undef": "error",
-    "react/no-did-mount-set-state": "error",
-    "react/no-did-update-set-state": "error",
-    "react/no-direct-mutation-state": "error",
-    "react/no-unknown-property": "error",
-    "react/no-unused-prop-types": "error",
-    "react/prefer-es6-class": ["error", "always"],
-    "react/prop-types": "error",
-    "react/require-render-return": "error",
-    "react-hooks/rules-of-hooks": "error",
     "@typescript-eslint/ban-ts-ignore": 0,
     "@typescript-eslint/explicit-function-return-type": 0
   },

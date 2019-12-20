@@ -21,9 +21,9 @@ const Email = ({ data, onChange, onToggle }: Props) => (
       label="I want to receive email notifications"
       value={data.emailNotifications}
       onChange={onToggle}
-      style={{ marginBottom: '40px' }}
+      style={{ marginBottom: '34px' }}
     />
-    <Dropdown isOpen={data.emailNotifications}>
+    <Dropdown isOpen={data.emailNotifications} style={{ paddingTop: '6px' }}>
       <Input
         fluid
         name="emailHost"
