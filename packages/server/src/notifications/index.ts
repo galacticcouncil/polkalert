@@ -2,7 +2,7 @@ import settings from '../settings'
 import email from './email'
 import webhooks from './webhooks'
 
-let settingsListener = null
+let settingsListener: boolean = false
 
 async function init() {
   email.init(settings.get())

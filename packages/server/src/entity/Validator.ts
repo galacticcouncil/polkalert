@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryColumn,
-  OneToMany,
-  Column,
-  RelationCount
-} from 'typeorm'
+import { Entity, PrimaryColumn, OneToMany, RelationCount } from 'typeorm'
 import { Header } from './Header'
 import { CommissionData } from './CommissionData'
 import { Slash } from './Slash'

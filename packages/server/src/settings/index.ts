@@ -33,8 +33,9 @@ function get() {
   return settings
 }
 
-function onChange(listener) {
-  return change.addListener('change', listener)
+function onChange(listener: () => void) {
+  change.addListener('change', listener)
+  return true
 }
 
 export default {

@@ -3,18 +3,36 @@ import connector from './connector'
 import { ApiPromise } from '@polkadot/api'
 import { formatBalance } from '@polkadot/util'
 import { isNullOrUndefined } from 'util'
-import { Vec } from '@polkadot/types'
-import { DerivedStakingQuery } from '@polkadot/api-derive/types'
-import { ValidatorId } from '@polkadot/types/interfaces'
+import { Vec, Option } from '@polkadot/types'
+import {
+  EventRecord,
+  Hash,
+  Nominations,
+  Keys,
+  StakingLedger,
+  ValidatorPrefs,
+  Exposure
+} from '@polkadot/types/interfaces'
 import notifications from '../notifications'
 import watcher from '../watcher'
 import settings from '../settings'
+import { Validator } from '../entity/Validator'
+import {
+  BlockInfo,
+  SessionInfo,
+  EnhancedDerivedStakingQuery,
+  EnhancedHeader,
+  HeaderSessionInfo,
+  EventOffence,
+  EventReward,
+  EventSlash
+} from '../types/connector'
+import AccountId from '@polkadot/types/primitive/Generic/AccountId'
 
 let maxHeaderBatch = 100
 let maxBlockHistory = 15000
 
 let api: ApiPromise = null
-let sessionInfo: SessionInfo = null
 let firstSavedBlock: BlockInfo = null
 let lastSavedBlock: BlockInfo = null
 
@@ -22,7 +40,7 @@ async function getPreviousHeaders(
   numberOfHeaders: number,
   startFromBlock: number
 ) {
-  let oldHeaders = []
+  let oldHeaders: EnhancedHeader[] = []
   console.log('getting', numberOfHeaders, 'previous headers')
 
   let blockNumbers = Array.from(
@@ -44,7 +62,11 @@ async function getPreviousHeaders(
   return oldHeaders
 }
 
-async function getBlockHeaders(blockNumbers: Array<number>) {
+async function getBlockHeader(blockNumber: number) {
+  return (await getBlockHeaders([blockNumber]))[0]
+}
+
+async function getBlockHeaders(blockNumbers: number[]) {
   let blocksAvailable = true
   if (blockNumbers.length > 1) {
     blocksAvailable = await testPruning(blockNumbers[blockNumbers.length - 1])
@@ -74,13 +96,13 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
     )
   )
 
-  let events = await Promise.all(
+  let events: Vec<EventRecord>[] = await Promise.all(
     headers.map(header =>
       header ? api.query.system.events.at(header.hash) : null
     )
   )
 
-  let enhancedHeaders = await Promise.all(
+  let enhancedHeaders: EnhancedHeader[] = await Promise.all(
     headers.map(async (header, index) => {
       if (!header) return null
 
@@ -89,15 +111,14 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
       const number: number = header.number.toNumber()
       const hash: string = header.hash.toString()
       const author: string = header.author.toString()
-      let slashes = []
-      let rewards = []
-      let offences = []
-      let sessionInfo = null
+      const slashes: EventSlash[] = []
+      const rewards: EventReward[] = []
+      const offences: EventOffence[] = []
+      let sessionInfo: HeaderSessionInfo = null
 
       for (const record of eventWrapper) {
         const { event } = record
 
-        //TODO: save sessionInfo for validator in this session
         if (event.method === 'NewSession') {
           sessionInfo = {
             sessionIndex: (
@@ -108,32 +129,21 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
           await db.bulkSave('Validator', await getValidators(hash))
         }
         if (event.method === 'Slash') {
-          slashes = [
-            ...slashes,
-            {
-              accountId: api.createType('AccountId', event.data[0]).toString(),
-              amount: formatBalance(api.createType('Balance', event.data[1]))
-            }
-          ]
+          slashes.push({
+            accountId: api.createType('AccountId', event.data[0]).toString(),
+            amount: formatBalance(api.createType('Balance', event.data[1]))
+          })
         }
         if (event.method === 'Reward') {
-          rewards = [
-            ...rewards,
-            {
-              amount: formatBalance(api.createType('Balance', event.data[0]))
-            }
-          ]
+          rewards.push({
+            amount: formatBalance(api.createType('Balance', event.data[0]))
+          })
         }
         if (event.method === 'Offence') {
-          offences = [
-            ...offences,
-            {
-              kind: api.createType('Kind', event.data[0]).toString(),
-              timeSlot: api
-                .createType('OpaqueTimeSlot', event.data[1])
-                .toString()
-            }
-          ]
+          offences.push({
+            kind: api.createType('Kind', event.data[0]).toString(),
+            timeSlot: api.createType('OpaqueTimeSlot', event.data[1]).toString()
+          })
         }
       }
 
@@ -147,7 +157,6 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
       }
 
       return {
-        ...header,
         author,
         number,
         hash,
@@ -160,23 +169,13 @@ async function getBlockHeaders(blockNumbers: Array<number>) {
   return enhancedHeaders
 }
 
-async function getDerivedStaking(accounts: Vec<ValidatorId>) {
-  const derivedStakingRequests: Promise<DerivedStakingQuery>[] = accounts.map(
-    account => {
-      return api.derive.staking.query(account)
-    }
-  )
-
-  return await Promise.all(derivedStakingRequests)
-}
-
 async function subscribeEvents() {
   const unsubscribe = await api.query.system.events(async events => {
     events.forEach(async record => {
       const { event } = record
 
       if (event.method === 'Reward') {
-        console.log('Session #', sessionInfo.sessionIndex, ' ended')
+        console.log('Session #', await getSessionInfo(), ' ended')
         console.log(
           'validators were rewarded:',
           formatBalance(api.createType('Balance', event.data[0]))
@@ -185,8 +184,7 @@ async function subscribeEvents() {
 
       if (event.method === 'NewSession') {
         console.log('new session #:', event.data[0].toString())
-        await updateSessionInfo()
-        console.log(JSON.stringify(sessionInfo, null, 1))
+        console.log(JSON.stringify(await getSessionInfo(), null, 1))
       }
 
       if (event.method === 'Slash') {
@@ -209,7 +207,7 @@ async function subscribeHeaders() {
     let hash = header.hash.toString()
     let number = header.number.toNumber()
     let missing = 0
-    let enhancedHeader = (await getBlockHeaders([number]))[0]
+    let enhancedHeader = await getBlockHeader(number)
     watcher.ping(enhancedHeader.timestamp)
 
     console.log('new header #:', number, 'with hash:', hash)
@@ -236,14 +234,18 @@ async function subscribeHeaders() {
       await db.bulkSave('Header', missingHeaders)
     }
 
-    //we got duplicate blocks, first received block is saved right now
+    //Fork detected, first received block is saved right now
     if (missing < 0) {
       let duplicateHeaders = missing * -1
-      console.log(duplicateHeaders, 'duplicate headers found')
+      console.log(
+        duplicateHeaders,
+        'fork detected, discarded block with hash',
+        enhancedHeader.hash.toString()
+      )
       return
     }
 
-    await db.save('Header', enhancedHeader)
+    await db.saveHeader(enhancedHeader)
 
     return
   })
@@ -252,30 +254,127 @@ async function subscribeHeaders() {
   return
 }
 
-async function getValidators(at?: string) {
-  console.log('getting validators for', at ? 'block ' + at : 'current era')
+async function getValidators(at?: string | Hash) {
+  console.log(
+    'getting validators for',
+    at
+      ? 'block #' +
+          at +
+          ' in session #' +
+          (await api.query.session.currentIndex.at(at))
+      : 'current era'
+  )
 
-  const validators = at
-    ? await api.query.session.validators.at(at)
-    : await api.query.session.validators()
+  if (!at) {
+    at = await api.rpc.chain.getBlockHash()
+  }
 
-  const validatorInfo = await getDerivedStaking(validators)
-  let eraIndex = sessionInfo.eraIndex
-  let sessionIndex = sessionInfo.sessionIndex
-  let enhancedValidatorInfo = validatorInfo.map(validatorInfo => {
-    return { ...validatorInfo, eraIndex, sessionIndex }
-  })
+  const validators = await api.query.session.validators.at(at)
+  const eraIndex = (await api.query.staking.currentEra.at(at)).toNumber()
+  const sessionIndex = (await api.query.session.currentIndex.at(at)).toNumber()
+  const queuedKeys = await api.query.session.queuedKeys.at(at)
+  const validatorStakingRequests = []
+  const controllerIds = await Promise.all(
+    validators.map(accountId => api.query.staking.bonded.at(at, accountId))
+  )
 
-  return enhancedValidatorInfo
+  for (let index = 0; index < validators.length; index++) {
+    const accountId = validators[index]
+    const stashId = accountId
+    const controllerId = controllerIds[index].unwrap()
+    const sessionIds = (queuedKeys.find(([currentId]) =>
+      currentId.eq(accountId)
+    ) || [undefined, api.createType('Keys', [])])[1]
+
+    validatorStakingRequests.push(
+      Promise.all([
+        //Workaround for TypeScript Bug https://github.com/microsoft/TypeScript/issues/22469
+        Promise.all([
+          eraIndex,
+          sessionIndex,
+          accountId,
+          stashId,
+          controllerId,
+          api.query.staking.nominators.at(at, accountId),
+          api.query.staking.stakers.at(at, accountId),
+          sessionIds,
+          api.query.session.nextKeys.at(
+            at,
+            api.consts.session.dedupKeyPrefix,
+            accountId
+          ),
+          api.query.staking.ledger.at(at, controllerId)
+        ]),
+        //Max number of safe overloads in Promise.all is 10
+        Promise.all([api.query.staking.validators.at(at, accountId)])
+      ])
+    )
+  }
+
+  const enhancedStakingInfo: EnhancedDerivedStakingQuery[] = (
+    await Promise.all(validatorStakingRequests)
+  ).map(
+    ([
+      [
+        eraIndex,
+        sessionIndex,
+        accountId,
+        stashId,
+        controllerId,
+        nominators,
+        stakers,
+        sessionIds,
+        nextSessionIds,
+        stakingLedger
+      ],
+      [validatorPrefs]
+    ]: [
+      [
+        number,
+        number,
+        AccountId,
+        AccountId,
+        AccountId,
+        Option<Nominations>,
+        Exposure,
+        Keys,
+        Option<Keys>,
+        Option<StakingLedger>
+      ],
+      ValidatorPrefs[]
+    ]) => ({
+      eraIndex,
+      sessionIndex,
+      accountId,
+      stashId,
+      controllerId,
+      nominators: nominators.isSome ? nominators.unwrap().targets : [],
+      stakers: stakers,
+      sessionIds,
+      nextSessionIds: nextSessionIds.unwrap(),
+      stakingLedger: stakingLedger.unwrap(),
+      validatorPrefs: api.createType(
+        'ValidatorPrefs',
+        validatorPrefs.toArray()[0]
+      )
+    })
+  )
+
+  // TODO?
+  // rewardDestination: RewardDestination
+  // nextKeys: Keys
+  // stakers: Exposure
+
+  return enhancedStakingInfo
 }
 
-async function updateSessionInfo() {
+async function getSessionInfo(): Promise<SessionInfo> {
   let [derivedSessionInfo, newEraIndex] = await Promise.all([
     api.derive.session.info(),
     api.query.staking.currentEra()
   ])
 
-  sessionInfo = {
+  return {
     eraIndex: newEraIndex.toNumber(),
     eraLength: derivedSessionInfo.eraLength.toNumber(),
     eraProgress: derivedSessionInfo.eraProgress.toNumber(),
@@ -285,10 +384,6 @@ async function updateSessionInfo() {
     sessionProgress: derivedSessionInfo.sessionProgress.toNumber(),
     sessionsPerEra: derivedSessionInfo.sessionsPerEra.toNumber()
   }
-
-  console.log(sessionInfo)
-
-  return sessionInfo
 }
 
 async function testPruning(blockNumber: number) {
@@ -344,27 +439,6 @@ async function connect(nodeUrl: string) {
     timestamp: null
   }
 
-  let nodeInfo = connector.getNodeInfo()
-
-  formatBalance.setDefaults({
-    decimals: nodeInfo.tokenDecimals,
-    unit: nodeInfo.tokenSymbol
-  })
-
-  let savedNodeInfo = await db.getNodeInfo()
-  if (savedNodeInfo) {
-    if (
-      savedNodeInfo.genesisHash !== nodeInfo.genesisHash ||
-      savedNodeInfo.implementationName !== nodeInfo.implementationName ||
-      savedNodeInfo.specName !== nodeInfo.specName
-    ) {
-      console.log('Chain switched, clearing database...')
-      await db.clearDB()
-    }
-  }
-
-  await db.setNodeInfo(nodeInfo)
-
   await waitUntilSynced()
   startDataService()
 
@@ -385,7 +459,6 @@ async function waitUntilSynced() {
 }
 
 async function startDataService() {
-  await updateSessionInfo()
   await db.bulkSave('Validator', await getValidators())
 
   let firstBlock = await db.getFirstHeader()
@@ -405,16 +478,9 @@ async function startDataService() {
     }
   } else {
     let lastBlockNumber = (await api.rpc.chain.getHeader()).number.toNumber()
-    let firstBlockData = (await getBlockHeaders([lastBlockNumber]))[0]
-    if (firstBlockData) {
-      firstSavedBlock = {
-        number: firstBlockData.number,
-        hash: firstBlockData.hash,
-        timestamp: firstBlockData.timestamp
-      }
-
-      lastSavedBlock = { ...firstSavedBlock }
-    }
+    let blockData = await getBlockHeader(lastBlockNumber)
+    firstSavedBlock = { ...blockData }
+    lastSavedBlock = { ...blockData }
   }
 
   getHeaderDataHistory()
@@ -428,13 +494,8 @@ async function startDataService() {
   return
 }
 
-async function addDerivedHeartbeatsToValidators(validators) {
-  let accountIds = validators.map(validator => validator.accountId)
-  let onlineStatus = await api.derive.imOnline
-    .receivedHeartbeats(accountIds)
-    .catch(e => {
-      console.log('Error getting heartbeats:', e)
-    })
+async function addDerivedHeartbeatsToValidators(validators: Validator[]) {
+  let onlineStatus = await api.derive.imOnline.receivedHeartbeats()
 
   return validators.map(validator => {
     let recentlyOnline = false

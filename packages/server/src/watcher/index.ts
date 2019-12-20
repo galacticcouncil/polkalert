@@ -1,7 +1,7 @@
 import settings from '../settings'
 import notifications from '../notifications'
 
-let settingsListener: NodeJS.EventEmitter = null
+let settingsListener: boolean = null
 let blockReceivedLagNotificationDelay: number = null
 let noBlocksReceivedNotificationDelay: number = null
 let notificationTimeout: NodeJS.Timeout = null
@@ -33,7 +33,7 @@ function getTimeoutMessage() {
   )
 }
 
-function getBlockTimeMessage(blockReceivedTimeDifference) {
+function getBlockTimeMessage(blockReceivedTimeDifference: number) {
   return (
     'node received block after' +
     blockReceivedTimeDifference +
@@ -51,7 +51,7 @@ function startTimeout() {
   }, noBlocksReceivedNotificationDelay)
 }
 
-function ping(timestamp) {
+function ping(timestamp: number) {
   const blockReceivedTimeDifference = Date.now() - timestamp
   if (blockReceivedTimeDifference > blockReceivedLagNotificationDelay)
     notifications.send(
