@@ -45,7 +45,6 @@ function getBlockTimeMessage(blockReceivedTimeDifference: number) {
 
 function startTimeout() {
   notificationTimeout = setTimeout(() => {
-    //TODO use as example
     notifications.send('connection', getTimeoutMessage())
 
     console.log(getTimeoutMessage())
