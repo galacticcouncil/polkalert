@@ -1,10 +1,15 @@
 {
   "sourceMap": true,
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es6",
-    "lib": ["es5", "es6"],
+    "lib": ["es5", "es6", "dom"],
     "module": "commonjs",
     "esModuleInterop": true,
     "sourceMap": true,

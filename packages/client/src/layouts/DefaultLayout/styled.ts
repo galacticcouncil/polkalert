@@ -15,19 +15,16 @@ export const Wrapper = styled.div<{
 
 export const Sidebar = styled.div`
   width: 140px;
+  padding: 56px 0;
   border-right: 2px solid ${Colors.Gray[200]};
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 `
 
 export const Logo = styled.img`
-  max-width: 110px;
-  position: absolute;
-  top: 56px;
-  left: 15px;
-  cursor: pointer;
+  width: 110px;
 `
 
 export const MenuLink = styled(NavLink)`
@@ -42,18 +39,10 @@ export const MenuLink = styled(NavLink)`
 
   &:not(.active):hover {
     color: ${Colors.White};
-
-    svg path {
-      fill: ${Colors.White};
-    }
   }
 
   &.active {
     color: ${Colors.Primary};
-
-    svg path {
-      fill: ${Colors.Primary};
-    }
   }
 
   svg {
@@ -61,8 +50,31 @@ export const MenuLink = styled(NavLink)`
     margin-bottom: 8px;
 
     path {
-      fill: ${p => Colors.Gray[100]};
+      fill: currentColor;
     }
+  }
+`
+
+export const ZeePrime = styled.a`
+  color: ${Colors.Gray[100]};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover {
+    color: ${Colors.Primary};
+  }
+
+  svg,
+  img {
+    max-width: 32px;
+    max-height: 32px;
+    margin-top: 8px;
+  }
+
+  path {
+    fill: currentColor;
   }
 `
 

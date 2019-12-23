@@ -1,82 +1,122 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { Switch, Route, Redirect } from 'react-router-dom'
 import { useQuery } from '@apollo/react-hooks'
 import { useSelector } from 'react-redux'
 
-// import { UiOptionType } from 'types'
-import { ValidatorInterface } from 'types'
-// import { Loading, Select } from 'ui'
-import { Loading } from 'ui'
-import { ValidatorCard } from 'components'
-import { GetValidators } from 'apollo/queries'
+import {
+  ValidatorInterface,
+  ValidatorFormattedInterface,
+  MatchInterface
+} from 'types'
+import DATAAGE_QUERY from 'apollo/queries/dataAge'
+import VALIDATORS_QUERY from 'apollo/queries/validators'
 import { apiSelector } from 'selectors'
+import { Tabs } from 'ui'
 import stakingDemo from 'mocks/staking'
+
+import { ValidatorList } from './components'
 
 import * as S from './styled'
 
-type Data = {
-  validators: ValidatorInterface[]
-}
-
 type QueryResult = {
-  data: Data
+  data: {
+    validators: ValidatorInterface[]
+  }
 }
 
-const Staking = () => {
-  // const filterOptions = [
-  //   'Show all validators and intentions',
-  //   'Show only my nominations',
-  //   'Show only with nominators',
-  //   'Show only without nominators',
-  //   'Show only with warnings',
-  //   'Show only without warnings'
-  // ]
+type VFI = ValidatorFormattedInterface[]
 
-  // const [filter, setFilter] = useState<UiOptionType>(filterOptions[0])
+type Props = {
+  match: MatchInterface
+}
 
+const Staking = ({ match }: Props) => {
+  const [currentValidators, setCurrentValidators] = useState<VFI>([])
+  const [previousValidators, setPreviousValidators] = useState<VFI>([])
+  const [loading, setLoading] = useState<boolean>(true)
   const api = useSelector(apiSelector)
-
-  const query = useQuery(GetValidators, {
-    pollInterval: 10000
+  const query = useQuery(VALIDATORS_QUERY, {
+    pollInterval: 15000
   })
 
-  const { data } = api.demo ? stakingDemo as QueryResult : query
+  const { data } = api.demo ? (stakingDemo as QueryResult) : query
+  const dataAge = useQuery(DATAAGE_QUERY, {
+    pollInterval: 15000
+  })
+
+  useEffect(() => {
+    if (data?.validators?.length) {
+      // TEMP SOLUTION, THE DATA STRUCTURE WILL CHANGE
+      const validatorsFormatted = data.validators.map(item => ({
+        ...item,
+        commissionData: item.commissionData?.length
+          ? {
+              ...item.commissionData[0],
+              nominatorData: item.commissionData[0].nominatorData
+                ? JSON.parse(item.commissionData[0].nominatorData)
+                : {}
+            }
+          : [{}]
+      }))
+
+      setCurrentValidators(
+        validatorsFormatted.filter(item => item.currentValidator)
+      )
+      setPreviousValidators(
+        validatorsFormatted.filter(item => !item.currentValidator)
+      )
+      setLoading(false)
+    }
+  }, [data])
 
   return (
     <S.Wrapper>
-      {data?.validators?.length ? (
-        <>
-          {/* <S.Header>
-            <Select
-              id="staking-filter"
-              value={filter}
-              options={filterOptions}
-              onChange={setFilter}
-            />
-          </S.Header> */}
-          <S.Content>
-            {data.validators.map((item, idx) => (
-              <ValidatorCard
-                key={`validatorCard-${idx}`}
-                stashId={item.accountId}
-                controllerId={item.commissionData[0]?.controllerId}
-                sessionId={item.commissionData[0]?.sessionId}
-                bondedTotal={JSON.parse(item.commissionData[0]?.nominatorData)?.totalStake || '0.000'}
-                bondedSelf={item.commissionData[0]?.bondedSelf || '0.000'}
-                bondedFromNominators={JSON.parse(item.commissionData[0]?.nominatorData)?.nominatorStake || '0.000'}
-                commission={item.commissionData[0]?.commission}
-                blocksProduced={
-                  item.blocksProduced
-                }
-                slashes={item.slashes}
-                recentlyOnline={item.recentlyOnline}
-                nominators={JSON.parse(item.commissionData[0]?.nominatorData)?.stakers}
+      <S.Header>
+        <Tabs
+          tabs={[
+            {
+              text: 'Current Era',
+              href: '/staking/current-era'
+            },
+            {
+              text: 'Previous Eras',
+              href: '/staking/previous-eras'
+            }
+          ]}
+        />
+        {dataAge?.data?.dataAge && (
+          <S.DataAge>
+            Data age: <strong>{dataAge.data.dataAge}</strong>
+          </S.DataAge>
+        )}
+      </S.Header>
+      <S.Content>
+        <Switch>
+          <Route
+            path={`${match.path}/current-era`}
+            exact
+            render={props => (
+              <ValidatorList
+                loading={loading}
+                validators={currentValidators}
+                {...props}
               />
-            ))}
-          </S.Content>
-        </>
-      ) : (
-        <Loading />
-      )}
+            )}
+          />
+          <Route
+            path={`${match.path}/previous-eras`}
+            exact
+            render={props => (
+              <ValidatorList
+                loading={loading}
+                validators={previousValidators}
+                {...props}
+              />
+            )}
+          />
+          <Redirect from="*" to={`${match.path}/current-era`} />
+        </Switch>
+      </S.Content>
     </S.Wrapper>
   )
 }

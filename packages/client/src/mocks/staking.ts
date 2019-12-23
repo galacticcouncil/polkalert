@@ -3,6 +3,7 @@ export default {
     validators: [
       {
         accountId: '5E7hcPnrVaCdnmccFyQYNR3gam1MTBVAuZhnoEtjqjvdNDDo',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5E7hcPnrVaCdnmccFyQYNR3gam1MTBVAuZhnoEtjqjvdNDDo',
@@ -40,6 +41,7 @@ export default {
       },
       {
         accountId: '5HUeLrzY2ZC4wacrsEtq8ruLVxRugwrvFVh233ghfWx9EPHo',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5HUeLrzY2ZC4wacrsEtq8ruLVxRugwrvFVh233ghfWx9EPHo',
@@ -77,6 +79,7 @@ export default {
       },
       {
         accountId: '5GqHM8FWFpAQrzhYmTn537UyvCSwDbrQCfckTTNu6zSu5B2W',
+        currentValidator: false,
         commissionData: [
           {
             controllerId: '5GqHM8FWFpAQrzhYmTn537UyvCSwDbrQCfckTTNu6zSu5B2W',
@@ -109,11 +112,25 @@ export default {
               '0x243a6c8ef50da5b466265d2c78e8b70328b971a169d94116cc484300388d149b'
           }
         ],
-        slashes: [],
+        slashes: [
+          {
+            amount: '100 KSM',
+            sessionIndex: '123'
+          },
+          {
+            amount: '200 KSM',
+            sessionIndex: '321'
+          },
+          {
+            amount: '300 KSM',
+            sessionIndex: '321'
+          }
+        ],
         recentlyOnline: false
       },
       {
         accountId: '5HgidZy1keGw1JiZXhuYXZVberKRUNdAXLThViqTuo776958',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5HgidZy1keGw1JiZXhuYXZVberKRUNdAXLThViqTuo776958',
@@ -151,6 +168,7 @@ export default {
       },
       {
         accountId: '5HpcYdafmpW6H4yRjtxkXwPQzYWiCd46r8pWC8wp5BHQvCCc',
+        currentValidator: false,
         commissionData: [
           {
             controllerId: '5HpcYdafmpW6H4yRjtxkXwPQzYWiCd46r8pWC8wp5BHQvCCc',
@@ -188,6 +206,7 @@ export default {
       },
       {
         accountId: '5C9uAjmnujLjjmJnqPdHAhqjK6Qq4dGFbm3tZNCc2KkyBPMg',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5C9uAjmnujLjjmJnqPdHAhqjK6Qq4dGFbm3tZNCc2KkyBPMg',
@@ -225,6 +244,7 @@ export default {
       },
       {
         accountId: '5F3pWwFKZSEyWedQvGjuM4Fwux7QZcRpBTTbBUVNq4tU4AvQ',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5F3pWwFKZSEyWedQvGjuM4Fwux7QZcRpBTTbBUVNq4tU4AvQ',
@@ -262,6 +282,7 @@ export default {
       },
       {
         accountId: '5E27gZXVEkwLWjaCwmt9dC2sEgbdLEUZUPrxkg6BvG5RKpwW',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5E27gZXVEkwLWjaCwmt9dC2sEgbdLEUZUPrxkg6BvG5RKpwW',
@@ -299,6 +320,7 @@ export default {
       },
       {
         accountId: '5FQyEyW6miKENnFPJEDzypQfqe2XKkjMiX1AMzbdwaFWpwrQ',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5FQyEyW6miKENnFPJEDzypQfqe2XKkjMiX1AMzbdwaFWpwrQ',
@@ -336,6 +358,7 @@ export default {
       },
       {
         accountId: '5Dyiz1MWgLH9FG7a3Z3aikkDNVuDvu7Y7f4VrjGoMD2gG1bW',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5Dyiz1MWgLH9FG7a3Z3aikkDNVuDvu7Y7f4VrjGoMD2gG1bW',
@@ -373,6 +396,7 @@ export default {
       },
       {
         accountId: '5CiBiRPKih567jy3oareNkJgYSX3jhG6kCayYEEtwyxtT9mw',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5CiBiRPKih567jy3oareNkJgYSX3jhG6kCayYEEtwyxtT9mw',
@@ -410,6 +434,7 @@ export default {
       },
       {
         accountId: '5EjundCNeyEVYqLSJffpaVZpoLMVtJwYcjJjN8gEV6Zaw8Zz',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5EjundCNeyEVYqLSJffpaVZpoLMVtJwYcjJjN8gEV6Zaw8Zz',
@@ -447,6 +472,7 @@ export default {
       },
       {
         accountId: '5CEn4fTsvA1CYEa8Zd7ouEiveJAgHMvVednBjEiimd7geWyB',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5CEn4fTsvA1CYEa8Zd7ouEiveJAgHMvVednBjEiimd7geWyB',
@@ -484,6 +510,7 @@ export default {
       },
       {
         accountId: '5ECfW5cqxBGaaoKMb8VPpceabpKEAi8Wk9Y3Y4ggLCE1R1Sr',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5ECfW5cqxBGaaoKMb8VPpceabpKEAi8Wk9Y3Y4ggLCE1R1Sr',
@@ -521,6 +548,7 @@ export default {
       },
       {
         accountId: '5HMcbAyF5cPgu7Uv64fC2SWZHQFbU1oJs9RAFNgiysM57qeD',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5HMcbAyF5cPgu7Uv64fC2SWZHQFbU1oJs9RAFNgiysM57qeD',
@@ -558,6 +586,7 @@ export default {
       },
       {
         accountId: '5HdLNdKBKRkmEQ9trJNhBVN2KNZaTD3p15KVdtDxaBSz3CQ3',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5HdLNdKBKRkmEQ9trJNhBVN2KNZaTD3p15KVdtDxaBSz3CQ3',
@@ -595,11 +624,12 @@ export default {
       },
       {
         accountId: '5FuraxNKCzXbcgyWQrwHfFPqQPp3mG8xBcTqGe2zg5V7p2Pn',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5FuraxNKCzXbcgyWQrwHfFPqQPp3mG8xBcTqGe2zg5V7p2Pn',
             bondedSelf: '5.049 DOT',
-            nominatorData: null,
+            nominatorData: "",
             commission: '0',
             sessionId: '5HSPnwrw1SQxpPXWNhiBgP2dybduhYHsc9t1ENuJu8gB31tW'
           }
@@ -631,6 +661,7 @@ export default {
       },
       {
         accountId: '5GNck98faWi8Ka8mv2x9XfuAkTEcZPQNX72QW9dCSTZabXK9',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5GNck98faWi8Ka8mv2x9XfuAkTEcZPQNX72QW9dCSTZabXK9',
@@ -668,6 +699,7 @@ export default {
       },
       {
         accountId: '5EyXNfmZP5Gn5YYmYG2RSKSx8QsHvtVHcwWhFtK1Pgjbd78C',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5EyXNfmZP5Gn5YYmYG2RSKSx8QsHvtVHcwWhFtK1Pgjbd78C',
@@ -705,6 +737,7 @@ export default {
       },
       {
         accountId: '5CnDngcL3NE8x1rdxrmDWEjmgLrPm5KBsCy8uTqRQCRWx74m',
+        currentValidator: true,
         commissionData: [
           {
             controllerId: '5CnDngcL3NE8x1rdxrmDWEjmgLrPm5KBsCy8uTqRQCRWx74m',

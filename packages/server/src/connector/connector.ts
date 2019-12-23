@@ -1,6 +1,11 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import U32 from '@polkadot/types/primitive/U32'
 import addressDefaults from '@polkadot/util-crypto/address/defaults'
+import { IdentityTypes } from 'edgeware-node-types/dist/identity'
+import { SignalingTypes } from 'edgeware-node-types/dist/signaling'
+import { TreasuryRewardTypes } from 'edgeware-node-types/dist/treasuryReward'
+import { VotingTypes } from 'edgeware-node-types/dist/voting'
+import db from '../db'
 
 let nodeUrl: string = null
 let nodeInfo: NodeInfo = null
@@ -24,15 +29,19 @@ async function disconnect() {
 
   console.log('Disconnecting API')
 
-  if (subscriptions.length)
+  if (subscriptions.length) {
     subscriptions.forEach(async unsubscribe => await unsubscribe())
+    subscriptions = []
+  }
 
   if (api) {
     await api.disconnect()
     provider = null
   }
 
-  if (provider) await provider.disconnect()
+  try {
+    await provider.disconnect()
+  } catch (e) {}
 
   api = null
   provider = null
@@ -59,7 +68,22 @@ async function connect() {
   console.log('creating api')
 
   // BUG API Promise doesn't finish if provider crashes on connection
-  api = await ApiPromise.create({ provider })
+  api = await ApiPromise.create({
+    typesSpec: {
+      edgeware: {
+        ...IdentityTypes,
+        ...SignalingTypes,
+        ...TreasuryRewardTypes,
+        ...VotingTypes
+      }
+    },
+    provider: provider
+  }).catch(e => {
+    console.log(e)
+    return null
+  })
+
+  if (!api) return null
 
   let [properties, chain, name, version] = await Promise.all([
     api.rpc.system.properties(),
@@ -67,8 +91,6 @@ async function connect() {
     api.rpc.system.name(),
     api.rpc.system.version()
   ])
-
-  // Got default info from https://github.com/polkadot-js/apps/blob/master/packages/react-api/src/Api.tsx
 
   nodeInfo = {
     chain: chain.toString(),
@@ -80,14 +102,30 @@ async function connect() {
     specName: api.runtimeVersion.specName.toString(),
     specVersion: api.runtimeVersion.specVersion.toNumber(),
     ss58Format: properties.ss58Format
-      .unwrapOr(new U32(addressDefaults.prefix))
+      .unwrapOr(new U32(api.registry, addressDefaults.prefix))
       .toNumber(),
     systemName: name.toString(),
     systemVersion: version.toString(),
-    tokenDecimals: properties.tokenDecimals.unwrapOr(new U32(12)).toNumber(),
+    tokenDecimals: properties.tokenDecimals
+      .unwrapOr(new U32(api.registry, 12))
+      .toNumber(),
     tokenSymbol: properties.tokenSymbol.unwrapOr('DEV').toString()
   }
-  console.log('\x1b[36m%s\x1b[0m', 'connected to:' + nodeUrl)
+
+  const savedNodeInfo = await db.getNodeInfo()
+  if (savedNodeInfo) {
+    if (
+      savedNodeInfo.genesisHash !== nodeInfo.genesisHash ||
+      savedNodeInfo.implementationName !== nodeInfo.implementationName ||
+      savedNodeInfo.specName !== nodeInfo.specName
+    ) {
+      console.log('Chain switched, clearing database...')
+      await db.clearDB()
+    }
+  }
+
+  await db.setNodeInfo(nodeInfo)
+  console.log('Connected to:')
   console.log(nodeInfo)
 
   return api

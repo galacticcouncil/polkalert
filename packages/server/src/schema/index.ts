@@ -10,10 +10,8 @@ export const typeDefs = gql`
     nominatorData: String
     commission: String
     validator: Validator
-    sessionId: String
-    nextSessionId: String
-    sessionIds: String
-    nextSessionIds: String
+    sessionIds: [String]
+    nextSessionIds: [String]
   }
 
   type Header {
@@ -23,12 +21,19 @@ export const typeDefs = gql`
     validator: Validator
   }
 
+  type Slash {
+    id: String
+    amount: String
+    sessionIndex: String
+  }
+
   type Validator {
     accountId: String
     commissionData: [CommissionData]
+    currentValidator: Boolean
     blocksProducedCount: String
     blocksProduced: [Header]
-    slashes: [String]
+    slashes: [Slash]
     recentlyOnline: Boolean
   }
 
@@ -48,8 +53,35 @@ export const typeDefs = gql`
     tokenSymbol: String
   }
 
+  type Settings {
+    blockReceivedLagNotificationDelay: Int
+    noBlocksReceivedNotificationDelay: Int
+    serverPort: Int
+    emailNotifications: Boolean
+    emailPort: Int
+    emailHost: String
+    emailRecipient: String
+    emailUsername: String
+    emailPassword: String
+    webHooks: [String]
+    maxDataAge: Float
+  }
+
   type Mutation {
-    connection(nodeUrl: String!): String
+    connect(nodeUrl: String!): String
+    updateSettings(
+      blockReceivedLagNotificationDelay: Int
+      noBlocksReceivedNotificationDelay: Int
+      serverPort: Int
+      emailNotifications: Boolean
+      emailPort: Int
+      emailHost: String
+      emailRecipient: String
+      emailUsername: String
+      emailPassword: String
+      webHooks: [String]
+      maxDataAge: Float
+    ): Settings
   }
 
   type Query {
@@ -57,5 +89,6 @@ export const typeDefs = gql`
     validators: [Validator]
     validator(accountId: String!): Validator
     dataAge: String
+    settings: Settings
   }
 `

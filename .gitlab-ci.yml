@@ -12,7 +12,7 @@ test:
   before_script:
     - yarn
   script:
-    - yarn precommit
+    - yarn lint
   only:
     - merge_requests
 

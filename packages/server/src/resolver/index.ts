@@ -1,42 +1,50 @@
 import db from '../db'
 import connector from '../connector'
 import { Validator } from '../entity/Validator'
+import settings from '../settings'
 
-async function addSlashesToValidators(validators: Validator[]) {
-  let eraIndex = validators[0].commissionData[0].eraIndex
-  let [slashes0, slashes1] = await Promise.all([
-    connector.getEraSlashJournal(eraIndex),
-    connector.getEraSlashJournal(eraIndex - 1)
-  ])
-  const slashes = slashes0.concat(slashes1)
+async function addCurrentEraInfoToValidators(validators: Validator[]) {
+  const currentValidators = await connector.getValidators()
+  const validatorsWithCurrentEraInfo = validators.map(validator => {
+    const isCurrent =
+      currentValidators.findIndex(
+        currentValidator =>
+          currentValidator.accountId.toString() ===
+          validator.accountId.toString()
+      ) >= 0
+    let currentValidator = isCurrent
 
-  let validatorsWithSlashes = validators.map(validator => {
-    validator['slashes'] = slashes
-      .filter(slash => slash.who == validator.accountId)
-      .map(slash => slash.amount)
-    return validator
+    return { ...validator, currentValidator }
   })
-  return validatorsWithSlashes
+
+  return validatorsWithCurrentEraInfo
 }
 
 async function getValidators() {
   const validators = await db.getValidators()
-  let validatorsWithSlashes = await addSlashesToValidators(validators)
-  let validatorsWithOnlineStates = await connector.addDerivedHeartbeatsToValidators(
-    validatorsWithSlashes
+  const validatorsWithCurrentEraInfo = await addCurrentEraInfoToValidators(
+    validators
   )
+  const validatorsWithOnlineStates = await connector.addDerivedHeartbeatsToValidators(
+    validatorsWithCurrentEraInfo
+  )
+
   return validatorsWithOnlineStates
 }
 
-async function getValidatorInfo(_, { accountId }) {
+async function getValidatorInfo(_: any, { accountId }: { accountId: string }) {
   console.log('getting validator', accountId)
   return await db.getValidatorInfo(accountId)
 }
 
-async function connect(_, { nodeUrl }) {
+async function connect(_: any, { nodeUrl }: { nodeUrl: string }) {
   return connector.connect(nodeUrl).catch(e => {
     console.log('error while connecting:', e)
   })
+}
+
+function updateSettings(_: any, config: Settings) {
+  return settings.set(config)
 }
 
 function getDataAge() {
@@ -48,11 +56,12 @@ export default {
     validators: getValidators,
     validator: getValidatorInfo,
     dataAge: getDataAge,
-    nodeInfo: connector.getNodeInfo
+    nodeInfo: connector.getNodeInfo,
+    settings: settings.get
   },
 
   Mutation: {
-    connection: connect
-    //Return node info?
+    connect,
+    updateSettings
   }
 }

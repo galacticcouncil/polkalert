@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useDidUpdate } from 'react-hooks-lib'
+import SVG from 'react-inlinesvg'
 import CSS from 'csstype'
 
 import * as S from './styled'
@@ -13,6 +14,7 @@ type Props = {
   placeholder?: string
   value: string
   required?: boolean
+  tooltip?: string
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   className?: string
   style?: CSS.Properties
@@ -27,11 +29,13 @@ const Input = ({
   placeholder = '',
   value = '',
   required,
+  tooltip,
   onChange,
   className = '',
   style
 }: Props) => {
   const [invalid, setInvalid] = useState<boolean>(false)
+  const [valueVisible, setValueVisible] = useState<boolean>(false)
 
   useDidUpdate(() => {
     if (required) setInvalid(!value.replace(/\s/g, ''))
@@ -39,16 +43,37 @@ const Input = ({
 
   return (
     <S.Wrapper fluid={fluid} className={className} style={style}>
-      {label && <S.Label>{label}</S.Label>}
+      <S.Label>
+        {tooltip && (
+          <S.Tooltip>
+            <div>?</div>
+            <span>{tooltip}</span>
+          </S.Tooltip>
+        )}
+        {label && <span>{label}</span>}
+      </S.Label>
       <S.InputWrapper invalid={invalid}>
         <S.Input
           name={name}
           disabled={disabled}
-          type={type}
+          type={type !== 'password' || !valueVisible ? type : 'text'}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          style={{
+            padding: type === 'password' ? '12px 4px 12px 14px' : '12px 14px'
+          }}
         />
+        {type === 'password' && (
+          <S.VisibilityToggle onClick={() => setValueVisible(!valueVisible)}>
+            <SVG src={valueVisible ? '/icons/show.svg' : '/icons/hide.svg'}>
+              <img
+                src={valueVisible ? '/icons/show.svg' : '/icons/hide.svg'}
+                alt={valueVisible ? 'Value visible' : 'Value hidden'}
+              />
+            </SVG>
+          </S.VisibilityToggle>
+        )}
       </S.InputWrapper>
     </S.Wrapper>
   )

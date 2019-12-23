@@ -26,6 +26,7 @@ module.exports = {
       },
       {
         test: /\.css$/i,
+        exclude: /node_modules/,
         use: ['style-loader', 'css-loader']
       }
     ]
@@ -44,8 +45,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'src', 'index.html'),
-      filename: './index.html'
+      template: path.resolve(__dirname, 'public', 'index.html'),
+      filename: 'index.html'
     }),
     new CopyWebpackPlugin([
       {

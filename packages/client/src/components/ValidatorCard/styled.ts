@@ -1,13 +1,19 @@
 import styled from 'styled-components'
 import { transparentize } from 'polished'
 
-import { Card, Dropdown } from 'ui'
+import { Button, Card, Divider, Dropdown } from 'ui'
 import { Colors } from 'styles/variables'
 import { device } from 'styles/media'
 
-export const Wrapper = styled(Card)`
+export const Wrapper = styled(Card)<{
+  current: boolean
+}>`
+  ${p => !p.current && `--color: ${Colors.Gray[100]};`};
+
   padding: 16px;
   box-shadow: 0px 2px 16px ${transparentize(0.8, Colors.Black)};
+  opacity: ${p => !p.current && '0.5'};
+  position: relative;
 
   @media ${device.sm} {
     padding: 24px;
@@ -26,7 +32,23 @@ export const Wrapper = styled(Card)`
   }
 `
 
-export const FirstLine = styled.div`
+export const DetailsButton = styled(Button)`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  @media ${device.sm} {
+    top: 24px;
+    right: 24px;
+  }
+
+  @media ${device.lg} {
+    top: 32px;
+    right: 32px;
+  }
+`
+
+export const Addresses = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -70,7 +92,7 @@ export const Address = styled.div<{
     }
 
     strong {
-      color: ${Colors.White};
+      color: var(--color, ${Colors.White});
       font-size: 14px;
       line-height: 17px;
     }
@@ -91,7 +113,10 @@ export const OnlineStateIcon = styled.div<{
 }>`
   width: 24px;
   height: 24px;
-  background: ${p => (p.wasOnline ? Colors.Success : Colors.Error)};
+  background: var(
+    --color,
+    ${p => (p.wasOnline ? Colors.Success : Colors.Error)}
+  );
   box-shadow: 0 0 5px ${transparentize(0.5, Colors.Black)};
   border-radius: 50%;
   display: flex;
@@ -121,7 +146,10 @@ export const OnlineStateText = styled.span<{
   wasOnline?: boolean
 }>`
   padding: 0 12px 0 28px;
-  background: ${p => (p.wasOnline ? Colors.Success : Colors.Error)};
+  background: var(
+    --color,
+    ${p => (p.wasOnline ? Colors.Success : Colors.Error)}
+  );
   border-radius: 50px;
   color: ${Colors.White};
   line-height: 24px;
@@ -132,49 +160,36 @@ export const OnlineStateText = styled.span<{
   align-items: center;
 `
 
-export const SecondLine = styled.div`
-  padding-top: 24px;
+export const Info = styled.div`
+  padding: 24px 0;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-column-gap: 24px;
 
+  @media ${device.md} {
+    padding: 24px 0 48px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+`
+
+export const InfoColumn = styled.div`
   div {
     padding-top: 8px;
     white-space: nowrap;
 
-    &.flex {
-      display: flex;
-      align-items: center;
-    }
-
     span {
       margin-left: 5px;
-      color: ${Colors.Primary};
+      color: var(--color, ${Colors.Primary});
       font-size: 18px;
     }
   }
 `
 
-export const NominatorsDropdownButton = styled.div<{
+export const DropdownButton = styled(Divider)<{
   isOpen: boolean
 }>`
-  margin: 24px 0 12px;
-  display: flex;
-  align-items: center;
-
-  @media ${device.lg} {
-    margin: 48px 0 12px;
-  }
-
-  &:after {
-    content: ' ';
-    width: 100%;
-    height: 1px;
-    margin-left: 8px;
-    background: ${Colors.Gray[200]};
-    display: block;
-    flex: 1;
-  }
-
   button {
-    color: ${Colors.Gray[100]};
+    color: inherit;
     display: flex;
     align-items: center;
 
@@ -188,27 +203,13 @@ export const NominatorsDropdownButton = styled.div<{
     }
 
     svg path {
-      fill: ${Colors.Gray[100]};
+      fill: currentColor;
     }
   }
 `
 
-export const NominatorsDropdownList = styled(Dropdown)`
+export const DropdownList = styled(Dropdown)`
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-`
-
-export const Block = styled.div`
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-
-  div {
-    display: flex;
-  }
-
-  span {
-    margin-left: 16px;
-  }
 `

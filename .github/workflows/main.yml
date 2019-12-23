@@ -17,7 +17,7 @@ jobs:
           cmd: install
       - uses: borales/actions-yarn@v2.0.0
         with:
-          cmd: precommit
+          cmd: lint
       - uses: borales/actions-yarn@v2.0.0
         with:
           cmd: build

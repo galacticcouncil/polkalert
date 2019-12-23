@@ -1,13 +1,13 @@
 {
-  "name": "polkalert",
-  "version": "1.0.0",
+  "name": "polkalert-client",
+  "version": "0.15.0",
   "description": "",
   "scripts": {
     "dev": "webpack-dev-server --hot --config webpack.config.js --mode development",
     "build": "webpack -p --config webpack.config.js",
     "storybook": "start-storybook -s ./public -p 6006",
     "build-storybook": "build-storybook",
-    "precommit": "tsc && node node_modules/eslint/bin/eslint.js '**/*.ts?'"
+    "lint": "tsc && node node_modules/eslint/bin/eslint.js '**/*.ts?'"
   },
   "repository": {
     "type": "git",
@@ -15,7 +15,6 @@
   },
   "keywords": [],
   "author": "Andrej Mikulička",
-  "license": "ISC",
   "bugs": {
     "url": "https://gitlab.com/andrejmikulicka95/polkalert/issues"
   },
@@ -59,19 +58,21 @@
     "@types/react": "^16.9.4",
     "@types/react-dom": "^16.9.1",
     "@types/styled-components": "^4.1.19",
-    "@typescript-eslint/eslint-plugin": "^2.3.3",
-    "@typescript-eslint/parser": "^2.3.3",
+    "@typescript-eslint/eslint-plugin": "^2.11.0",
+    "@typescript-eslint/parser": "^2.11.0",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.0.4",
     "css-loader": "^3.2.0",
     "csstype": "^2.6.6",
-    "eslint": "^6.5.1",
-    "eslint-config-prettier": "^6.4.0",
-    "eslint-plugin-react": "^7.16.0",
-    "eslint-plugin-react-hooks": "^2.1.2",
+    "eslint": "^6.7.2",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
     "graphql-tag": "^2.10.1",
     "html-webpack-plugin": "^3.2.0",
+    "prettier": "^1.19.1",
     "redux-devtools-extension": "^2.13.8",
     "storybook-addon-react-docgen": "^1.2.21",
     "style-loader": "^1.0.0",

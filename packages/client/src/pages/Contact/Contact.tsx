@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
-import SVG from 'react-inlinesvg'
 
-import { Input, Textarea, Button, Modal } from 'ui'
+import { PageTitle, Input, Textarea, Button, Modal } from 'ui'
 import { encodeURI } from 'utils'
 import { useBooleanState } from 'hooks'
 
@@ -55,7 +54,7 @@ const Contact = () => {
   return (
     <S.Wrapper>
       <S.Form onSubmit={handleFormSubmit}>
-        <S.Title>Contact Us</S.Title>
+        <PageTitle>Contact Us</PageTitle>
         <Input
           fluid
           required
@@ -83,18 +82,6 @@ const Contact = () => {
         />
         <Button fluid type="submit" text="Submit" />
       </S.Form>
-      <S.Logo>
-        Made by
-        <a
-          href="https://zeeprime.capital/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <SVG src="/images/zeeprime.svg">
-            <img src="/images/zeeprime.svg" alt="ZeePrime" />
-          </SVG>
-        </a>
-      </S.Logo>
 
       {errorModalVisible && (
         <Modal onClose={hideErrorModal}>

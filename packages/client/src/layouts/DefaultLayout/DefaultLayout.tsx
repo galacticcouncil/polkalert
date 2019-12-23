@@ -26,19 +26,22 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
 
   const links = [
     {
-      name: 'Switch Node',
-      icon: '/icons/settings.svg',
-      href: '/'
-    },
-    {
       name: 'Staking',
       icon: '/icons/safe.svg',
-      href: '/staking'
+      href: '/staking',
+      exact: false
     },
     {
       name: 'Contact',
       icon: '/icons/mail.svg',
-      href: '/contact'
+      href: '/contact',
+      exact: true
+    },
+    {
+      name: 'Settings',
+      icon: '/icons/settings.svg',
+      href: '/settings',
+      exact: false
     }
   ]
 
@@ -47,14 +50,17 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
       {(forceShowSidebar || api.loaded) &&
         (isDesktop ? (
           <S.Sidebar>
-            <S.Logo src="/images/logo.svg" onClick={() => navigateTo('/')} />
+            <S.Logo
+              src="/images/logo.svg"
+              onClick={() => navigateTo('/staking')}
+            />
             <nav>
               {links.map((item, idx) => (
                 <S.MenuLink
                   key={`menuLink-${idx}`}
                   to={item.href}
                   activeClassName="active"
-                  exact
+                  exact={item.exact}
                 >
                   <SVG src={item.icon}>
                     <img src={item.icon} alt={item.href} />
@@ -63,6 +69,16 @@ const DefaultLayout = ({ forceShowSidebar, children }: Props) => {
                 </S.MenuLink>
               ))}
             </nav>
+            <S.ZeePrime
+              href="https://zeeprime.capital/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>Made by</span>
+              <SVG src="/images/zeeprime.svg">
+                <img src="/images/zeeprime.svg" alt="Zee Prime Capital" />
+              </SVG>
+            </S.ZeePrime>
           </S.Sidebar>
         ) : (
           <MobileNav links={links} forceShowSidebar={forceShowSidebar} />

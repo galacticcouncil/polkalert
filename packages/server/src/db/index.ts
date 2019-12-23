@@ -1,28 +1,40 @@
 import 'reflect-metadata'
-import { createConnection, Connection, EntityManager, LessThan } from 'typeorm'
+import settings from '../settings'
+import {
+  createConnection,
+  Connection,
+  EntityManager,
+  LessThan,
+  getConnectionOptions
+} from 'typeorm'
 import { Header } from '../entity/Header'
 import { Validator } from '../entity/Validator'
 import { CommissionData } from '../entity/CommissionData'
-import { GraphQLError } from 'graphql'
 import { formatBalance } from '@polkadot/util'
 import { performance } from 'perf_hooks'
 import { NodeInfoStorage } from '../entity/NodeInfoStorage'
-import * as moment from 'moment'
+import { AppVersion } from '../entity/AppVersion'
+import { SessionInfo } from '../entity/SessionInfo'
+import { Slash } from '../entity/Slash'
+import humanizeDuration from 'humanize-duration'
+import { EnhancedHeader, EnhancedDerivedStakingQuery } from '../types/connector'
 
 let connection: Connection = null
 let manager: EntityManager = null
 let nodeInfo: NodeInfo = null
-let validatorMap = {}
+let validatorMap: { [key: string]: Validator } = {}
+let retryInterval: number = 5000
+let settingsListener: boolean = null
 
 //TODO: Config
 //number of seconds to prune blocks
 let pruning = 180
 //max number of hours for storing blocks
-let maxDataAge = 24
+let maxDataAge: number = null
 //interval function
-let pruningInterval = null
+let pruningInterval: NodeJS.Timeout = null
 
-async function getValidator(hash) {
+async function getValidator(hash: string) {
   if (!validatorMap[hash]) {
     validatorMap[hash] = await manager.findOne(Validator, hash)
   }
@@ -36,7 +48,7 @@ async function clearDB() {
 }
 
 async function disconnect() {
-  clearInterval(pruningInterval)
+  clearTimeout(pruningInterval)
   await connection.close()
   validatorMap = {}
   manager = null
@@ -46,53 +58,73 @@ async function disconnect() {
 
 async function getDataAge() {
   let firstHeader = await getFirstHeader()
-  let lastHeader = await getLastHeader()
-  return moment
-    .duration(lastHeader.timestamp - firstHeader.timestamp)
-    .humanize()
+  return firstHeader
+    ? humanizeDuration(Date.now() - firstHeader.timestamp, { round: true })
+    : null
 }
 
-async function init() {
+async function init(reset = false) {
   if (connection) await disconnect()
-  connection =
-    (await createConnection().catch(error => console.log(error))) || null
-  if (!connection) {
-    throw new Error('Cannot create connection to database')
-  }
-  manager = connection.manager
+  let connectionOptions = await getConnectionOptions()
 
-  pruningInterval = setInterval(async () => {
-    let lastHeader = await getLastHeader()
-    if (manager && lastHeader)
-      manager.delete(Header, {
-        timestamp: LessThan(lastHeader.timestamp - maxDataAge * 3600 * 1000)
-      })
-  }, pruning * 1000)
+  //TODO: handle connection disconnect
+  connection =
+    (await createConnection({
+      ...connectionOptions,
+      synchronize: reset
+    }).catch(async error => {
+      if (error.code === '23502') {
+        reset = true
+      } else {
+        console.log(error)
+      }
+    })) || null
+
+  if (!connection) {
+    if (!reset) {
+      console.log('Cannot create connection to database, retrying...')
+      console.log('Please make sure the database is running')
+      await new Promise(resolve => setTimeout(resolve, retryInterval))
+    }
+    await init(reset)
+  } else {
+    manager = connection.manager
+
+    startPruningInterval()
+
+    if (!settingsListener) {
+      settingsListener = settings.onChange(startPruningInterval)
+    }
+  }
 
   return
 }
 
-function normalizeNumber(number) {
-  if (number && number.toNumber) number = number.toNumber()
-  return number
+async function startPruningInterval() {
+  maxDataAge = settings.get().maxDataAge
+
+  if (manager) {
+    manager
+      .delete(Header, {
+        timestamp: LessThan(Date.now() - maxDataAge * 3600 * 1000)
+      })
+      .catch(e => {})
+
+    pruningInterval = setTimeout(startPruningInterval, pruning * 1000)
+  }
 }
 
-function normalizeHash(hash) {
-  if (hash && hash.toString) hash = hash.toString()
-  return hash
-}
-
-function createNominatorObjectString(nominatorData) {
-  if (!nominatorData || !nominatorData.others.length) return null
+function createNominatorObjectString({ stakers }: EnhancedDerivedStakingQuery) {
+  if (!stakers || !stakers.others.length) return null
 
   const nominatorObject = {
-    totalStake: formatBalance(nominatorData.total),
+    totalStake: formatBalance(stakers.total),
     nominatorStake: formatBalance(
-      nominatorData.total.unwrap().sub(nominatorData.own.unwrap())
+      stakers.total.unwrap().sub(stakers.own.unwrap())
     ),
-    stakers: nominatorData.others.map(staker => {
+    stakers: stakers.others.map(staker => {
       return {
-        accountId: normalizeHash(staker.who),
+        accountId: staker.who.toString(),
         stake: formatBalance(staker.value)
       }
     })
@@ -101,120 +133,128 @@ function createNominatorObjectString(nominatorData) {
   return JSON.stringify(nominatorObject)
 }
 
-async function removeComissionObject(data) {
-  const commissionData = await manager.find(CommissionData, {
+async function getCommissionData(accountId: string, sessionIndex: number) {
+  return manager.find(CommissionData, {
     relations: ['validator'],
-    where: {
-      validator: {
-        accountId: normalizeHash(data.accountId)
-      },
-      sessionIndex: data.sessionIndex
-    }
+    where: { validator: accountId, sessionIndex }
   })
-
-  //TODO look if transaction:true is needed
-  await manager
-    .remove(commissionData, {
-      transaction: true
-    })
-    .catch(e => console.log('Error removing commissionData'))
-
-  return
 }
 
-function createCommissionObject(data) {
+function createCommissionObject(data: EnhancedDerivedStakingQuery) {
   const commissionData = new CommissionData()
 
-  commissionData.eraIndex = normalizeNumber(data.eraIndex)
-  commissionData.sessionIndex = normalizeNumber(data.sessionIndex)
+  commissionData.eraIndex = data.eraIndex
+  commissionData.sessionIndex = data.sessionIndex
 
   commissionData.bondedSelf = data.stakingLedger
     ? formatBalance(data.stakingLedger.total)
     : undefined
 
   commissionData.commission = data.validatorPrefs
-    ? formatBalance(data.validatorPrefs.validatorPayment)
+    ? (data.validatorPrefs.commission.toNumber() / 10000000).toFixed(2) + '%'
     : undefined
 
-  commissionData.controllerId = normalizeHash(data.controllerId)
-  commissionData.nominatorData = createNominatorObjectString(data.stakers)
+  commissionData.controllerId = data.controllerId.toString()
+  commissionData.nominatorData = createNominatorObjectString(data)
 
-  commissionData.sessionId = normalizeHash(data.sessionId)
-  commissionData.nextSessionId = normalizeHash(data.nextSessionId)
-  commissionData.sessionIds = data.sessionIds
-    ? JSON.stringify(
-        data.sessionIds.map(id => {
-          return normalizeHash(id)
-        })
-      )
-    : undefined
-  commissionData.nextSessionIds = data.nextSessionIds
-    ? JSON.stringify(
-        data.nextSessionIds.map(id => {
-          return normalizeHash(id)
-        })
-      )
-    : undefined
+  commissionData.sessionIds = data.sessionIds.map(sessionId =>
+    sessionId.toString()
+  )
+  commissionData.nextSessionIds = data.sessionIds.map(sessionId =>
+    sessionId.toString()
+  )
 
   return commissionData
 }
 
-function createValidatorObject(data) {
+function createValidatorObject(data: EnhancedDerivedStakingQuery) {
   const validator = new Validator()
-  validator.accountId = normalizeHash(data.accountId)
+  validator.accountId = data.accountId.toString()
   return validator
 }
 
-function createHeaderObject(data) {
+function createHeaderObject(data: EnhancedHeader) {
   const header = new Header()
-  header.id = normalizeNumber(data.number)
+  header.id = data.number
   header.timestamp = data.timestamp
-  header.blockHash = normalizeHash(data.hash)
+  header.blockHash = data.hash
   return header
 }
 
-async function save(type, data) {
-  if (type === 'Validator') {
-    let validator: Validator = await manager.findOne(
-      Validator,
-      normalizeHash(data.accountId)
-    )
-
-    if (validator) {
-      await removeComissionObject(data)
-    } else {
-      validator = createValidatorObject(data)
-    }
-
-    let commission: CommissionData = createCommissionObject(data)
-    commission.validator = validator
-
-    await manager.save(validator)
-    await manager.save(commission)
-
-    return
-  }
-
-  if (type === 'Header') {
-    const validator: Validator = await getValidator(normalizeHash(data.author))
-    let header = await manager.findOne(Header, normalizeNumber(data.number))
-
-    if (!header) header = createHeaderObject(data)
-
-    header.validator = validator
-    await manager.save(header)
-
-    return
-  }
-  throw new Error('Tried to save unknown entity')
+function createSessionInfoEntity({ sessionInfo: data }: EnhancedHeader) {
+  const sessionInfo = new SessionInfo()
+  sessionInfo.eraIndex = data.eraIndex
+  sessionInfo.id = data.sessionIndex
+  sessionInfo.offences = JSON.stringify(data.offences)
+  sessionInfo.rewards = JSON.stringify(data.rewards)
+  return sessionInfo
 }
 
-async function bulkSave(type, data) {
-  //TODO Make faster
+async function saveHeader(data: EnhancedHeader) {
+  let header = await manager.findOne(Header, data.number)
+
+  if (header) return
+
+  const validator: Validator = await getValidator(data.author)
+  header = createHeaderObject(data)
+
+  if (data.sessionInfo) {
+    const sessionInfo = createSessionInfoEntity(data)
+    header.sessionInfo = sessionInfo
+    await manager.save(sessionInfo)
+
+    const slashes = data.sessionInfo.slashes
+    if (slashes && slashes.length) {
+      for (const slashData of slashes) {
+        const slash = new Slash()
+        slash.amount = slashData.amount
+        slash.sessionIndex = data.sessionInfo.sessionIndex
+        slash.validator = await getValidator(slashData.accountId)
+        slash.sessionInfo = sessionInfo
+        manager.save(slash)
+      }
+    }
+  }
+
+  header.validator = validator
+  await manager.save(header)
+
+  return
+}
+
+async function saveValidator(data: EnhancedDerivedStakingQuery) {
+  let validator: Validator = await manager.findOne(
+    Validator,
+    data.accountId.toString()
+  )
+
+  if (!validator) {
+    validator = createValidatorObject(data)
+    await manager.save(validator)
+  }
+
+  let commission: CommissionData = (
+    await getCommissionData(data.accountId.toString(), data.sessionIndex)
+  )[0]
+
+  if (!commission) {
+    commission = createCommissionObject(data)
+    commission.validator = validator
+    await manager.save(commission)
+  }
+
+  return
+}
+
+async function bulkSave(
+  type: string,
+  data: EnhancedDerivedStakingQuery[] | EnhancedHeader[]
+) {
   console.log('DB: bulk saving', data.length, type + 's')
   let performanceStart = performance.now()
-  for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
-    await save(type, data[dataIndex])
+  for (const record of data) {
+    if ('number' in record) await saveHeader(record)
+    if ('accountId' in record) await saveValidator(record)
   }
 
   console.log(
@@ -225,14 +265,10 @@ async function bulkSave(type, data) {
   return
 }
 
-async function getValidatorInfo(id) {
-  if (connection) {
-    return await manager.findOne(Validator, id, {
-      relations: ['commissionData', 'blocksProduced']
-    })
-  } else {
-    throw new GraphQLError('not connected to any node')
-  }
+async function getValidatorInfo(id: string) {
+  return await manager.findOne(Validator, id, {
+    relations: ['commissionData', 'blocksProduced', 'slashes']
+  })
 }
 
 async function getFirstHeader() {
@@ -244,28 +280,26 @@ async function getLastHeader() {
 }
 
 async function getValidators() {
-  if (connection) {
-    console.log('DB: getting all validators')
-    let performanceStart = performance.now()
-    let allValidators: Validator[] = await manager.find(Validator, {
-      relations: ['commissionData', 'blocksProduced']
-    })
+  console.log('DB: getting all validators')
+  let performanceStart = performance.now()
+  //TODO limit commissionData and slashes
+  let allValidators: Validator[] = await manager.find(Validator, {
+    relations: ['commissionData', 'slashes']
+  })
 
-    //TODO look into performance with query countRelationAndMap
-    allValidators = allValidators.map(validator => {
-      validator.blocksProducedCount = validator.blocksProduced.length
-      return validator
+  allValidators.forEach(validator => {
+    validator.commissionData = validator.commissionData.sort((a, b) => {
+      return b.sessionIndex - a.sessionIndex
     })
+  })
 
-    console.log(
-      'DB: got all validators:Performance',
-      performance.now() - performanceStart,
-      'ms'
-    )
-    return allValidators
-  } else {
-    throw new GraphQLError('not connected to any node')
-  }
+  console.log(
+    'DB: got all validators:Performance',
+    performance.now() - performanceStart,
+    'ms'
+  )
+
+  return allValidators
 }
 
 async function setNodeInfo(newNodeInfo: NodeInfo) {
@@ -294,9 +328,28 @@ async function getNodeInfo(): Promise<NodeInfo> {
   } else return null
 }
 
+async function getAppVersion() {
+  let appVersion = await manager.findOne(AppVersion, 1)
+  if (appVersion) {
+    return appVersion.version
+  } else return null
+}
+
+async function setAppVersion(newAppVersion: string) {
+  let appVersion = (await manager.findOne(AppVersion, 1)) || new AppVersion()
+  appVersion.version = newAppVersion
+  appVersion.id = 1
+  await manager.save(appVersion)
+
+  return
+}
+
 export default {
   init,
-  save,
+  saveHeader,
+  saveValidator,
+  getAppVersion,
+  setAppVersion,
   setNodeInfo,
   getNodeInfo,
   getDataAge,
