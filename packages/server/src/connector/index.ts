@@ -156,8 +156,14 @@ async function getBlockHeaders(blockNumbers: number[]) {
         }
       }
 
-      if (sessionInfo)
+      if (sessionInfo) {
         sessionInfo = { ...sessionInfo, rewards, offences, slashes }
+        console.log(
+          'Got session info for block: #',
+          header.number.toNumber(),
+          sessionInfo
+        )
+      }
 
       return {
         author,
@@ -243,10 +249,14 @@ async function subscribeHeaders() {
       await db.bulkSave('Header', missingHeaders)
     }
 
-    //we got duplicate blocks, first received block is saved right now
+    //Fork detected, first received block is saved right now
     if (missing < 0) {
       let duplicateHeaders = missing * -1
-      console.log(duplicateHeaders, 'duplicate headers found')
+      console.log(
+        duplicateHeaders,
+        'fork detected, discarded block with hash',
+        enhancedHeader.hash.toString()
+      )
       return
     }
 

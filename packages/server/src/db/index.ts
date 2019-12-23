@@ -58,7 +58,9 @@ async function disconnect() {
 
 async function getDataAge() {
   let firstHeader = await getFirstHeader()
-  return humanizeDuration(Date.now() - firstHeader.timestamp, { round: true })
+  return firstHeader
+    ? humanizeDuration(Date.now() - firstHeader.timestamp, { round: true })
+    : null
 }
 
 async function init(reset = false) {
@@ -265,7 +267,7 @@ async function bulkSave(
 
 async function getValidatorInfo(id: string) {
   return await manager.findOne(Validator, id, {
-    relations: ['commissionData', 'blocksProduced']
+    relations: ['commissionData', 'blocksProduced', 'slashes']
   })
 }
 
@@ -282,14 +284,13 @@ async function getValidators() {
   let performanceStart = performance.now()
   //TODO limit commissionData and slashes
   let allValidators: Validator[] = await manager.find(Validator, {
-    relations: ['commissionData', 'blocksProduced', 'slashes']
+    relations: ['commissionData', 'slashes']
   })
 
-  allValidators = allValidators.map(validator => {
-    let blocksProducedCount = validator.blocksProduced
-      ? validator.blocksProduced.length
-      : 0
-    return { ...validator, blocksProducedCount }
+  allValidators.forEach(validator => {
+    validator.commissionData = validator.commissionData.sort((a, b) => {
+      return b.sessionIndex - a.sessionIndex
+    })
   })
 
   console.log(
@@ -297,6 +298,7 @@ async function getValidators() {
     performance.now() - performanceStart,
     'ms'
   )
+
   return allValidators
 }
 

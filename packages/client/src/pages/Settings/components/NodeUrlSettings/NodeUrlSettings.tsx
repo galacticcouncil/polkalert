@@ -34,8 +34,8 @@ const SelectApi = () => {
   const selectedOption = api.demo
     ? 'Demo'
     : LSNodeUrl && options.includes(LSNodeUrl)
-      ? LSNodeUrl
-      : 'Custom'
+    ? LSNodeUrl
+    : 'Custom'
   const defaultCustomUrl =
     (selectedOption === 'Custom' && LSNodeUrl) || 'wss://'
 
