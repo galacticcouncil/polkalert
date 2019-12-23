@@ -10,4 +10,5 @@ declare type Settings = {
   emailRecipient?: string
   webHooks?: string[]
   maxDataAge?: number
+  validatorId?: string
 }
