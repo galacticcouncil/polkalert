@@ -65,6 +65,7 @@ export const typeDefs = gql`
     emailPassword: String
     webHooks: [String]
     maxDataAge: Float
+    validatorId: String
   }
 
   type Mutation {
@@ -81,6 +82,7 @@ export const typeDefs = gql`
       emailPassword: String
       webHooks: [String]
       maxDataAge: Float
+      validatorId: String
     ): Settings
   }
 

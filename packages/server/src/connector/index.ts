@@ -36,6 +36,15 @@ let api: ApiPromise = null
 let firstSavedBlock: BlockInfo = null
 let lastSavedBlock: BlockInfo = null
 
+function getSlashMessage(slash: String) {
+  return (
+    'The validator with ID ' +
+    settings.get().validatorId +
+    ' was slashed for ' +
+    slash
+  )
+}
+
 async function getPreviousHeaders(
   numberOfHeaders: number,
   startFromBlock: number
@@ -188,6 +197,9 @@ async function subscribeEvents() {
       }
 
       if (event.method === 'Slash') {
+        if (event.data[0].toString() === settings.get().validatorId) {
+          notifications.send('slash', getSlashMessage(event.data[1].toString()))
+        }
         console.log(
           'validator #',
           event.data[0].toString(),
