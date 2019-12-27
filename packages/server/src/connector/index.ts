@@ -197,10 +197,7 @@ async function subscribeEvents() {
       }
 
       if (event.method === 'Slash') {
-        if (
-          event.data[0].toString().toLowerCase() ===
-          settings.get().validatorId.toLowerCase()
-        ) {
+        if (event.data[0].toString() === settings.get().validatorId) {
           notifications.send('slash', getSlashMessage(event.data[1].toString()))
         }
         console.log(
