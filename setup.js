@@ -3,6 +3,7 @@ const yaml = require('yaml')
 const fs = require('fs')
 
 const serverPath = './packages/server/'
+const clientPath = './packages/client/'
 
 const dbDockerFile = serverPath + 'docker-compose.yml'
 const defaultDbDockerFile = serverPath + 'docker-compose.default.yml'
@@ -12,6 +13,9 @@ const defaultOrmConfigFile = serverPath + 'ormconfig.default.json'
 
 const serverConfigFile = serverPath + 'server-config.json'
 const defaultServerConfigFile = serverPath + 'server-config.default.json'
+
+const clientConfigFile = clientPath + '/src/config/client-config.json'
+const defaultClientConfigFile = clientPath + 'client-config.default.json'
 
 const defaultDbSettings = yaml.parse(
   fs.readFileSync(defaultDbDockerFile, { encoding: 'utf8' })
@@ -25,10 +29,15 @@ const defaultServerSettings = JSON.parse(
   fs.readFileSync(defaultServerConfigFile, { encoding: 'utf8' })
 )
 
+const defaultClientSettings = JSON.parse(
+  fs.readFileSync(defaultClientConfigFile, { encoding: 'utf8' })
+)
+
 const initialized =
   fs.existsSync(dbDockerFile) ||
   fs.existsSync(ormConfigFile) ||
-  fs.existsSync(serverConfigFile)
+  fs.existsSync(serverConfigFile) ||
+  fs.existsSync(clientConfigFile)
 
 let dbSettings = fs.existsSync(dbDockerFile)
   ? yaml.parse(fs.readFileSync(dbDockerFile, { encoding: 'utf8' }))
@@ -42,6 +51,10 @@ let serverSettings = fs.existsSync(serverConfigFile)
   ? JSON.parse(fs.readFileSync(serverConfigFile, { encoding: 'utf8' }))
   : defaultServerSettings
 
+let clientSettings = fs.existsSync(clientConfigFile)
+  ? JSON.parse(fs.readFileSync(clientConfigFile, { encoding: 'utf8' }))
+  : defaultClientSettings
+
 const questions = [
   {
     type: initialized ? 'confirm' : null,
@@ -49,12 +62,6 @@ const questions = [
     message: 'Do you want to reset all settings to defaults?',
     initial: false
   },
-  // {
-  //   type: 'number',
-  //   name: 'clientPort',
-  //   message: 'Set port for client app',
-  //   initial: 8080
-  // },
   {
     type: 'number',
     name: 'serverPort',
@@ -70,6 +77,15 @@ const questions = [
     message: 'Set port for database',
     initial: (prev, values) =>
       values.reset ? defaultOrmSettings.port : ormSettings.port
+  },
+  {
+    type: 'number',
+    name: 'clientPort',
+    message: 'Set port for client app',
+    initial: (prev, values) =>
+      values.reset
+        ? defaultClientSettings.clientPort
+        : clientSettings.clientPort
   }
 ]
 
@@ -83,15 +99,19 @@ const questions = [
     console.log(response)
   }
 
-  let { /* clientPort, */ serverPort, databasePort, reset } = response
+  let { clientPort, serverPort, databasePort, reset } = response
 
   if (reset || resetArg) {
     serverSettings = defaultServerSettings
     ormSettings = defaultOrmSettings
     dbSettings = defaultDbSettings
+    clientSettings = defaultClientSettings
   }
 
-  if (serverPort) serverSettings.serverPort = serverPort
+  if (serverPort) {
+    clientSettings.serverPort = serverPort
+    serverSettings.serverPort = serverPort
+  }
 
   if (databasePort) {
     ormSettings.port = databasePort
@@ -99,7 +119,12 @@ const questions = [
     dbSettings.services['monitor-db'].expose = [databasePort]
   }
 
+  if (clientPort) {
+    clientSettings.clientPort = clientPort
+  }
+
   fs.writeFileSync(dbDockerFile, yaml.stringify(dbSettings, null, 2))
   fs.writeFileSync(ormConfigFile, JSON.stringify(ormSettings, null, 2))
   fs.writeFileSync(serverConfigFile, JSON.stringify(serverSettings, null, 2))
+  fs.writeFileSync(clientConfigFile, JSON.stringify(clientSettings, null, 2))
 })()
