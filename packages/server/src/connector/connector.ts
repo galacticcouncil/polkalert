@@ -75,6 +75,14 @@ async function connect() {
         ...SignalingTypes,
         ...TreasuryRewardTypes,
         ...VotingTypes
+      },
+      plasm: {
+        Parameters: {
+          canBeNominated: "bool",
+          optionExpired: "u128",
+          optionP: "u128"
+        },
+        BTreeSet: {}
       }
     },
     provider: provider

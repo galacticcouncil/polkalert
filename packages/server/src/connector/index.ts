@@ -8,10 +8,10 @@ import {
   EventRecord,
   Hash,
   Nominations,
-  Keys,
-  StakingLedger,
-  ValidatorPrefs,
-  Exposure
+  //Keys,
+  //StakingLedger,
+  //ValidatorPrefs,
+  //Exposure
 } from '@polkadot/types/interfaces'
 import notifications from '../notifications'
 import watcher from '../watcher'
@@ -27,7 +27,7 @@ import {
   EventReward,
   EventSlash
 } from '../types/connector'
-import AccountId from '@polkadot/types/primitive/Generic/AccountId'
+//import AccountId from '@polkadot/types/primitive/Generic/AccountId'
 
 let maxHeaderBatch = 100
 let maxBlockHistory = 15000
@@ -282,18 +282,19 @@ async function getValidators(at?: string | Hash) {
   }
 
   const validators = await api.query.session.validators.at(at)
-  const eraIndex = (await api.query.staking.currentEra.at(at)).toNumber()
+  const eraIndex = api.createType('EraIndex', await api.query.plasmStaking.currentEra.at(at)).toNumber()
   const sessionIndex = (await api.query.session.currentIndex.at(at)).toNumber()
   const queuedKeys = await api.query.session.queuedKeys.at(at)
   const validatorStakingRequests = []
   const controllerIds = await Promise.all(
-    validators.map(accountId => api.query.staking.bonded.at(at, accountId))
+    validators.map(accountId => api.query.plasmStaking.bonded.at(at, accountId))
   )
 
   for (let index = 0; index < validators.length; index++) {
     const accountId = validators[index]
     const stashId = accountId
-    const controllerId = controllerIds[index].unwrap()
+    const controllerId = api.createType('AccountId', [controllerIds[index]])
+
     const sessionIds = (queuedKeys.find(([currentId]) =>
       currentId.eq(accountId)
     ) || [undefined, api.createType('Keys', [])])[1]
@@ -307,18 +308,18 @@ async function getValidators(at?: string | Hash) {
           accountId,
           stashId,
           controllerId,
-          api.query.staking.nominators.at(at, accountId),
-          api.query.staking.stakers.at(at, accountId),
+          api.query.plasmStaking.dappsNominations.at(at, accountId),
+          api.query.plasmStaking.stakedContracts.at(at, accountId),
           sessionIds,
           api.query.session.nextKeys.at(
             at,
             api.consts.session.dedupKeyPrefix,
             accountId
           ),
-          api.query.staking.ledger.at(at, controllerId)
+          api.query.plasmStaking.ledger.at(at, controllerId)
         ]),
         //Max number of safe overloads in Promise.all is 10
-        Promise.all([api.query.staking.validators.at(at, accountId)])
+        Promise.all([null])
       ])
     )
   }
@@ -340,36 +341,20 @@ async function getValidators(at?: string | Hash) {
         stakingLedger
       ],
       [validatorPrefs]
-    ]: [
-      [
-        number,
-        number,
-        AccountId,
-        AccountId,
-        AccountId,
-        Option<Nominations>,
-        Exposure,
-        Keys,
-        Option<Keys>,
-        Option<StakingLedger>
-      ],
-      ValidatorPrefs[]
-    ]) => ({
+    ]) => {
+      return {
       eraIndex,
       sessionIndex,
       accountId,
       stashId,
       controllerId,
-      nominators: nominators.isSome ? nominators.unwrap().targets : [],
+      nominators: (nominators as Option<Nominations>).isSome ? (nominators as Option<Nominations>).unwrap().targets : [],
       stakers: stakers,
       sessionIds,
-      nextSessionIds: nextSessionIds.unwrap(),
-      stakingLedger: stakingLedger.unwrap(),
-      validatorPrefs: api.createType(
-        'ValidatorPrefs',
-        validatorPrefs.toArray()[0]
-      )
-    })
+      nextSessionIds: (api.createType('Option<Keys>', nextSessionIds)).unwrap(),
+      stakingLedger: null
+      }
+    }
   )
 
   // TODO?
@@ -383,11 +368,11 @@ async function getValidators(at?: string | Hash) {
 async function getSessionInfo(): Promise<SessionInfo> {
   let [derivedSessionInfo, newEraIndex] = await Promise.all([
     api.derive.session.info(),
-    api.query.staking.currentEra()
+    api.query.plasmStaking.currentEra()
   ])
 
   return {
-    eraIndex: newEraIndex.toNumber(),
+    eraIndex: api.createType('EraIndex', newEraIndex).toNumber(),
     eraLength: derivedSessionInfo.eraLength.toNumber(),
     eraProgress: derivedSessionInfo.eraProgress.toNumber(),
     isEpoch: derivedSessionInfo.isEpoch,

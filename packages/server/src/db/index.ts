@@ -115,7 +115,7 @@ async function startPruningInterval() {
 }
 
 function createNominatorObjectString({ stakers }: EnhancedDerivedStakingQuery) {
-  if (!stakers || !stakers.others.length) return null
+  if (!stakers || !stakers.others?.length) return null
 
   const nominatorObject = {
     totalStake: formatBalance(stakers.total),
