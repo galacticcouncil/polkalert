@@ -3,15 +3,10 @@ import connector from './connector'
 import { ApiPromise } from '@polkadot/api'
 import { formatBalance } from '@polkadot/util'
 import { isNullOrUndefined } from 'util'
-import { Vec, Option } from '@polkadot/types'
+import { Vec } from '@polkadot/types'
 import {
   EventRecord,
   Hash,
-  Nominations,
-  //Keys,
-  //StakingLedger,
-  //ValidatorPrefs,
-  //Exposure
 } from '@polkadot/types/interfaces'
 import notifications from '../notifications'
 import watcher from '../watcher'
@@ -27,7 +22,6 @@ import {
   EventReward,
   EventSlash
 } from '../types/connector'
-//import AccountId from '@polkadot/types/primitive/Generic/AccountId'
 
 let maxHeaderBatch = 100
 let maxBlockHistory = 15000
@@ -133,7 +127,7 @@ async function getBlockHeaders(blockNumbers: number[]) {
             sessionIndex: (
               await api.query.session.currentIndex.at(hash)
             ).toNumber(),
-            eraIndex: (await api.query.staking.currentEra.at(hash)).toNumber()
+            eraIndex: (api.createType('EraIndex', await api.query.plasmStaking.currentEra.at(hash))).toNumber()
           }
           await db.bulkSave('Validator', await getValidators(hash))
         }
@@ -308,8 +302,8 @@ async function getValidators(at?: string | Hash) {
           accountId,
           stashId,
           controllerId,
-          api.query.plasmStaking.dappsNominations.at(at, accountId),
-          api.query.plasmStaking.stakedContracts.at(at, accountId),
+          null,// api.query.plasmStaking.dappsNominations.at(at, accountId),
+          null,// api.query.plasmStaking.stakedContracts.at(at, accountId),
           sessionIds,
           api.query.session.nextKeys.at(
             at,
@@ -348,7 +342,7 @@ async function getValidators(at?: string | Hash) {
       accountId,
       stashId,
       controllerId,
-      nominators: (nominators as Option<Nominations>).isSome ? (nominators as Option<Nominations>).unwrap().targets : [],
+      nominators: [],
       stakers: stakers,
       sessionIds,
       nextSessionIds: (api.createType('Option<Keys>', nextSessionIds)).unwrap(),
@@ -492,6 +486,7 @@ async function startDataService() {
 }
 
 async function addDerivedHeartbeatsToValidators(validators: Validator[]) {
+
   let onlineStatus = await api.derive.imOnline.receivedHeartbeats()
 
   return validators.map(validator => {
