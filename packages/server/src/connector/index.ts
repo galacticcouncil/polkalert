@@ -57,7 +57,6 @@ function getOfflineMessage() {
   return (
     'The validator with ID ' +
     settings.get().validatorId +
-    //TODO add session info
     ' was reported offline in '
   )
 }
