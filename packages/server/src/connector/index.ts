@@ -45,14 +45,6 @@ function getSlashMessage(slash: String) {
   )
 }
 
-function getValidatorNotIncludedMessage() {
-  return (
-    'The validator with ID ' +
-    settings.get().validatorId +
-    ' is not included in the authorities list for the current session'
-  )
-}
-
 function getOfflineMessage() {
   return (
     'The validator with ID ' +
