@@ -49,7 +49,13 @@ function getOfflineMessage() {
   return (
     'The validator with ID ' +
     settings.get().validatorId +
-    ' was reported offline in '
+    ' was reported offline'
+  )
+}
+
+function getNominatedMessage() {
+  return (
+    'The validator with ID ' + settings.get().validatorId + ' was nominated'
   )
 }
 
@@ -290,10 +296,20 @@ async function subscribeHeaders() {
 }
 
 async function analyzeExtrinsics(blockHash: string) {
-  console.log('getting data for block ' + blockHash)
   let signedBlock = await api.rpc.chain.getBlock(blockHash)
   signedBlock.block.extrinsics.forEach(extrinsic => {
-    console.log('extrinsic read: ' + extrinsic)
+    let methodName = extrinsic.method.methodName
+    let args = extrinsic.method.args
+    console.log('extrinsic name ' + methodName + ' extrinsic arg ' + args)
+
+    if (methodName === 'nominate') {
+      api.createType('Vec<Address>', args[0]).forEach(arg => {
+        if (arg.toString() === settings.get().validatorId) {
+          notifications.send('nominated', getNominatedMessage())
+          console.log(getNominatedMessage())
+        }
+      })
+    }
   })
 }
 
