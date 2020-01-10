@@ -245,6 +245,8 @@ async function subscribeHeaders() {
 
     console.log('new header #:', number, 'with hash:', hash)
 
+    analyzeExtrinsics(hash)
+
     if (!firstSavedBlock.number)
       firstSavedBlock = { number, hash, timestamp: enhancedHeader.timestamp }
 
@@ -285,6 +287,14 @@ async function subscribeHeaders() {
 
   connector.addSubscription(unsubscribe)
   return
+}
+
+async function analyzeExtrinsics(blockHash: string) {
+  console.log('getting data for block ' + blockHash)
+  let signedBlock = await api.rpc.chain.getBlock(blockHash)
+  signedBlock.block.extrinsics.forEach(extrinsic => {
+    console.log('extrinsic read: ' + extrinsic)
+  })
 }
 
 async function getValidators(at?: string | Hash) {
