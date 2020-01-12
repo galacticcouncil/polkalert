@@ -53,9 +53,24 @@ function getOfflineMessage() {
   )
 }
 
-function getNominatedMessage() {
+function getNominatedMessage(sender: string) {
   return (
-    'The validator with ID ' + settings.get().validatorId + ' was nominated'
+    'The validator with ID ' +
+    settings.get().validatorId +
+    ' was nominated by ' +
+    sender
+  )
+}
+
+function getbondedMessage(sender: string, amount: string) {
+  return (
+    'The account ' +
+    sender +
+    ' has bonded ' +
+    //TODO add denominaton
+    amount +
+    ' to validator with ID ' +
+    settings.get().validatorId
   )
 }
 
@@ -299,16 +314,31 @@ async function analyzeExtrinsics(blockHash: string) {
   let signedBlock = await api.rpc.chain.getBlock(blockHash)
   signedBlock.block.extrinsics.forEach(extrinsic => {
     let methodName = extrinsic.method.methodName
+    let signer = extrinsic.signer
     let args = extrinsic.method.args
-    console.log('extrinsic name ' + methodName + ' extrinsic arg ' + args)
 
     if (methodName === 'nominate') {
       api.createType('Vec<Address>', args[0]).forEach(arg => {
         if (arg.toString() === settings.get().validatorId) {
-          notifications.send('nominated', getNominatedMessage())
-          console.log(getNominatedMessage())
+          notifications.send(
+            'nominated',
+            getNominatedMessage(signer.toString())
+          )
+          console.log(getNominatedMessage(signer.toString()))
         }
       })
+    }
+
+    if (methodName === 'bond') {
+      let controller = api.createType('Address', args[0])
+      if (controller.toString() === settings.get().validatorId) {
+        let amount = api.createType('Compact<Balance>', args[1])
+        notifications.send(
+          'bonded',
+          getbondedMessage(signer.toString(), amount.toString())
+        )
+        console.log(getbondedMessage(signer.toString(), amount.toString()))
+      }
     }
   })
 }
