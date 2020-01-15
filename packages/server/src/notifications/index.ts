@@ -41,8 +41,8 @@ async function sendNominatedMessage(signer: string) {
 }
 
 async function sendBondedMessage(signer: string, amount: string) {
-  send('bonded', getbondedMessage(signer, amount))
-  console.log(getbondedMessage(signer, amount))
+  send('bonded', getBondedMessage(signer, amount))
+  console.log(getBondedMessage(signer, amount))
   return
 }
 
@@ -72,7 +72,7 @@ function getNominatedMessage(sender: string) {
   )
 }
 
-function getbondedMessage(sender: string, amount: string) {
+function getBondedMessage(sender: string, amount: string) {
   return (
     'The account ' +
     sender +
