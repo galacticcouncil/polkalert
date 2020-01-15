@@ -36,44 +36,6 @@ let api: ApiPromise = null
 let firstSavedBlock: BlockInfo = null
 let lastSavedBlock: BlockInfo = null
 
-function getSlashMessage(slash: String) {
-  return (
-    'The validator with ID ' +
-    settings.get().validatorId +
-    ' was slashed for ' +
-    slash
-  )
-}
-
-function getOfflineMessage() {
-  return (
-    'The validator with ID ' +
-    settings.get().validatorId +
-    ' was reported offline'
-  )
-}
-
-function getNominatedMessage(sender: string) {
-  return (
-    'The validator with ID ' +
-    settings.get().validatorId +
-    ' was nominated by ' +
-    sender
-  )
-}
-
-function getbondedMessage(sender: string, amount: string) {
-  return (
-    'The account ' +
-    sender +
-    ' has bonded ' +
-    //TODO add denominaton
-    amount +
-    ' to validator with ID ' +
-    settings.get().validatorId
-  )
-}
-
 async function getPreviousHeaders(
   numberOfHeaders: number,
   startFromBlock: number
@@ -232,22 +194,15 @@ async function subscribeEvents() {
             if (
               identificationTuple[0].toString() === settings.get().validatorId
             ) {
-              notifications.send('offline', getOfflineMessage())
-              console.log(getOfflineMessage())
+              notifications.sendOfflineMessage()
             }
           })
       }
 
       if (event.method === 'Slash') {
         if (event.data[0].toString() === settings.get().validatorId) {
-          notifications.send('slash', getSlashMessage(event.data[1].toString()))
+          notifications.sendSlashMessage(event.data[1].toString())
         }
-        console.log(
-          'validator #',
-          event.data[0].toString(),
-          'was slashed: ',
-          event.data[1].toString()
-        )
       }
     })
   })
@@ -320,11 +275,7 @@ async function analyzeExtrinsics(blockHash: string) {
     if (methodName === 'nominate') {
       api.createType('Vec<Address>', args[0]).forEach(arg => {
         if (arg.toString() === settings.get().validatorId) {
-          notifications.send(
-            'nominated',
-            getNominatedMessage(signer.toString())
-          )
-          console.log(getNominatedMessage(signer.toString()))
+          notifications.sendNominatedMessage(signer.toString())
         }
       })
     }
@@ -333,11 +284,10 @@ async function analyzeExtrinsics(blockHash: string) {
       let controller = api.createType('Address', args[0])
       if (controller.toString() === settings.get().validatorId) {
         let amount = api.createType('Compact<Balance>', args[1])
-        notifications.send(
-          'bonded',
-          getbondedMessage(signer.toString(), amount.toString())
+        notifications.sendBondedMessage(
+          signer.toString(),
+          formatBalance(api.createType('Balance', amount))
         )
-        console.log(getbondedMessage(signer.toString(), amount.toString()))
       }
     }
   })

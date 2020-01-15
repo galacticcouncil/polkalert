@@ -22,7 +22,72 @@ async function send(type: string, message: string) {
   return
 }
 
+async function sendOfflineMessage() {
+  await send('offline', getOfflineMessage())
+  console.log(getOfflineMessage())
+  return
+}
+
+async function sendSlashMessage(slash: string) {
+  await send('slash', getSlashMessage(slash))
+  console.log(getSlashMessage(slash))
+  return
+}
+
+async function sendNominatedMessage(signer: string) {
+  send('nominated', getNominatedMessage(signer))
+  console.log(getNominatedMessage(signer))
+  return
+}
+
+async function sendBondedMessage(signer: string, amount: string) {
+  send('bonded', getbondedMessage(signer, amount))
+  console.log(getbondedMessage(signer, amount))
+  return
+}
+
+function getSlashMessage(slash: String) {
+  return (
+    'The validator with ID ' +
+    settings.get().validatorId +
+    ' was slashed for ' +
+    slash
+  )
+}
+
+function getOfflineMessage() {
+  return (
+    'The validator with ID ' +
+    settings.get().validatorId +
+    ' was reported offline'
+  )
+}
+
+function getNominatedMessage(sender: string) {
+  return (
+    'The validator with ID ' +
+    settings.get().validatorId +
+    ' was nominated by ' +
+    sender
+  )
+}
+
+function getbondedMessage(sender: string, amount: string) {
+  return (
+    'The account ' +
+    sender +
+    ' has bonded ' +
+    amount +
+    ' to validator with ID ' +
+    settings.get().validatorId
+  )
+}
+
 export default {
   init,
-  send
+  send,
+  sendOfflineMessage,
+  sendSlashMessage,
+  sendNominatedMessage,
+  sendBondedMessage
 }
