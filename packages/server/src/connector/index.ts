@@ -36,15 +36,6 @@ let api: ApiPromise = null
 let firstSavedBlock: BlockInfo = null
 let lastSavedBlock: BlockInfo = null
 
-function getSlashMessage(slash: String) {
-  return (
-    'The validator with ID ' +
-    settings.get().validatorId +
-    ' was slashed for ' +
-    slash
-  )
-}
-
 async function getPreviousHeaders(
   numberOfHeaders: number,
   startFromBlock: number
@@ -196,16 +187,22 @@ async function subscribeEvents() {
         console.log(JSON.stringify(await getSessionInfo(), null, 1))
       }
 
+      if (event.method === 'SomeOffline') {
+        api
+          .createType('Vec<IdentificationTuple>', event.data[0])
+          .forEach(identificationTuple => {
+            if (
+              identificationTuple[0].toString() === settings.get().validatorId
+            ) {
+              notifications.sendOfflineMessage()
+            }
+          })
+      }
+
       if (event.method === 'Slash') {
         if (event.data[0].toString() === settings.get().validatorId) {
-          notifications.send('slash', getSlashMessage(event.data[1].toString()))
+          notifications.sendSlashMessage(event.data[1].toString())
         }
-        console.log(
-          'validator #',
-          event.data[0].toString(),
-          'was slashed: ',
-          event.data[1].toString()
-        )
       }
     })
   })
@@ -223,6 +220,8 @@ async function subscribeHeaders() {
     watcher.ping(enhancedHeader.timestamp)
 
     console.log('new header #:', number, 'with hash:', hash)
+
+    analyzeExtrinsics(hash)
 
     if (!firstSavedBlock.number)
       firstSavedBlock = { number, hash, timestamp: enhancedHeader.timestamp }
@@ -264,6 +263,34 @@ async function subscribeHeaders() {
 
   connector.addSubscription(unsubscribe)
   return
+}
+
+async function analyzeExtrinsics(blockHash: string) {
+  let signedBlock = await api.rpc.chain.getBlock(blockHash)
+  signedBlock.block.extrinsics.forEach(extrinsic => {
+    let methodName = extrinsic.method.methodName
+    let signer = extrinsic.signer
+    let args = extrinsic.method.args
+
+    if (methodName === 'nominate') {
+      api.createType('Vec<Address>', args[0]).forEach(arg => {
+        if (arg.toString() === settings.get().validatorId) {
+          notifications.sendNominatedMessage(signer.toString())
+        }
+      })
+    }
+
+    if (methodName === 'bond') {
+      let controller = api.createType('Address', args[0])
+      if (controller.toString() === settings.get().validatorId) {
+        let amount = api.createType('Compact<Balance>', args[1])
+        notifications.sendBondedMessage(
+          signer.toString(),
+          formatBalance(api.createType('Balance', amount))
+        )
+      }
+    }
+  })
 }
 
 async function getValidators(at?: string | Hash) {
@@ -363,7 +390,7 @@ async function getValidators(at?: string | Hash) {
       nominators: nominators.isSome ? nominators.unwrap().targets : [],
       stakers: stakers,
       sessionIds,
-      nextSessionIds: nextSessionIds.unwrap(),
+      nextSessionIds: nextSessionIds.isSome ? nextSessionIds.unwrap() : [],
       stakingLedger: stakingLedger.unwrap(),
       validatorPrefs: api.createType(
         'ValidatorPrefs',
