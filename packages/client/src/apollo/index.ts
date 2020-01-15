@@ -1,7 +1,8 @@
 import ApolloClient from 'apollo-boost'
+import config from 'config/config'
 
 const client = new ApolloClient({
-  uri: 'http://localhost:4000'
+  uri: 'http://127.0.0.1:' + config.serverPort
 })
 
 export default client
