@@ -9,6 +9,7 @@
   "scripts": {
     "bump": "lerna version --no-push --no-git-tag-version",
     "setup": "node ./setup.js",
+    "setup:reset": "node ./setup.js --reset",
     "start": "yarn run-p start:*",
     "start:client": "cd packages/client && yarn dev",
     "start:server": "cd packages/server && yarn start",
