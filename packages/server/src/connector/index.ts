@@ -292,14 +292,16 @@ async function analyzeExtrinsics(blockHash: string) {
     }
 
     if (methodName == 'bondExtra') {
-      let comissionDataArray = await db.getValidatorInfo(
+      const validatorInfo = await db.getValidatorInfo(
         settings.get().validatorId
       )
-      let length = comissionDataArray.commissionData.length
-      //TODO have to JSON.parse comissionData since it is stored as a string
-      JSON.parse(
-        comissionDataArray.commissionData[length - 1].nominatorData
-      ).stakers.forEach((stakerData: any) => {
+
+      //TODO change nominator data to object
+      const nominatorData = JSON.parse(
+        validatorInfo.commissionData[0].nominatorData
+      )
+
+      nominatorData.stakers.forEach((stakerData: any) => {
         if (signer.toString() === stakerData.accountId.toString()) {
           let amount = api.createType('Compact<Balance>', args[0])
           notifications.sendBondedExtraMessage(
