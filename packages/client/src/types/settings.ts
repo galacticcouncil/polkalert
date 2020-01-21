@@ -1,4 +1,4 @@
-export interface SettingsInterface {
+export interface NotificationSettingsInterface {
   blockReceivedLagNotificationDelay: string
   noBlocksReceivedNotificationDelay: string
   serverPort: string
@@ -9,4 +9,9 @@ export interface SettingsInterface {
   emailUsername: string
   emailPassword: string
   webHooks?: string[]
+  validatorId: string
+}
+
+export interface ApplicationSettingsInterface {
+  maxDataAge: string
 }

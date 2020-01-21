@@ -14,6 +14,8 @@ export default gql`
     $emailUsername: String
     $emailPassword: String
     $webHooks: [String]
+    $maxDataAge: Float
+    $validatorId: String
   ) {
     updateSettings(
       blockReceivedLagNotificationDelay: $blockReceivedLagNotificationDelay
@@ -26,6 +28,8 @@ export default gql`
       emailUsername: $emailUsername
       emailPassword: $emailPassword
       webHooks: $webHooks
+      maxDataAge: $maxDataAge
+      validatorId: $validatorId
     ) {
       ...SettingsFragment
     }
