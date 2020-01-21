@@ -267,7 +267,7 @@ async function subscribeHeaders() {
 
 async function analyzeExtrinsics(blockHash: string) {
   let signedBlock = await api.rpc.chain.getBlock(blockHash)
-  signedBlock.block.extrinsics.forEach(extrinsic => {
+  signedBlock.block.extrinsics.forEach(async extrinsic => {
     let methodName = extrinsic.method.methodName
     let signer = extrinsic.signer
     let args = extrinsic.method.args
@@ -288,6 +288,28 @@ async function analyzeExtrinsics(blockHash: string) {
           signer.toString(),
           formatBalance(api.createType('Balance', amount))
         )
+      }
+    }
+
+    if (methodName === 'bondExtra') {
+      const validatorInfo = await db.getValidatorInfo(
+        settings.get().validatorId
+      )
+
+      //TODO change nominator data to object
+      const nominatorData = JSON.parse(
+        validatorInfo.commissionData[0].nominatorData
+      )
+      if (nominatorData && nominatorData.stakers) {
+        nominatorData.stakers.forEach((stakerData: any) => {
+          if (signer.toString() === stakerData.accountId.toString()) {
+            let amount = api.createType('Compact<Balance>', args[0])
+            notifications.sendBondedExtraMessage(
+              signer.toString(),
+              formatBalance(api.createType('Balance', amount))
+            )
+          }
+        })
       }
     }
   })
