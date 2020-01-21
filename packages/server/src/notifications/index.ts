@@ -46,6 +46,12 @@ async function sendBondedMessage(signer: string, amount: string) {
   return
 }
 
+async function sendBondedExtraMessage(signer: string, amount: string) {
+  send('bondedExtra', getBondedExtraMessage(signer, amount))
+  console.log(getBondedExtraMessage(signer, amount))
+  return
+}
+
 function getSlashMessage(slash: String) {
   return (
     'The validator with ID ' +
@@ -83,11 +89,23 @@ function getBondedMessage(sender: string, amount: string) {
   )
 }
 
+function getBondedExtraMessage(sender: string, amount: string) {
+  return (
+    'The account ' +
+    sender +
+    ' has bonded extra ' +
+    amount +
+    ' to validator with ID ' +
+    settings.get().validatorId
+  )
+}
+
 export default {
   init,
   send,
   sendOfflineMessage,
   sendSlashMessage,
   sendNominatedMessage,
-  sendBondedMessage
+  sendBondedMessage,
+  sendBondedExtraMessage
 }
