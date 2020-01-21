@@ -2,19 +2,25 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useMutation } from '@apollo/react-hooks'
 
 import UPDATESETTINGS_MUTATION from 'apollo/mutations/updateSettings'
-import { SettingsInterface, SnackbarType, SnackbarThemeInterface } from 'types'
+import {
+  ApplicationSettingsInterface,
+  SnackbarType,
+  SnackbarThemeInterface
+} from 'types'
 import { useBooleanState } from 'hooks'
-import { Loading, Input, Button, Snackbar } from 'ui'
+import { Loading, Divider, Input, Button, Snackbar } from 'ui'
 
 import * as S from './styled'
 
 type Props = {
-  data: SettingsInterface
+  data: ApplicationSettingsInterface
 }
 
 const ApplicationSettings = ({ data }: Props) => {
+  const [formFields, setFormFields] = useState<ApplicationSettingsInterface>({
+    maxDataAge: ''
+  })
   const [loadingVisible, showLoading, hideLoading] = useBooleanState()
-  const [serverPort, setServerPort] = useState<string>('')
   const snackbarRef = useRef<SnackbarType>(null)
   const [snackbarTheme, setSnackbarTheme] = useState<SnackbarThemeInterface>({
     text: 'Something went wrong. Please try again.',
@@ -24,10 +30,21 @@ const ApplicationSettings = ({ data }: Props) => {
   const [updateSettingsMutation] = useMutation(UPDATESETTINGS_MUTATION)
 
   useEffect(() => {
-    if (data?.serverPort) {
-      setServerPort(data.serverPort.toString())
+    if (data) {
+      setFormFields({
+        maxDataAge: data.maxDataAge || ''
+      })
     }
   }, [data])
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+
+    setFormFields({
+      ...formFields,
+      [name]: value
+    })
+  }
 
   const handleMutationResult = () => {
     hideLoading()
@@ -39,7 +56,7 @@ const ApplicationSettings = ({ data }: Props) => {
 
     updateSettingsMutation({
       variables: {
-        serverPort: parseInt(serverPort)
+        maxDataAge: parseFloat(formFields.maxDataAge)
       }
     })
       .then(() => {
@@ -62,15 +79,20 @@ const ApplicationSettings = ({ data }: Props) => {
     <S.Wrapper>
       {loadingVisible && <Loading transparent />}
       <S.Inner>
-        <Input
-          fluid
-          label="Backend application port"
-          tooltip="The port on which you're running Polkalert backend (default is 4000)."
-          value={serverPort}
-          onChange={e => setServerPort(e.target.value)}
-        />
+        <div>
+          <Divider padding="0 0 40px">Database</Divider>
+          <Input
+            fluid
+            numeric
+            name="maxDataAge"
+            label="Max data age"
+            tooltip="Maximum age for blocks stored in database (in hours)."
+            value={formFields.maxDataAge}
+            onChange={e => handleOnChange(e)}
+          />
+        </div>
       </S.Inner>
-      <Button fluid text="Save" onClick={handleFormSubmit} />
+      <Button text="Save" onClick={handleFormSubmit} />
 
       <Snackbar ref={snackbarRef} theme={snackbarTheme.theme}>
         {snackbarTheme.text}

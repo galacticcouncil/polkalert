@@ -2,20 +2,24 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useMutation } from '@apollo/react-hooks'
 
 import UPDATESETTINGS_MUTATION from 'apollo/mutations/updateSettings'
-import { SettingsInterface, SnackbarType, SnackbarThemeInterface } from 'types'
+import {
+  NotificationSettingsInterface,
+  SnackbarType,
+  SnackbarThemeInterface
+} from 'types'
 import { useBooleanState } from 'hooks'
 import { Loading, Button, Snackbar } from 'ui'
 
-import { General, Email, Webhooks } from './components'
+import { General, Delay, Email, Webhooks } from './components'
 
 import * as S from './styled'
 
 type Props = {
-  data: SettingsInterface
+  data: NotificationSettingsInterface
 }
 
 const NotificationsSettings = ({ data }: Props) => {
-  const [formFields, setFormFields] = useState<SettingsInterface>({
+  const [formFields, setFormFields] = useState<NotificationSettingsInterface>({
     blockReceivedLagNotificationDelay: '',
     noBlocksReceivedNotificationDelay: '',
     serverPort: '',
@@ -24,7 +28,8 @@ const NotificationsSettings = ({ data }: Props) => {
     emailHost: '',
     emailRecipient: '',
     emailUsername: '',
-    emailPassword: ''
+    emailPassword: '',
+    validatorId: ''
   })
   const [webHooks, setWebHooks] = useState<string[]>([])
   const [loadingVisible, showLoading, hideLoading] = useBooleanState()
@@ -49,7 +54,8 @@ const NotificationsSettings = ({ data }: Props) => {
         emailHost: data.emailHost || '',
         emailRecipient: data.emailRecipient || '',
         emailUsername: data.emailUsername || '',
-        emailPassword: data.emailPassword || ''
+        emailPassword: data.emailPassword || '',
+        validatorId: data.validatorId || ''
       }
 
       setFormFields(dataFormatted)
@@ -57,15 +63,12 @@ const NotificationsSettings = ({ data }: Props) => {
     }
   }, [data])
 
-  const handleOnChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    numbersOnly: boolean
-  ) => {
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
 
     setFormFields({
       ...formFields,
-      [name]: numbersOnly ? value.replace(/\D/, '') : value
+      [name]: value
     })
   }
 
@@ -99,7 +102,8 @@ const NotificationsSettings = ({ data }: Props) => {
         emailRecipient: formFields.emailRecipient,
         emailUsername: formFields.emailUsername,
         emailPassword: formFields.emailPassword,
-        webHooks
+        webHooks,
+        validatorId: formFields.validatorId
       }
     })
       .then(() => {
@@ -124,6 +128,7 @@ const NotificationsSettings = ({ data }: Props) => {
       <S.Inner>
         <div>
           <General data={formFields} onChange={handleOnChange} />
+          <Delay data={formFields} onChange={handleOnChange} />
           <Email
             data={formFields}
             onChange={handleOnChange}
