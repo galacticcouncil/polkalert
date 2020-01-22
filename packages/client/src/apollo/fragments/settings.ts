@@ -12,5 +12,7 @@ export default gql`
     emailUsername
     emailPassword
     webHooks
+    maxDataAge
+    validatorId
   }
 `

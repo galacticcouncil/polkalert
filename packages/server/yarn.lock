@@ -21,7 +21,7 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
-"@polkadot/api-derive@^1.0.0-beta.17", "@polkadot/api-derive@^1.0.0-beta.4":
+"@polkadot/api-derive@^1.0.0-beta.13", "@polkadot/api-derive@^1.0.0-beta.17":
   version "1.0.0-beta.17"
   resolved "https://registry.yarnpkg.com/@polkadot/api-derive/-/api-derive-1.0.0-beta.17.tgz#a38744b8e7052451dcf18c0a72c4200b75db4ed6"
   integrity sha512-vW7LbUC/uJY5loVG4OaAq5OKaabmUbJAuYd956ssDIw5yKLLv6i0H25b+IP3sWFbNU2s8Zh7NMl2/xQqHHe7vA==
@@ -30,7 +30,7 @@
     "@polkadot/api" "^1.0.0-beta.17"
     "@polkadot/types" "^1.0.0-beta.17"
 
-"@polkadot/api@^1.0.0-beta.17", "@polkadot/api@^1.0.0-beta.4":
+"@polkadot/api@^1.0.0-beta.13", "@polkadot/api@^1.0.0-beta.17":
   version "1.0.0-beta.17"
   resolved "https://registry.yarnpkg.com/@polkadot/api/-/api-1.0.0-beta.17.tgz#bb4aae67b51571fdb25932eaaad3d23656b5a585"
   integrity sha512-WoSYW5cMofI2969ByO82gqf9o0pAWq9Mfn6kszbYLEJHazoIj6ZpZE1HA+JAkbE9MMU7LHJGamRMrTiaeAPSgw==
@@ -95,14 +95,14 @@
     isomorphic-fetch "^2.2.1"
     websocket "^1.0.31"
 
-"@polkadot/ts@^0.1.88":
-  version "0.1.88"
-  resolved "https://registry.yarnpkg.com/@polkadot/ts/-/ts-0.1.88.tgz#3e42d9c1981a50ece37184555a5a4aef46d160ab"
-  integrity sha512-FFrG7834uhVXFlXDhLwiMDvawSrgbymGEtXndgGKQClHLuzm9t2Zt7GKdMQQmLSwxtcquabyHg1AbI1NLCm7rg==
+"@polkadot/ts@^0.1.90":
+  version "0.1.90"
+  resolved "https://registry.yarnpkg.com/@polkadot/ts/-/ts-0.1.90.tgz#b318c91b4eacc48f1d7614371c8f8a126fc2cc7e"
+  integrity sha512-bGSd0jqlTYWMdEeF/oh/HTtU5YeN1dMBQSqcZS6oCijrz0bvd8Uf2MqOzOMYdrJ0hQ+t5x1LQjY2M6FRqOmBwQ==
   dependencies:
     "@types/chrome" "^0.0.91"
 
-"@polkadot/types@^1.0.0-beta.17", "@polkadot/types@^1.0.0-beta.4":
+"@polkadot/types@^1.0.0-beta.13", "@polkadot/types@^1.0.0-beta.17":
   version "1.0.0-beta.17"
   resolved "https://registry.yarnpkg.com/@polkadot/types/-/types-1.0.0-beta.17.tgz#947ae9fce74eb33601408f353f3f6a33a3198ec8"
   integrity sha512-kiWjGvlNu0hwRmmWB8AErptuG6k04v4VBnZ02lzkpv9CYQpoZkkG29IDcMqfFsnPTNAEcfF4IA/TIawzIL65YA==

@@ -12,6 +12,7 @@ type Props = {
   disabled?: boolean
   label?: string
   placeholder?: string
+  numeric?: boolean
   value: string
   required?: boolean
   tooltip?: string
@@ -27,6 +28,7 @@ const Input = ({
   disabled,
   label,
   placeholder = '',
+  numeric,
   value = '',
   required,
   tooltip,
@@ -40,6 +42,16 @@ const Input = ({
   useDidUpdate(() => {
     if (required) setInvalid(!value.replace(/\s/g, ''))
   }, [value])
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (numeric) {
+      const eCopy = e
+      eCopy.target.value = eCopy.target.value.replace(/[^0-9.]/g, '')
+      onChange(eCopy)
+    } else {
+      onChange(e)
+    }
+  }
 
   return (
     <S.Wrapper fluid={fluid} className={className} style={style}>
@@ -59,7 +71,7 @@ const Input = ({
           type={type !== 'password' || !valueVisible ? type : 'text'}
           placeholder={placeholder}
           value={value}
-          onChange={onChange}
+          onChange={handleOnChange}
           style={{
             padding: type === 'password' ? '12px 4px 12px 14px' : '12px 14px'
           }}

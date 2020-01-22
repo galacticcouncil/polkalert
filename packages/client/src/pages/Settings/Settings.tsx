@@ -6,7 +6,11 @@ import SETTINGS_QUERY from 'apollo/queries/settings'
 import { MatchInterface } from 'types'
 import { Tabs } from 'ui'
 
-import { NodeUrlSettings, NotificationsSettings } from './components'
+import {
+  NodeUrlSettings,
+  NotificationsSettings,
+  ApplicationSettings
+} from './components'
 
 import * as S from './styled'
 
@@ -29,11 +33,11 @@ const Settings = ({ match }: Props) => {
             {
               text: 'Notifications',
               href: '/settings/notifications'
+            },
+            {
+              text: 'Application',
+              href: '/settings/application'
             }
-            // {
-            //   text: 'Application',
-            //   href: '/settings/application'
-            // }
           ]}
         />
       </S.Header>
@@ -51,13 +55,13 @@ const Settings = ({ match }: Props) => {
               <NotificationsSettings data={data?.settings} {...props} />
             )}
           />
-          {/* <Route
+          <Route
             path={`${match.path}/application`}
             exact
             render={props => (
               <ApplicationSettings data={data?.settings} {...props} />
             )}
-          /> */}
+          />
           <Redirect from="*" to={`${match.path}/node-url`} />
         </Switch>
       </S.Content>
