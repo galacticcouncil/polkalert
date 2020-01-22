@@ -277,38 +277,32 @@ async function analyzeExtrinsics(blockHash: string) {
     let args = extrinsic.method.args
 
     if (methodName === 'nominate') {
-      console.log('nomination')
-      api.createType('Vec<Address>', args[0]).forEach(async arg => {
-        if (arg.toString() === settings.get().validatorId) {
-          if (isExtrinsicSucceed(index, systemEvents)) {
+      let validatorFound = false
+      if (isExtrinsicSucceed(index, systemEvents)) {
+        api.createType('Vec<Address>', args[0]).forEach(async arg => {
+          if (arg.toString() === settings.get().validatorId) {
             notifications.sendNominatedMessage(signer.toString())
+
+            validatorFound = true
           }
-        } else {
+        })
+        if (!validatorFound) {
           const validatorInfo = await db.getValidatorInfo(
             settings.get().validatorId
           )
-          //TODO change nominator data to object
-          const nominatorData = JSON.parse(
-            validatorInfo.commissionData[0].nominatorData
+          const commissionData = validatorInfo.commissionData.filter(
+            data => data.nominatorData
           )
-          console.log('nominator data ' + nominatorData.toString())
+          const nominatorData = JSON.parse(commissionData[0].nominatorData)
           const ledger = await api.query.staking.ledger(signer.toString())
           const stash = ledger.unwrap().stash.toString()
           nominatorData.stakers.forEach((stakerData: any) => {
-            console.log(
-              'signers stash ' +
-                stash +
-                ' nominator ' +
-                stakerData.accountId.toString()
-            )
             if (stash.toString() === stakerData.accountId.toString()) {
-              if (isExtrinsicSucceed(index, systemEvents)) {
-                notifications.sendDenominateMessage(stash.toString())
-              }
+              notifications.sendDenominateMessage(stash.toString())
             }
           })
         }
-      })
+      }
     }
 
     if (methodName === 'bond') {
@@ -378,10 +372,10 @@ async function analyzeExtrinsics(blockHash: string) {
   })
 }
 
-async function isExtrinsicSucceed(
+function isExtrinsicSucceed(
   extrinsicIndex: number,
   systemEvents: Vec<EventRecord>
-): Promise<boolean> {
+): boolean {
   let index = systemEvents
     .filter(event => event.phase.asApplyExtrinsic.toNumber() === extrinsicIndex)
     .filter(event => event.event.method === 'ExtrinsicSuccess')
