@@ -266,16 +266,47 @@ async function subscribeHeaders() {
 }
 
 async function analyzeExtrinsics(blockHash: string) {
-  let signedBlock = await api.rpc.chain.getBlock(blockHash)
+  const signedBlock = await api.rpc.chain.getBlock(blockHash)
+  //TODO should be refactored to get events only ones,
+  //suggest to move event analysis from subscribeEvents here
+  const systemEvents = await api.query.system.events.at(blockHash)
+  let index: number = 0
   signedBlock.block.extrinsics.forEach(async extrinsic => {
     let methodName = extrinsic.method.methodName
     let signer = extrinsic.signer
     let args = extrinsic.method.args
 
     if (methodName === 'nominate') {
-      api.createType('Vec<Address>', args[0]).forEach(arg => {
+      console.log('nomination')
+      api.createType('Vec<Address>', args[0]).forEach(async arg => {
         if (arg.toString() === settings.get().validatorId) {
-          notifications.sendNominatedMessage(signer.toString())
+          if (isExtrinsicSucceed(index, systemEvents)) {
+            notifications.sendNominatedMessage(signer.toString())
+          }
+        } else {
+          const validatorInfo = await db.getValidatorInfo(
+            settings.get().validatorId
+          )
+          //TODO change nominator data to object
+          const nominatorData = JSON.parse(
+            validatorInfo.commissionData[0].nominatorData
+          )
+          console.log('nominator data ' + nominatorData.toString())
+          const ledger = await api.query.staking.ledger(signer.toString())
+          const stash = ledger.unwrap().stash.toString()
+          nominatorData.stakers.forEach((stakerData: any) => {
+            console.log(
+              'signers stash ' +
+                stash +
+                ' nominator ' +
+                stakerData.accountId.toString()
+            )
+            if (stash.toString() === stakerData.accountId.toString()) {
+              if (isExtrinsicSucceed(index, systemEvents)) {
+                notifications.sendDenominateMessage(stash.toString())
+              }
+            }
+          })
         }
       })
     }
@@ -283,11 +314,13 @@ async function analyzeExtrinsics(blockHash: string) {
     if (methodName === 'bond') {
       let controller = api.createType('Address', args[0])
       if (controller.toString() === settings.get().validatorId) {
-        let amount = api.createType('Compact<Balance>', args[1])
-        notifications.sendBondedMessage(
-          signer.toString(),
-          formatBalance(api.createType('Balance', amount))
-        )
+        if (isExtrinsicSucceed(index, systemEvents)) {
+          let amount = api.createType('Compact<Balance>', args[1])
+          notifications.sendBondedMessage(
+            signer.toString(),
+            formatBalance(api.createType('Balance', amount))
+          )
+        }
       }
     }
 
@@ -303,16 +336,59 @@ async function analyzeExtrinsics(blockHash: string) {
       if (nominatorData && nominatorData.stakers) {
         nominatorData.stakers.forEach((stakerData: any) => {
           if (signer.toString() === stakerData.accountId.toString()) {
-            let amount = api.createType('Compact<Balance>', args[0])
-            notifications.sendBondedExtraMessage(
-              signer.toString(),
-              formatBalance(api.createType('Balance', amount))
-            )
+            if (isExtrinsicSucceed(index, systemEvents)) {
+              let amount = api.createType('Compact<Balance>', args[0])
+              notifications.sendBondedExtraMessage(
+                signer.toString(),
+                formatBalance(api.createType('Balance', amount))
+              )
+            }
           }
         })
       }
     }
+
+    if (methodName === 'unbond') {
+      const validatorInfo = await db.getValidatorInfo(
+        settings.get().validatorId
+      )
+      const ledger = await api.query.staking.ledger(signer.toString())
+      const stash = ledger.unwrap().stash.toString()
+      //TODO change nominator data to object
+      const nominatorData = JSON.parse(
+        validatorInfo.commissionData[0].nominatorData
+      )
+      if (nominatorData && nominatorData.stakers) {
+        nominatorData.stakers.forEach((stakerData: any) => {
+          console.log('nominator id ' + stakerData.accountId.toString())
+          if (stash === stakerData.accountId.toString()) {
+            if (isExtrinsicSucceed(index, systemEvents)) {
+              let amount = formatBalance(api.createType('Balance', args[0]))
+              notifications.sendUnbondedMessage(stash, amount)
+              if (parseFloat(amount) >= parseFloat(stakerData.stake)) {
+                notifications.sendUnbondedEverythingMessage(stash)
+              }
+            }
+          }
+        })
+      }
+    }
+
+    index += 1
   })
+}
+
+async function isExtrinsicSucceed(
+  extrinsicIndex: number,
+  systemEvents: Vec<EventRecord>
+): Promise<boolean> {
+  let index = systemEvents
+    .filter(event => event.phase.asApplyExtrinsic.toNumber() === extrinsicIndex)
+    .filter(event => event.event.method === 'ExtrinsicSuccess')
+  if (index[0]) {
+    return true
+  }
+  return false
 }
 
 async function getValidators(at?: string | Hash) {

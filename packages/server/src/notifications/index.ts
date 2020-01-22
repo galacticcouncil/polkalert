@@ -52,6 +52,24 @@ async function sendBondedExtraMessage(signer: string, amount: string) {
   return
 }
 
+async function sendUnbondedMessage(signer: string, amount: string) {
+  send('unbonded', getUnbondedMessage(signer, amount))
+  console.log(getUnbondedMessage(signer, amount))
+  return
+}
+
+async function sendDenominateMessage(signer: string) {
+  send('unbonded', getDenominateMessage(signer))
+  console.log(getDenominateMessage(signer))
+  return
+}
+
+async function sendUnbondedEverythingMessage(signer: string) {
+  send('unbonded', getUnbondedEverythingMessage(signer))
+  console.log(getUnbondedEverythingMessage(signer))
+  return
+}
+
 function getSlashMessage(slash: String) {
   return (
     'The validator with ID ' +
@@ -100,6 +118,35 @@ function getBondedExtraMessage(sender: string, amount: string) {
   )
 }
 
+function getUnbondedMessage(sender: string, amount: string) {
+  return (
+    'The account ' +
+    sender +
+    ' has unbonded ' +
+    amount +
+    ' from validator with ID ' +
+    settings.get().validatorId
+  )
+}
+
+function getDenominateMessage(sender: string) {
+  return (
+    'The account ' +
+    sender +
+    ' is no longer nominating validator with ID ' +
+    settings.get().validatorId
+  )
+}
+
+function getUnbondedEverythingMessage(sender: string) {
+  return (
+    'The account ' +
+    sender +
+    ' has unbonded everything from validator with ID ' +
+    settings.get().validatorId
+  )
+}
+
 export default {
   init,
   send,
@@ -107,5 +154,8 @@ export default {
   sendSlashMessage,
   sendNominatedMessage,
   sendBondedMessage,
-  sendBondedExtraMessage
+  sendBondedExtraMessage,
+  sendUnbondedMessage,
+  sendDenominateMessage,
+  sendUnbondedEverythingMessage
 }
