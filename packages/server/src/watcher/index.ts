@@ -27,7 +27,7 @@ function getTimeoutMessage() {
   return (
     "node didn't receive blocks for " +
     noBlocksReceivedNotificationDelay / 1000 +
-    'seconds, check your connection.\n' +
+    ' seconds, check your connection.\n' +
     'If you think this message is false alarm,' +
     'check your settings'
   )
@@ -37,7 +37,7 @@ function getBlockTimeMessage(blockReceivedTimeDifference: number) {
   return (
     'node received block after' +
     blockReceivedTimeDifference +
-    'ms check your connection.\n' +
+    ' ms check your connection.\n' +
     'If you think this message is false alarm,' +
     'check your settings'
   )
@@ -53,11 +53,13 @@ function startTimeout() {
 
 function ping(timestamp: number) {
   const blockReceivedTimeDifference = Date.now() - timestamp
-  if (blockReceivedTimeDifference > blockReceivedLagNotificationDelay)
+  if (blockReceivedTimeDifference > blockReceivedLagNotificationDelay) {
     notifications.send(
       'connection',
       getBlockTimeMessage(blockReceivedTimeDifference)
     )
+    console.log(getBlockTimeMessage(blockReceivedTimeDifference))
+  }
 
   clearTimeout(notificationTimeout)
   startTimeout()
