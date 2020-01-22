@@ -2,6 +2,7 @@ import db from '../db'
 import connector from '../connector'
 import { Validator } from '../entity/Validator'
 import settings from '../settings'
+import { pubsub } from '../api'
 
 async function addCurrentEraInfoToValidators(validators: Validator[]) {
   const currentValidators = await connector.getValidators()
@@ -59,9 +60,13 @@ export default {
     nodeInfo: connector.getNodeInfo,
     settings: settings.get
   },
-
   Mutation: {
     connect,
     updateSettings
+  },
+  Subscription: {
+    newMessage: {
+      subscribe: () => pubsub.asyncIterator('newMessage')
+    }
   }
 }

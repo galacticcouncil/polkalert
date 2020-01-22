@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server'
+import { gql } from 'apollo-server-express'
 
 export const typeDefs = gql`
   type CommissionData {
@@ -68,6 +68,14 @@ export const typeDefs = gql`
     validatorId: String
   }
 
+  type Message {
+    id: Int
+    content: String
+    timestamp: String
+    title: String
+    type: String
+  }
+
   type Mutation {
     connect(nodeUrl: String!): String
     updateSettings(
@@ -86,8 +94,13 @@ export const typeDefs = gql`
     ): Settings
   }
 
+  type Subscription {
+    newMessage: Message
+  }
+
   type Query {
     nodeInfo: NodeInfo
+    messages: [Message]
     validators: [Validator]
     validator(accountId: String!): Validator
     dataAge: String

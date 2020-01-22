@@ -13,3 +13,11 @@ declare type NodeInfo = {
   tokenDecimals: number
   tokenSymbol: string
 }
+
+declare type Message = {
+  id?: number
+  content: string
+  timestamp?: number
+  title: string
+  type: string
+}

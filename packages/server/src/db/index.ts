@@ -7,6 +7,7 @@ import {
   LessThan,
   getConnectionOptions
 } from 'typeorm'
+import { Log } from '../entity/Log'
 import { Header } from '../entity/Header'
 import { Validator } from '../entity/Validator'
 import { CommissionData } from '../entity/CommissionData'
@@ -18,6 +19,7 @@ import { SessionInfo } from '../entity/SessionInfo'
 import { Slash } from '../entity/Slash'
 import humanizeDuration from 'humanize-duration'
 import { EnhancedHeader, EnhancedDerivedStakingQuery } from '../types/connector'
+import { pubsub } from '../api'
 
 let connection: Connection = null
 let manager: EntityManager = null
@@ -25,6 +27,7 @@ let nodeInfo: NodeInfo = null
 let validatorMap: { [key: string]: Validator } = {}
 let retryInterval: number = 5000
 let settingsListener: boolean = null
+let debugLogs = false
 
 //TODO: Config
 //number of seconds to prune blocks
@@ -104,11 +107,19 @@ async function startPruningInterval() {
   maxDataAge = settings.get().maxDataAge
 
   if (manager) {
+    const pruningDate = Date.now() - maxDataAge * 3600 * 1000
+
     manager
       .delete(Header, {
-        timestamp: LessThan(Date.now() - maxDataAge * 3600 * 1000)
+        timestamp: LessThan(pruningDate)
       })
-      .catch(e => {})
+      .catch(console.log)
+
+    manager
+      .delete(Log, {
+        timestamp: LessThan(pruningDate)
+      })
+      .catch(console.log)
 
     pruningInterval = setTimeout(startPruningInterval, pruning * 1000)
   }
@@ -350,8 +361,32 @@ async function setAppVersion(newAppVersion: string) {
   return
 }
 
+async function log(message: Message) {
+  const logMessage = new Log()
+  if (!message.timestamp) message.timestamp = Date.now()
+
+  Object.assign(logMessage, message)
+  const log = await manager.save(logMessage)
+
+  if (debugLogs || message.type !== 'debug') {
+    pubsub.publish('newMessage', { newMessage: log })
+  }
+
+  return log
+}
+
+async function getLogs(debug: boolean = false) {
+  if (debug) debugLogs = true
+
+  return (await manager.find(Log)).filter(message =>
+    debugLogs ? true : message.type !== 'debug'
+  )
+}
+
 export default {
   init,
+  log,
+  getLogs,
   saveHeader,
   saveValidator,
   getAppVersion,

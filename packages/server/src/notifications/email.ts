@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import Mail from 'nodemailer/lib/mailer'
+import logger from '../logger'
 
 let emailProvider: Mail = null
 let recipient: string = null
@@ -40,7 +41,9 @@ async function send(type: string, message: string) {
         subject: type,
         text: message
       })
-      .catch(e => console.log('failed to send email notification', e))
+      .catch(e => {
+        logger.error('Failed to send email notification', e)
+      })
 
     if (info) console.log('Email message sent:', info.messageId)
   }

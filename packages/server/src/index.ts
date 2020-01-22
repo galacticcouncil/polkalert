@@ -1,8 +1,10 @@
-import app from './api'
+import { server } from './api'
 import db from './db'
 import connector from './connector'
 import settings from './settings'
 import { readFileSync } from 'fs'
+import http from 'http'
+import express from 'express'
 
 process.on('unhandledRejection', error => {
   console.log('unhandledRejection')
@@ -38,8 +40,18 @@ async function main() {
       .catch(e => console.log('unable to connect to previously connected node'))
   }
 
-  app.listen({ port: config.serverPort || 4000 }).then(({ url }) => {
-    console.log(`🚀  Server ready at ${url}`)
+  const app = express()
+  server.applyMiddleware({ app })
+  const httpServer = http.createServer(app)
+  server.installSubscriptionHandlers(httpServer)
+
+  httpServer.listen({ port: config.serverPort || 4000 }, () => {
+    console.log(
+      `🚀 Server ready at http://localhost:${config.serverPort}${server.graphqlPath}`
+    )
+    console.log(
+      `🚀 Subscriptions ready at ws://localhost:${config.serverPort}${server.subscriptionsPath}`
+    )
   })
 }
 
