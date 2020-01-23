@@ -4,6 +4,8 @@ import { Validator } from '../entity/Validator'
 import settings from '../settings'
 import { pubsub } from '../api'
 
+let actionCounter = 0
+
 async function addCurrentEraInfoToValidators(validators: Validator[]) {
   const currentValidators = await connector.getValidators()
   const validatorsWithCurrentEraInfo = validators.map(validator => {
@@ -39,9 +41,7 @@ async function getValidatorInfo(_: any, { accountId }: { accountId: string }) {
 }
 
 async function connect(_: any, { nodeUrl }: { nodeUrl: string }) {
-  return connector.connect(nodeUrl).catch(e => {
-    console.log('error while connecting:', e)
-  })
+  return connector.connect(nodeUrl)
 }
 
 function updateSettings(_: any, config: Settings) {
@@ -66,7 +66,32 @@ export default {
   },
   Subscription: {
     newMessage: {
+      resolve: (message: Message) => {
+        return {
+          newMessage: message
+        }
+      },
       subscribe: () => pubsub.asyncIterator('newMessage')
+    },
+    action: {
+      resolve: (action: Action | string) => {
+        const actionMessage: Action = {
+          id: actionCounter,
+          type: null,
+          payload: null
+        }
+
+        if (typeof action === 'string') {
+          actionMessage.type = action
+        } else {
+          actionMessage.type = action.type
+          actionMessage.payload = action.payload
+        }
+
+        actionCounter += 1
+        return actionMessage
+      },
+      subscribe: () => pubsub.asyncIterator('action')
     }
   }
 }

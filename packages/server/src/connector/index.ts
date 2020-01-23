@@ -28,6 +28,7 @@ import {
   EventSlash
 } from '../types/connector'
 import AccountId from '@polkadot/types/primitive/Generic/AccountId'
+import { pubsub } from '../api'
 
 let maxHeaderBatch = 100
 let maxBlockHistory = 15000
@@ -488,6 +489,8 @@ async function connect(nodeUrl: string) {
   connector.setNodeUrl(nodeUrl)
   api = await connector.connect()
 
+  if (!api) throw new Error('Cannot connect to API')
+
   firstSavedBlock = {
     number: null,
     hash: null,
@@ -509,11 +512,26 @@ async function connect(nodeUrl: string) {
 async function waitUntilSynced() {
   const health = await api.rpc.system.health()
   if (health.isSyncing.toString() === 'true') {
+    const currentBlock = await api.rpc.chain.getHeader()
+    const currentBlockTime = (await api.query.timestamp.now()).toNumber()
+    const firstBlockHash = await api.rpc.chain.getBlockHash(1)
+    const firstBlockTime = (
+      await api.query.timestamp.now.at(firstBlockHash)
+    ).toNumber()
+    const currentTime = await Date.now()
+    const currentBlockHeight = currentBlock.number.toNumber()
+    const progress = (
+      ((currentTime - currentBlockTime) / (currentTime - firstBlockTime)) *
+      100
+    ).toFixed(1)
+
     console.log('Node is syncing, waiting to finish')
-    console.log(
-      'Current block height:',
-      (await api.rpc.chain.getHeader()).number.toNumber()
-    )
+    console.log('Current block height:', currentBlockHeight, ':', progress, '%')
+
+    pubsub.publish('action', {
+      type: 'syncing',
+      payload: JSON.stringify({ currentBlockHeight, progress })
+    })
     await new Promise(resolve => setTimeout(resolve, 3000))
     await waitUntilSynced()
   } else return

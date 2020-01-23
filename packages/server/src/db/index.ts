@@ -113,13 +113,13 @@ async function startPruningInterval() {
       .delete(Header, {
         timestamp: LessThan(pruningDate)
       })
-      .catch(console.log)
+      .catch()
 
     manager
       .delete(Log, {
         timestamp: LessThan(pruningDate)
       })
-      .catch(console.log)
+      .catch()
 
     pruningInterval = setTimeout(startPruningInterval, pruning * 1000)
   }
@@ -369,7 +369,7 @@ async function log(message: Message) {
   const log = await manager.save(logMessage)
 
   if (debugLogs || message.type !== 'debug') {
-    pubsub.publish('newMessage', { newMessage: log })
+    pubsub.publish('newMessage', log)
   }
 
   return log

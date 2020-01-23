@@ -1,5 +1,6 @@
 import db from '../db'
 
+//TODO: Configurable logging levels
 const logger = {
   debug: (title: string, content: string) => {
     console.log(title + '::' + content)

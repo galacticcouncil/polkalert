@@ -34,16 +34,16 @@ async function main() {
   console.log('*** POLKALERT ***')
   console.log('version:', version)
 
+  const app = express()
+  server.applyMiddleware({ app })
+  const httpServer = http.createServer(app)
+  server.installSubscriptionHandlers(httpServer)
+
   if (oldNodeInfo) {
     await connector
       .connect(oldNodeInfo.nodeUrl)
       .catch(e => console.log('unable to connect to previously connected node'))
   }
-
-  const app = express()
-  server.applyMiddleware({ app })
-  const httpServer = http.createServer(app)
-  server.installSubscriptionHandlers(httpServer)
 
   httpServer.listen({ port: config.serverPort || 4000 }, () => {
     console.log(

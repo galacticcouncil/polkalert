@@ -76,6 +76,12 @@ export const typeDefs = gql`
     type: String
   }
 
+  type Action {
+    id: Int
+    type: String
+    payload: String
+  }
+
   type Mutation {
     connect(nodeUrl: String!): String
     updateSettings(
@@ -96,6 +102,7 @@ export const typeDefs = gql`
 
   type Subscription {
     newMessage: Message
+    action: Action
   }
 
   type Query {

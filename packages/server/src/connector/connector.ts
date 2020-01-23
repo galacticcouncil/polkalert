@@ -6,11 +6,15 @@ import { SignalingTypes } from 'edgeware-node-types/dist/signaling'
 import { TreasuryRewardTypes } from 'edgeware-node-types/dist/treasuryReward'
 import { VotingTypes } from 'edgeware-node-types/dist/voting'
 import db from '../db'
+import logger from '../logger'
+import { pubsub } from '../api'
 
 let nodeUrl: string = null
 let nodeInfo: NodeInfo = null
 let provider: WsProvider = null
 let api: ApiPromise = null
+let apiCreatorPromise: Promise<ApiPromise> = null
+let resolveApi: Function = null
 let subscriptions: Function[] = []
 
 function setNodeUrl(newNodeUrl: string) {
@@ -34,6 +38,12 @@ async function disconnect() {
     subscriptions = []
   }
 
+  if (apiCreatorPromise) {
+    resolveApi(null)
+    resolveApi = null
+    apiCreatorPromise = null
+  }
+
   if (api) {
     await api.disconnect()
     provider = null
@@ -51,8 +61,10 @@ async function disconnect() {
   return
 }
 
-async function handleError() {
-  console.error('Error connecting to: ', nodeUrl)
+async function handleError(e: Error) {
+  logger.error('Node connection error', e)
+  pubsub.publish('action', 'disconnect')
+
   disconnect()
   return
 }
@@ -61,29 +73,39 @@ async function connect() {
   await disconnect()
 
   provider = new WsProvider(nodeUrl)
-
-  // TODO Proper error handling
   provider.on('error', handleError)
 
   console.log('creating api')
 
   // BUG API Promise doesn't finish if provider crashes on connection
-  api = await ApiPromise.create({
-    typesSpec: {
-      edgeware: {
-        ...IdentityTypes,
-        ...SignalingTypes,
-        ...TreasuryRewardTypes,
-        ...VotingTypes
-      }
-    },
-    provider: provider
-  }).catch(e => {
-    console.log(e)
-    return null
+  apiCreatorPromise = new Promise(async resolve => {
+    resolveApi = resolve
+
+    api = await ApiPromise.create({
+      typesSpec: {
+        edgeware: {
+          ...IdentityTypes,
+          ...SignalingTypes,
+          ...TreasuryRewardTypes,
+          ...VotingTypes
+        }
+      },
+      provider: provider
+    }).catch(e => {
+      logger.error('Error creating api', e)
+      pubsub.publish('action', 'disconnect')
+      return null
+    })
+
+    return api
   })
 
-  if (!api) return null
+  await apiCreatorPromise
+
+  if (!api) {
+    pubsub.publish('action', 'disconnect')
+    return null
+  }
 
   let [properties, chain, name, version] = await Promise.all([
     api.rpc.system.properties(),
