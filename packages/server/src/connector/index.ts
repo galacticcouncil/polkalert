@@ -217,7 +217,8 @@ async function subscribeHeaders() {
     let number = header.number.toNumber()
     let missing = 0
     let enhancedHeader = await getBlockHeader(number)
-    watcher.ping(enhancedHeader.timestamp)
+    let finalizedHash = await api.rpc.chain.getFinalizedHead()
+    watcher.ping(enhancedHeader.timestamp, finalizedHash.toString())
 
     console.log('new header #:', number, 'with hash:', hash)
 
