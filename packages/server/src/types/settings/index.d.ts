@@ -1,6 +1,7 @@
 declare type Settings = {
   blockReceivedLagNotificationDelay?: number
   noBlocksReceivedNotificationDelay?: number
+  notFinalizingNotificationDelay?: number
   serverPort?: number
   email?: boolean
   emailPort?: number

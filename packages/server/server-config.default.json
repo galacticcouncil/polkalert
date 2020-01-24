@@ -1,6 +1,7 @@
 {
   "blockReceivedLagNotificationDelay": 2,
-  "noBlocksReceivedNotificationDelay": 180,
+  "noBlocksReceivedNotificationDelay": 90,
+  "notFinalizingNotificationDelay": 180,
   "emailHost": null,
   "emailNotifications": false,
   "emailPassword": null,
