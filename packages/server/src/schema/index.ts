@@ -56,6 +56,7 @@ export const typeDefs = gql`
   type Settings {
     blockReceivedLagNotificationDelay: Int
     noBlocksReceivedNotificationDelay: Int
+    notFinalizingNotificationDelay: Int
     serverPort: Int
     emailNotifications: Boolean
     emailPort: Int
@@ -87,6 +88,7 @@ export const typeDefs = gql`
     updateSettings(
       blockReceivedLagNotificationDelay: Int
       noBlocksReceivedNotificationDelay: Int
+      notFinalizingNotificationDelay: Int
       serverPort: Int
       emailNotifications: Boolean
       emailPort: Int

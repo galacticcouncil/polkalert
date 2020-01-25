@@ -81,7 +81,7 @@ async function connect() {
   apiCreatorPromise = new Promise(async resolve => {
     resolveApi = resolve
 
-    api = await ApiPromise.create({
+    const apiObject = await ApiPromise.create({
       typesSpec: {
         edgeware: {
           ...IdentityTypes,
@@ -97,10 +97,10 @@ async function connect() {
       return null
     })
 
-    return api
+    return resolve(apiObject)
   })
 
-  await apiCreatorPromise
+  api = await apiCreatorPromise
 
   if (!api) {
     pubsub.publish('action', 'disconnect')

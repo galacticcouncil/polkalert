@@ -37,7 +37,8 @@ const logger = {
   error: (title: string, content: Error) => {
     console.error(title + '::', content)
     db.log({
-      content: content.toString() + '::\n' + content.stack,
+      content:
+        JSON.stringify(content) + content.stack ? '\n' + content.stack : '',
       title,
       type: 'error'
     })

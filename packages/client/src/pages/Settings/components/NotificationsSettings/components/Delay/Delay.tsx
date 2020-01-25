@@ -26,9 +26,18 @@ const Delay = ({ data, onChange }: Props) => (
       fluid
       numeric
       name="noBlocksReceivedNotificationDelay"
-      label="Notification delay for no blocks"
+      label="Notification delay for no blocks received"
       tooltip="Delay after which a notification about no blocks received will be sent (in seconds)."
       value={data.noBlocksReceivedNotificationDelay}
+      onChange={e => onChange(e)}
+    />
+    <Input
+      fluid
+      numeric
+      name="notFinalizingNotificationDelay"
+      label="Notification delay for blocks not finalizing"
+      tooltip="Delay after which a notification about blocks not being finalized will be sent (in seconds)."
+      value={data.notFinalizingNotificationDelay}
       onChange={e => onChange(e)}
     />
   </S.Wrapper>

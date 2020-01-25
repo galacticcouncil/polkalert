@@ -6,6 +6,7 @@ export default gql`
   mutation UpdateSettings(
     $blockReceivedLagNotificationDelay: Int
     $noBlocksReceivedNotificationDelay: Int
+    $notFinalizingNotificationDelay: Int
     $serverPort: Int
     $emailNotifications: Boolean
     $emailPort: Int
@@ -20,6 +21,7 @@ export default gql`
     updateSettings(
       blockReceivedLagNotificationDelay: $blockReceivedLagNotificationDelay
       noBlocksReceivedNotificationDelay: $noBlocksReceivedNotificationDelay
+      notFinalizingNotificationDelay: $notFinalizingNotificationDelay
       serverPort: $serverPort
       emailNotifications: $emailNotifications
       emailPort: $emailPort

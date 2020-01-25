@@ -47,10 +47,10 @@ async function main() {
 
   httpServer.listen({ port: config.serverPort || 4000 }, () => {
     console.log(
-      `🚀 Server ready at http://localhost:${config.serverPort}${server.graphqlPath}`
+      `🚀 Server ready at http://0.0.0.0:${config.serverPort}${server.graphqlPath}`
     )
     console.log(
-      `🚀 Subscriptions ready at ws://localhost:${config.serverPort}${server.subscriptionsPath}`
+      `🚀 Subscriptions ready at ws://0.0.0.0:${config.serverPort}${server.subscriptionsPath}`
     )
   })
 }

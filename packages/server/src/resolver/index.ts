@@ -57,6 +57,7 @@ export default {
     validators: getValidators,
     validator: getValidatorInfo,
     dataAge: getDataAge,
+    messages: db.getLogs,
     nodeInfo: connector.getNodeInfo,
     settings: settings.get
   },
