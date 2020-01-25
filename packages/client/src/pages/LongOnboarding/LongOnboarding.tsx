@@ -19,6 +19,7 @@ const LongOnboarding = () => {
   const [successModalVisible, showSuccessModal] = useBooleanState()
   const [errorModalVisible, showErrorModal, hideErrorModal] = useBooleanState()
 
+  const [emailFrom, setEmailFrom] = useState<string>('')
   const [emailPort, setEmailPort] = useState<string>('')
   const [emailHost, setEmailHost] = useState<string>('')
   const [emailUsername, setEmailUsername] = useState<string>('')
@@ -43,6 +44,7 @@ const LongOnboarding = () => {
 
     updateSettingsMutation({
       variables: {
+        emailFrom,
         emailPort: parseInt(emailPort),
         emailHost,
         emailUsername,
@@ -136,6 +138,18 @@ const LongOnboarding = () => {
             type="password"
             value={emailPassword}
             onChange={e => setEmailPassword(e.target.value)}
+          />
+        </S.ScrollerItem>
+
+        <S.ScrollerItem>
+          <S.ScrollerItemName>Email from</S.ScrollerItemName>
+          <S.ScrollerItemText>
+            This is the email address email will be sent from.
+          </S.ScrollerItemText>
+          <Input
+            label="Type the value into this input"
+            value={emailFrom}
+            onChange={e => setEmailUsername(e.target.value)}
           />
         </S.ScrollerItem>
 

@@ -8,6 +8,7 @@ export default gql`
     $noBlocksReceivedNotificationDelay: Int
     $serverPort: Int
     $emailNotifications: Boolean
+    $emailFrom: String
     $emailPort: Int
     $emailHost: String
     $emailRecipient: String
@@ -22,6 +23,7 @@ export default gql`
       noBlocksReceivedNotificationDelay: $noBlocksReceivedNotificationDelay
       serverPort: $serverPort
       emailNotifications: $emailNotifications
+      emailFrom: $emailFrom
       emailPort: $emailPort
       emailHost: $emailHost
       emailRecipient: $emailRecipient

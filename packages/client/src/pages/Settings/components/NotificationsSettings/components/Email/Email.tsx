@@ -24,6 +24,7 @@ const Email = ({ data, onChange, onToggle }: Props) => (
       <Input
         fluid
         name="emailHost"
+        placeholder="smtp.example.com"
         label="Server URL for outgoing emails"
         tooltip="The emailing server, which you want to use for sending out email notifications, for example smtp.gmail.com."
         value={data.emailHost}
@@ -32,6 +33,7 @@ const Email = ({ data, onChange, onToggle }: Props) => (
       <Input
         fluid
         numeric
+        placeholder="465"
         name="emailPort"
         label="SMTP port"
         tooltip="The port you want to use for sending out email notifications. Common ports for SMTP are 25, 2525 or 587. For Secure SMTP (SSL / TLS) it's 465, 25, 587 or 2526 (Elastic Email)."
@@ -40,6 +42,7 @@ const Email = ({ data, onChange, onToggle }: Props) => (
       />
       <Input
         fluid
+        placeholder="login.example.com"
         name="emailUsername"
         label="Email login"
         tooltip="This account will be used for sending out email notifications."
@@ -48,6 +51,7 @@ const Email = ({ data, onChange, onToggle }: Props) => (
       />
       <Input
         fluid
+        placeholder="password"
         name="emailPassword"
         label="Email password"
         type="password"
@@ -57,6 +61,16 @@ const Email = ({ data, onChange, onToggle }: Props) => (
       />
       <Input
         fluid
+        placeholder="info@example.com"
+        name="emailFrom"
+        label="Email address of the sender"
+        tooltip="The email address from which the notifications will be sent. Usually email login"
+        value={data.emailFrom}
+        onChange={e => onChange(e)}
+      />
+      <Input
+        fluid
+        placeholder="recipient@example.com"
         name="emailRecipient"
         label="Email address of the recipient"
         tooltip="The email address where the notifications should be delivered."

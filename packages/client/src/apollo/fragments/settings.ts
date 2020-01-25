@@ -6,6 +6,7 @@ export default gql`
     noBlocksReceivedNotificationDelay
     serverPort
     emailNotifications
+    emailFrom
     emailPort
     emailHost
     emailRecipient

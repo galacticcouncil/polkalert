@@ -3,6 +3,7 @@ export interface NotificationSettingsInterface {
   noBlocksReceivedNotificationDelay: string
   serverPort: string
   emailNotifications: boolean
+  emailFrom: string
   emailPort: string
   emailHost: string
   emailRecipient: string

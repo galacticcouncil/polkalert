@@ -1,6 +1,7 @@
 {
   "blockReceivedLagNotificationDelay": 2,
   "noBlocksReceivedNotificationDelay": 180,
+  "emailFrom": null,
   "emailHost": null,
   "emailNotifications": false,
   "emailPassword": null,
@@ -14,6 +15,7 @@
   "meta": {
     "blockReceivedLagNotificationDelay": "Delay after which notification for lagging network will be sent in seconds",
     "noBlocksReceivedNotificationDelay": "Delay after which notification for no blocks received will be sent in seconds",
+    "emailFrom": "Email from which notifications will be sent",
     "emailHost": "Url of smtp server",
     "emailNotifications": "Turn email notifications on or off",
     "emailPassword": "Email server password",
