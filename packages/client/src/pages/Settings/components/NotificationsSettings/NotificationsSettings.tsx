@@ -22,6 +22,7 @@ const NotificationsSettings = ({ data }: Props) => {
   const [formFields, setFormFields] = useState<NotificationSettingsInterface>({
     blockReceivedLagNotificationDelay: '',
     noBlocksReceivedNotificationDelay: '',
+    notFinalizingNotificationDelay: '',
     serverPort: '',
     emailNotifications: false,
     emailFrom: '',
@@ -49,6 +50,8 @@ const NotificationsSettings = ({ data }: Props) => {
           data.blockReceivedLagNotificationDelay || '',
         noBlocksReceivedNotificationDelay:
           data.noBlocksReceivedNotificationDelay || '',
+        notFinalizingNotificationDelay:
+          data.notFinalizingNotificationDelay || '',
         serverPort: data.serverPort || '',
         emailNotifications: data.emailNotifications || false,
         emailFrom: data.emailFrom || '',
@@ -96,6 +99,9 @@ const NotificationsSettings = ({ data }: Props) => {
         ),
         noBlocksReceivedNotificationDelay: parseInt(
           formFields.noBlocksReceivedNotificationDelay
+        ),
+        notFinalizingNotificationDelay: parseInt(
+          formFields.notFinalizingNotificationDelay
         ),
         serverPort: parseInt(formFields.serverPort),
         emailNotifications: formFields.emailNotifications,

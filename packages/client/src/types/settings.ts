@@ -1,6 +1,7 @@
 export interface NotificationSettingsInterface {
   blockReceivedLagNotificationDelay: string
   noBlocksReceivedNotificationDelay: string
+  notFinalizingNotificationDelay: string
   serverPort: string
   emailNotifications: boolean
   emailFrom: string

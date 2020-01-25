@@ -4,6 +4,7 @@ export default gql`
   fragment SettingsFragment on Settings {
     blockReceivedLagNotificationDelay
     noBlocksReceivedNotificationDelay
+    notFinalizingNotificationDelay
     serverPort
     emailNotifications
     emailFrom

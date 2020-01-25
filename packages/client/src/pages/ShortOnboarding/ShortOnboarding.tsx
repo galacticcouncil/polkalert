@@ -27,6 +27,7 @@ const ShortOnboarding = () => {
   const [formFields, setFormFields] = useState<NotificationSettingsInterface>({
     blockReceivedLagNotificationDelay: '',
     noBlocksReceivedNotificationDelay: '',
+    notFinalizingNotificationDelay: '',
     serverPort: '',
     emailNotifications: false,
     emailFrom: '',
@@ -67,6 +68,9 @@ const ShortOnboarding = () => {
         ),
         noBlocksReceivedNotificationDelay: parseInt(
           formFields.noBlocksReceivedNotificationDelay
+        ),
+        notFinalizingNotificationDelay: parseInt(
+          formFields.notFinalizingNotificationDelay
         ),
         serverPort: parseInt(formFields.serverPort),
         emailNotifications: formFields.emailNotifications,
