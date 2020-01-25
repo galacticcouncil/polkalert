@@ -49,8 +49,8 @@ async function getPreviousHeaders(
     (x, index) => startFromBlock - index - 1
   )
 
-  //Stop getting headers at 0
-  blockNumbers = blockNumbers.filter(blockNumber => blockNumber >= 0)
+  //Stop getting headers at 1, we don't need initial block
+  blockNumbers = blockNumbers.filter(blockNumber => blockNumber > 0)
 
   for (let batch = 0; batch < blockNumbers.length / maxHeaderBatch; batch++) {
     let batchHeaderNumbers = blockNumbers.slice(
