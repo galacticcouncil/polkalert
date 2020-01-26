@@ -604,7 +604,7 @@ async function waitUntilSynced() {
 
     pubsub.publish('action', {
       type: 'syncing',
-      payload: JSON.stringify({ currentBlockHeight, progress })
+      payload: progress
     })
     await new Promise(resolve => setTimeout(resolve, 3000))
     await waitUntilSynced()
