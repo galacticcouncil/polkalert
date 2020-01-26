@@ -229,7 +229,9 @@ async function subscribeFinalizedHeaders() {
       console.log('finalized header #:', number, 'with hash:', hash)
 
       if (headerCache[number]) {
-        testEquivocation(headerCache[number], enhancedHeader)
+        if (settings.get().validatorId === enhancedHeader.author)
+          testEquivocation(headerCache[number], enhancedHeader)
+
         headerCache[number] = null
         delete headerCache[number]
       }
