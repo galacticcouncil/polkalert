@@ -30,20 +30,26 @@ function init() {
 }
 
 function getNoBlocksMessage() {
-  return `node didn't receive blocks for ${noBlocksReceivedNotificationDelay /
-    1000} seconds, check your connection.
-    If you think this message is false alarm check your settings`
+  return (
+    `node didn't receive blocks for ${noBlocksReceivedNotificationDelay /
+      1000} seconds, check your connection.` +
+    `If you think this message is false alarm check your settings`
+  )
 }
 
 function getNotFinalizingMessage() {
-  return `blocks were not finalized for ${notFinalizingNotificationDelay /
-    1000} seconds, check your connection and chain state.
-    If you think this message is false alarm check your settings`
+  return (
+    `blocks were not finalized for ${notFinalizingNotificationDelay /
+      1000} seconds, check your connection and chain state.\n` +
+    `If you think this message is false alarm check your settings`
+  )
 }
 
 function getBlockTimeMessage(blockReceivedTimeDifference: number) {
-  return `node received block after ${blockReceivedTimeDifference} ms check your connection.
-    If you think this message is false alarm check your settings`
+  return (
+    `node received block after ${blockReceivedTimeDifference} ms check your connection.\n` +
+    `If you think this message is false alarm check your settings`
+  )
 }
 
 function startNotFinalizingNotificationTimeout() {
