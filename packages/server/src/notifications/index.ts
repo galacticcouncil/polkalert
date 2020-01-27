@@ -70,6 +70,16 @@ async function sendUnbondedEverythingMessage(signer: string) {
   return
 }
 
+function sendEquivocatingMessage(
+  validator: string,
+  hash1: string,
+  hash2: string
+) {
+  const equivocatingMessage = getEquivocatingMessage(validator, hash1, hash2)
+  console.log(equivocatingMessage)
+  return send('equivocating', equivocatingMessage)
+}
+
 function getSlashMessage(slash: String) {
   return (
     'The validator with ID ' +
@@ -147,9 +157,18 @@ function getUnbondedEverythingMessage(sender: string) {
   )
 }
 
+function getEquivocatingMessage(
+  validator: string,
+  hash1: string,
+  hash2: string
+) {
+  return `Validator ${validator} is equivocating with blocks ${hash1} and ${hash2}`
+}
+
 export default {
   init,
   send,
+  sendEquivocatingMessage,
   sendOfflineMessage,
   sendSlashMessage,
   sendNominatedMessage,
