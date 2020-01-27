@@ -4,6 +4,7 @@ import logger from '../logger'
 
 let emailProvider: Mail = null
 let recipient: string = null
+let from: string = null
 
 function init(settings: Settings) {
   if (emailProvider) {
@@ -11,6 +12,7 @@ function init(settings: Settings) {
   }
 
   if (
+    settings.emailFrom &&
     settings.emailPort &&
     settings.emailHost &&
     settings.emailUsername &&
@@ -27,6 +29,7 @@ function init(settings: Settings) {
       }
     })
 
+    from = settings.emailFrom
     recipient = settings.emailRecipient
   }
   return
@@ -36,7 +39,7 @@ async function send(type: string, message: string) {
   if (emailProvider) {
     let info = await emailProvider
       .sendMail({
-        from: '"polkalert" <info@polkalert.com>',
+        from: from,
         to: recipient,
         subject: type,
         text: message

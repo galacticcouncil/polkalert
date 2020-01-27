@@ -3,18 +3,20 @@
 Polkalert is an application that runs locally with validator's Substrate node and provides monitoring and alerting when relevant events happen. Alerts can be sent via email or webhooks. Polkalert also provides a convenient GUI for staking info and settings.
 
 Polkalert is able to send you notifications about:
+
 - Blocks not being finalized
 - No blocks received
 - High network lag
 
 It can also watch your validator account for:
+
 - Validator seen offline
 - Validator has been slashed
 - Validator was nominated
 - Validator was denominated
+- Validator produced two blocks in one slot (equivocation)
 - Nominator bonded to validator
 - Nominator unbonded from validator
-
 
 Application stores blocks and their meta-data locally in a DB for better performance and analysis of network events.
 
@@ -41,7 +43,7 @@ You can run the project via Terminal using the following commands:
 2.  `yarn start:server`: Runs only the server, default on `localhost:4000`
 3.  `yarn start:db`: Runs only the db, default on `localhost:5432`
 
-You need all of the three parts: client, server and db running to run Polkalert.  
+You need all of the three parts: client, server and db running to run Polkalert.
 Alternatively, you can use shortcut command.
 
 1.  `yarn start`: Which runs the whole project. The client, db and the server parts will run on the ports mentioned above by default or on ports you configured via the setup script. Note that you will not have full control over each process if you run the app this way.
@@ -50,7 +52,7 @@ Navigate your browser to `localhost:8080` where Polkalert client runs by default
 
 ## Troubleshooting
 
-If you get errors upon starting client or server try running `yarn setup` again. Make sure the ports you are using to run Polkalert are not occuppied. If that doesn't work, run `yarn reset` * WARNING - this will reset all your settings to defaults. 
+If you get errors upon starting client or server try running `yarn setup` again. Make sure the ports you are using to run Polkalert are not occuppied. If that doesn't work, run `yarn reset` \* WARNING - this will reset all your settings to defaults.
 
 ## Other Yarn scripts
 
