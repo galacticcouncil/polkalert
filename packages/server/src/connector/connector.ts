@@ -13,8 +13,9 @@ let nodeUrl: string = null
 let nodeInfo: NodeInfo = null
 let provider: WsProvider = null
 let api: ApiPromise = null
-let apiCreatorPromise: Promise<ApiPromise> = null
+let apiCreatePromise: Promise<ApiPromise> = null
 let resolveApi: Function = null
+let rejectApi: Function = null
 let subscriptions: Function[] = []
 
 function setNodeUrl(newNodeUrl: string) {
@@ -30,6 +31,7 @@ function getNodeInfo() {
 async function disconnect() {
   // test if api is connected, if not, check if provider exists and disconnect.
   // api crashes on disconnect if provider was disconnected first.
+  if (!api && !provider && !subscriptions.length) return
 
   console.log('Disconnecting API')
 
@@ -38,74 +40,70 @@ async function disconnect() {
     subscriptions = []
   }
 
-  if (apiCreatorPromise) {
-    resolveApi(null)
-    resolveApi = null
-    apiCreatorPromise = null
-  }
-
   if (api) {
-    await api.disconnect()
+    api.disconnect()
     provider = null
   }
 
-  try {
-    await provider.disconnect()
-  } catch (e) {}
+  if (provider) {
+    //disconnect will crash if provider is already disconnected
+    //we don't need to do anything when it does
+    try {
+      provider.disconnect()
+    } catch (e) {}
+  }
 
   api = null
   provider = null
   nodeInfo = null
-  subscriptions = []
+
+  pubsub.publish('action', 'disconnect')
 
   return
 }
 
 async function handleError(e: Error) {
-  logger.error('Node connection error', e)
-  pubsub.publish('action', 'disconnect')
+  //log error and propagate notifications
+  if (e) {
+    logger.error('Node connection error', e)
+  }
+
+  //if we're connecting, reject the promise
+  if (apiCreatePromise) {
+    rejectApi(e)
+
+    rejectApi = null
+    resolveApi = null
+    apiCreatePromise = null
+  }
 
   disconnect()
   return
 }
 
-async function connect() {
-  await disconnect()
-
-  provider = new WsProvider(nodeUrl)
-  provider.on('error', handleError)
-
+async function createApi() {
   console.log('creating api')
 
-  // BUG API Promise doesn't finish if provider crashes on connection
-  apiCreatorPromise = new Promise(async resolve => {
-    resolveApi = resolve
+  api = await ApiPromise.create({
+    typesSpec: {
+      edgeware: {
+        ...IdentityTypes,
+        ...SignalingTypes,
+        ...TreasuryRewardTypes,
+        ...VotingTypes
+      }
+    },
+    provider: provider
+  }).catch(e => {
+    logger.error('Error creating api', e)
+    handleError(e)
 
-    const apiObject = await ApiPromise.create({
-      typesSpec: {
-        edgeware: {
-          ...IdentityTypes,
-          ...SignalingTypes,
-          ...TreasuryRewardTypes,
-          ...VotingTypes
-        }
-      },
-      provider: provider
-    }).catch(e => {
-      logger.error('Error creating api', e)
-      pubsub.publish('action', 'disconnect')
-      return null
-    })
-
-    return resolve(apiObject)
+    return null
   })
 
-  api = await apiCreatorPromise
+  if (!api) return
 
-  if (!api) {
-    pubsub.publish('action', 'disconnect')
-    return null
-  }
+  console.log('API connected')
 
   let [properties, chain, name, version] = await Promise.all([
     api.rpc.system.properties(),
@@ -142,7 +140,7 @@ async function connect() {
       savedNodeInfo.specName !== nodeInfo.specName
     ) {
       console.log('Chain switched, clearing database...')
-      await db.clearDB()
+      await db.init(true)
     }
   }
 
@@ -150,7 +148,33 @@ async function connect() {
   console.log('Connected to:')
   console.log(nodeInfo)
 
-  return api
+  resolveApi(api)
+
+  apiCreatePromise = null
+  rejectApi = null
+  resolveApi = null
+
+  return
+}
+
+async function connect() {
+  //if we're connecting to another node before we connected to first one, disconnect
+  if (apiCreatePromise || api || provider) await disconnect()
+
+  //API Promise doesn't finish if provider crashes on connection,
+  //we need to handle it after connection has been made
+  apiCreatePromise = new Promise(async (resolve, reject) => {
+    resolveApi = resolve
+    rejectApi = reject
+
+    provider = new WsProvider(nodeUrl, false)
+    provider.on('error', handleError)
+    provider.on('disconnected', handleError)
+    provider.on('connected', createApi)
+    provider.connect()
+  })
+
+  return apiCreatePromise
 }
 
 function addSubscription(unsubscribe: Function) {

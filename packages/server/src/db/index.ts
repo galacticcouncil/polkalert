@@ -20,18 +20,17 @@ import { Slash } from '../entity/Slash'
 import humanizeDuration from 'humanize-duration'
 import { EnhancedHeader, EnhancedDerivedStakingQuery } from '../types/connector'
 import { pubsub } from '../api'
+import { readFileSync } from 'fs'
 
 let connection: Connection = null
 let manager: EntityManager = null
 let nodeInfo: NodeInfo = null
 let validatorMap: { [key: string]: Validator } = {}
 let retryInterval: number = 5000
-let settingsListener: boolean = null
 let debugLogs = false
 
-//TODO: Config
 //number of seconds to prune blocks
-let pruning = 180
+let pruning = 120
 //max number of hours for storing blocks
 let maxDataAge: number = null
 //interval function
@@ -46,7 +45,6 @@ async function getValidator(hash: string) {
 
 async function clearDB() {
   await connection.synchronize(true)
-  await init()
   return
 }
 
@@ -83,24 +81,34 @@ async function init(reset = false) {
       }
     })) || null
 
-  if (!connection) {
+  if (connection) {
+    //Check if we updated app, clear database if we did to avoid errors
+    manager = connection.manager
+
+    const version = JSON.parse(readFileSync('package.json', 'utf8')).version
+    const oldAppVersion = await getAppVersion().catch(() => {
+      return null
+    })
+
+    if (version !== oldAppVersion) {
+      console.log(
+        `App updated from ${oldAppVersion} to ${version}, clearing block database...`
+      )
+      await clearDB()
+      await setAppVersion(version)
+      await init()
+    }
+
+    startPruningInterval()
+  } else {
     if (!reset) {
       console.log('Cannot create connection to database, retrying...')
       console.log('Please make sure the database is running')
       await new Promise(resolve => setTimeout(resolve, retryInterval))
     }
+
     await init(reset)
-  } else {
-    manager = connection.manager
-
-    startPruningInterval()
-
-    if (!settingsListener) {
-      settingsListener = settings.onChange(startPruningInterval)
-    }
   }
-
-  return
 }
 
 async function startPruningInterval() {
@@ -347,6 +355,7 @@ async function getNodeInfo(): Promise<NodeInfo> {
 
 async function getAppVersion() {
   let appVersion = await manager.findOne(AppVersion, 1)
+  console.log('got version', appVersion)
   if (appVersion) {
     return appVersion.version
   } else return null
@@ -356,6 +365,7 @@ async function setAppVersion(newAppVersion: string) {
   let appVersion = (await manager.findOne(AppVersion, 1)) || new AppVersion()
   appVersion.version = newAppVersion
   appVersion.id = 1
+  console.log('setting version', appVersion)
   await manager.save(appVersion)
 
   return

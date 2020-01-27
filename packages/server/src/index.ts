@@ -14,17 +14,8 @@ process.on('unhandledRejection', error => {
 async function main() {
   await db.init()
 
-  const oldAppVersion = await db.getAppVersion().catch(() => {
-    return null
-  })
-
   const version = JSON.parse(readFileSync('package.json', 'utf8')).version
   const config = settings.get()
-
-  if (version !== oldAppVersion) {
-    await db.clearDB()
-    db.setAppVersion(version)
-  }
 
   const oldNodeInfo = await db.getNodeInfo().catch(() => {
     console.log('error getting node info')
