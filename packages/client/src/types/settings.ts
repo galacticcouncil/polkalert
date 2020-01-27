@@ -4,6 +4,7 @@ export interface NotificationSettingsInterface {
   notFinalizingNotificationDelay: string
   serverPort: string
   emailNotifications: boolean
+  emailFrom: string
   emailPort: string
   emailHost: string
   emailRecipient: string

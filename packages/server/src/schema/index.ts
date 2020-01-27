@@ -59,6 +59,7 @@ export const typeDefs = gql`
     notFinalizingNotificationDelay: Int
     serverPort: Int
     emailNotifications: Boolean
+    emailFrom: String
     emailPort: Int
     emailHost: String
     emailRecipient: String
@@ -77,6 +78,7 @@ export const typeDefs = gql`
       notFinalizingNotificationDelay: Int
       serverPort: Int
       emailNotifications: Boolean
+      emailFrom: String
       emailPort: Int
       emailHost: String
       emailRecipient: String

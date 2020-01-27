@@ -7,6 +7,7 @@ export default gql`
     notFinalizingNotificationDelay
     serverPort
     emailNotifications
+    emailFrom
     emailPort
     emailHost
     emailRecipient

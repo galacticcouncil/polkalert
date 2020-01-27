@@ -4,6 +4,7 @@ declare type Settings = {
   notFinalizingNotificationDelay?: number
   serverPort?: number
   email?: boolean
+  emailFrom?: string
   emailPort?: number
   emailHost?: string
   emailUsername?: string

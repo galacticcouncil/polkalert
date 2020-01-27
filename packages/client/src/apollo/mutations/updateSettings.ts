@@ -9,6 +9,7 @@ export default gql`
     $notFinalizingNotificationDelay: Int
     $serverPort: Int
     $emailNotifications: Boolean
+    $emailFrom: String
     $emailPort: Int
     $emailHost: String
     $emailRecipient: String
@@ -24,6 +25,7 @@ export default gql`
       notFinalizingNotificationDelay: $notFinalizingNotificationDelay
       serverPort: $serverPort
       emailNotifications: $emailNotifications
+      emailFrom: $emailFrom
       emailPort: $emailPort
       emailHost: $emailHost
       emailRecipient: $emailRecipient
