@@ -2,6 +2,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { TsConfigPathsPlugin } = require('awesome-typescript-loader')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const clientConfig = require('./src/config/client-config.json')
 
 module.exports = {
   resolve: {
@@ -41,6 +42,7 @@ module.exports = {
     contentBase: path.join(__dirname, 'public'),
     hot: true,
     inline: true,
+    port: clientConfig.clientPort,
     historyApiFallback: true
   },
   plugins: [

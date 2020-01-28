@@ -266,9 +266,15 @@ async function bulkSave(
 }
 
 async function getValidatorInfo(id: string) {
-  return await manager.findOne(Validator, id, {
+  const validator = await manager.findOne(Validator, id, {
     relations: ['commissionData', 'blocksProduced', 'slashes']
   })
+
+  validator.commissionData = validator.commissionData.sort((a, b) => {
+    return b.sessionIndex - a.sessionIndex
+  })
+
+  return validator
 }
 
 async function getFirstHeader() {

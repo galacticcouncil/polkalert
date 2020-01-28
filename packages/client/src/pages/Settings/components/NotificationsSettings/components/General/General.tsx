@@ -1,36 +1,25 @@
 import React from 'react'
 
-import { SettingsInterface } from 'types'
+import { NotificationSettingsInterface } from 'types'
 import { Divider, Input } from 'ui'
 
 import * as S from './styled'
 
 type Props = {
-  data: SettingsInterface
-  onChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    numbersOnly: boolean
-  ) => void
+  data: NotificationSettingsInterface
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 const General = ({ data, onChange }: Props) => (
   <S.Wrapper>
-    <Divider padding="0 0 40px">General notification settings</Divider>
+    <Divider padding="0 0 40px">General</Divider>
     <Input
       fluid
-      name="blockReceivedLagNotificationDelay"
-      label="Notification delay for network lag"
-      tooltip="Delay after which a notification about lagging network will be sent (in seconds)."
-      value={data.blockReceivedLagNotificationDelay}
-      onChange={e => onChange(e, true)}
-    />
-    <Input
-      fluid
-      name="noBlocksReceivedNotificationDelay"
-      label="Notification delay for no blocks"
-      tooltip="Delay after which a notification about no blocks received will be sent (in seconds)."
-      value={data.noBlocksReceivedNotificationDelay}
-      onChange={e => onChange(e, true)}
+      name="validatorId"
+      label="Validator ID"
+      tooltip="Stash address of the validator to follow. You will receive notifications about events connected with this validator."
+      value={data.validatorId}
+      onChange={e => onChange(e)}
     />
   </S.Wrapper>
 )

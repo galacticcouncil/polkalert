@@ -3,16 +3,8 @@ import connector from './connector'
 import { ApiPromise } from '@polkadot/api'
 import { formatBalance } from '@polkadot/util'
 import { isNullOrUndefined } from 'util'
-import { Vec, Option } from '@polkadot/types'
-import {
-  EventRecord,
-  Hash,
-  Nominations,
-  Keys,
-  StakingLedger,
-  ValidatorPrefs,
-  Exposure
-} from '@polkadot/types/interfaces'
+import { Vec } from '@polkadot/types'
+import { EventRecord, Hash } from '@polkadot/types/interfaces'
 import notifications from '../notifications'
 import watcher from '../watcher'
 import settings from '../settings'
@@ -27,7 +19,6 @@ import {
   EventReward,
   EventSlash
 } from '../types/connector'
-import AccountId from '@polkadot/types/primitive/Generic/AccountId'
 
 let maxHeaderBatch = 100
 let maxBlockHistory = 15000
@@ -35,6 +26,8 @@ let maxBlockHistory = 15000
 let api: ApiPromise = null
 let firstSavedBlock: BlockInfo = null
 let lastSavedBlock: BlockInfo = null
+
+const headerCache: { [key: number]: EnhancedHeader } = {}
 
 async function getPreviousHeaders(
   numberOfHeaders: number,
@@ -47,6 +40,9 @@ async function getPreviousHeaders(
     Array(numberOfHeaders),
     (x, index) => startFromBlock - index - 1
   )
+
+  //Stop getting headers at 1, we don't need initial block
+  blockNumbers = blockNumbers.filter(blockNumber => blockNumber > 0)
 
   for (let batch = 0; batch < blockNumbers.length / maxHeaderBatch; batch++) {
     let batchHeaderNumbers = blockNumbers.slice(
@@ -187,71 +183,232 @@ async function subscribeEvents() {
         console.log(JSON.stringify(await getSessionInfo(), null, 1))
       }
 
+      if (event.method === 'SomeOffline') {
+        api
+          .createType('Vec<IdentificationTuple>', event.data[0])
+          .forEach(identificationTuple => {
+            if (
+              identificationTuple[0].toString() === settings.get().validatorId
+            ) {
+              notifications.sendOfflineMessage()
+            }
+          })
+      }
+
       if (event.method === 'Slash') {
-        console.log(
-          'validator #',
-          event.data[0].toString(),
-          'was slashed: ',
-          event.data[1].toString()
-        )
+        if (event.data[0].toString() === settings.get().validatorId) {
+          notifications.sendSlashMessage(event.data[1].toString())
+        }
       }
     })
   })
 
   connector.addSubscription(unsubscribe)
-  return
+}
+
+async function subscribeFinalizedHeaders() {
+  const unsubscribe = await api.rpc.chain.subscribeFinalizedHeads(
+    async header => {
+      let hash = header.hash.toString()
+      let number = header.number.toNumber()
+      let missing = 0
+      let enhancedHeader = await getBlockHeader(number)
+
+      if (!firstSavedBlock.number)
+        firstSavedBlock = { number, hash, timestamp: enhancedHeader.timestamp }
+
+      missing = lastSavedBlock.number
+        ? number - lastSavedBlock.number - 1
+        : number - firstSavedBlock.number
+
+      lastSavedBlock = { number, hash, timestamp: enhancedHeader.timestamp }
+
+      //GET Missing blocks, TODO: this could make hole in the data if missing
+      //server is turned off while getting missing blocks
+
+      console.log('finalized header #:', number, 'with hash:', hash)
+
+      if (headerCache[number]) {
+        if (settings.get().validatorId === enhancedHeader.author)
+          testEquivocation(headerCache[number], enhancedHeader)
+
+        headerCache[number] = null
+        delete headerCache[number]
+      }
+
+      if (missing > 0) {
+        console.log('missing', missing, 'headers')
+        let missingHeaders = await getPreviousHeaders(
+          missing,
+          lastSavedBlock.number
+        )
+
+        await db.bulkSave('Header', missingHeaders)
+      }
+
+      await db.saveHeader(enhancedHeader)
+    }
+  )
+
+  connector.addSubscription(unsubscribe)
 }
 
 async function subscribeHeaders() {
   const unsubscribe = await api.rpc.chain.subscribeNewHeads(async header => {
     let hash = header.hash.toString()
     let number = header.number.toNumber()
-    let missing = 0
     let enhancedHeader = await getBlockHeader(number)
-    watcher.ping(enhancedHeader.timestamp)
+    let finalizedHash = await api.rpc.chain.getFinalizedHead()
 
-    console.log('new header #:', number, 'with hash:', hash)
+    analyzeExtrinsics(hash)
 
-    if (!firstSavedBlock.number)
-      firstSavedBlock = { number, hash, timestamp: enhancedHeader.timestamp }
+    watcher.ping(enhancedHeader.timestamp, finalizedHash.toString())
 
-    missing = lastSavedBlock.number
-      ? number - lastSavedBlock.number - 1
-      : number - firstSavedBlock.number
+    if (headerCache[number]) {
+      if (settings.get().validatorId === enhancedHeader.author)
+        testEquivocation(headerCache[number], enhancedHeader)
 
-    lastSavedBlock = { number, hash, timestamp: enhancedHeader.timestamp }
-
-    //GET Missing blocks, TODO: this could make hole in the data if missing
-    //server is turned off while getting missing blocks
-
-    if (missing > 0) {
-      console.log('missing', missing, 'headers')
-      let missingHeaders = await getPreviousHeaders(
-        missing,
-        lastSavedBlock.number
-      )
-
-      await db.bulkSave('Header', missingHeaders)
-    }
-
-    //Fork detected, first received block is saved right now
-    if (missing < 0) {
-      let duplicateHeaders = missing * -1
       console.log(
-        duplicateHeaders,
-        'fork detected, discarded block with hash',
-        enhancedHeader.hash.toString()
+        `fork detected, at: ${number} with hashes: ${hash} and ${headerCache[number].hash}`
       )
-      return
+    } else {
+      headerCache[number] = enhancedHeader
     }
-
-    await db.saveHeader(enhancedHeader)
-
-    return
   })
 
   connector.addSubscription(unsubscribe)
-  return
+}
+
+function testEquivocation(header1: EnhancedHeader, header2: EnhancedHeader) {
+  if (
+    header1.number === header2.number &&
+    header1.author === header2.author &&
+    header1.hash !== header2.hash
+  ) {
+    notifications.sendEquivocatingMessage(
+      header1.author,
+      header1.hash,
+      header2.hash
+    )
+    return true
+  } else return false
+}
+
+async function analyzeExtrinsics(blockHash: string) {
+  const signedBlock = await api.rpc.chain.getBlock(blockHash)
+  //TODO should be refactored to get events only once,
+  //suggest to move event analysis from subscribeEvents here
+  const systemEvents = await api.query.system.events.at(blockHash)
+  signedBlock.block.extrinsics.forEach(async (extrinsic, index) => {
+    let methodName = extrinsic.method.methodName
+    let signer = extrinsic.signer
+    let args = extrinsic.method.args
+
+    if (methodName === 'nominate') {
+      let validatorFound = false
+      if (isExtrinsicSucceed(index, systemEvents)) {
+        api.createType('Vec<Address>', args[0]).forEach(async arg => {
+          if (arg.toString() === settings.get().validatorId) {
+            notifications.sendNominatedMessage(signer.toString())
+
+            validatorFound = true
+          }
+        })
+        if (!validatorFound) {
+          const validatorInfo = await db.getValidatorInfo(
+            settings.get().validatorId
+          )
+          const commissionData = validatorInfo.commissionData.filter(
+            data => data.nominatorData
+          )
+          const nominatorData = JSON.parse(commissionData[0].nominatorData)
+          const ledger = await api.query.staking.ledger(signer.toString())
+          const stash = ledger.unwrap().stash.toString()
+          nominatorData.stakers.forEach((stakerData: any) => {
+            if (stash.toString() === stakerData.accountId.toString()) {
+              notifications.sendDenominateMessage(stash.toString())
+            }
+          })
+        }
+      }
+    }
+
+    if (methodName === 'bond') {
+      let controller = api.createType('Address', args[0])
+      if (controller.toString() === settings.get().validatorId) {
+        if (isExtrinsicSucceed(index, systemEvents)) {
+          let amount = api.createType('Compact<Balance>', args[1])
+          notifications.sendBondedMessage(
+            signer.toString(),
+            formatBalance(api.createType('Balance', amount))
+          )
+        }
+      }
+    }
+
+    if (methodName === 'bondExtra') {
+      const validatorInfo = await db.getValidatorInfo(
+        settings.get().validatorId
+      )
+
+      //TODO change nominator data to object
+      const nominatorData = JSON.parse(
+        validatorInfo.commissionData[0].nominatorData
+      )
+      if (nominatorData && nominatorData.stakers) {
+        nominatorData.stakers.forEach((stakerData: any) => {
+          if (signer.toString() === stakerData.accountId.toString()) {
+            if (isExtrinsicSucceed(index, systemEvents)) {
+              let amount = api.createType('Compact<Balance>', args[0])
+              notifications.sendBondedExtraMessage(
+                signer.toString(),
+                formatBalance(api.createType('Balance', amount))
+              )
+            }
+          }
+        })
+      }
+    }
+
+    if (methodName === 'unbond') {
+      const validatorInfo = await db.getValidatorInfo(
+        settings.get().validatorId
+      )
+      const ledger = await api.query.staking.ledger(signer.toString())
+      const stash = ledger.unwrap().stash.toString()
+      //TODO change nominator data to object
+      const nominatorData = JSON.parse(
+        validatorInfo.commissionData[0].nominatorData
+      )
+      if (nominatorData && nominatorData.stakers) {
+        nominatorData.stakers.forEach((stakerData: any) => {
+          console.log('nominator id ' + stakerData.accountId.toString())
+          if (stash === stakerData.accountId.toString()) {
+            if (isExtrinsicSucceed(index, systemEvents)) {
+              let amount = formatBalance(api.createType('Balance', args[0]))
+              notifications.sendUnbondedMessage(stash, amount)
+              if (parseFloat(amount) >= parseFloat(stakerData.stake)) {
+                notifications.sendUnbondedEverythingMessage(stash)
+              }
+            }
+          }
+        })
+      }
+    }
+  })
+}
+
+function isExtrinsicSucceed(
+  extrinsicIndex: number,
+  systemEvents: Vec<EventRecord>
+): boolean {
+  let index = systemEvents
+    .filter(event => event.phase.asApplyExtrinsic.toNumber() === extrinsicIndex)
+    .filter(event => event.event.method === 'ExtrinsicSuccess')
+  if (index[0]) {
+    return true
+  }
+  return false
 }
 
 async function getValidators(at?: string | Hash) {
@@ -328,20 +485,6 @@ async function getValidators(at?: string | Hash) {
         stakingLedger
       ],
       [validatorPrefs]
-    ]: [
-      [
-        number,
-        number,
-        AccountId,
-        AccountId,
-        AccountId,
-        Option<Nominations>,
-        Exposure,
-        Keys,
-        Option<Keys>,
-        Option<StakingLedger>
-      ],
-      ValidatorPrefs[]
     ]) => ({
       eraIndex,
       sessionIndex,
@@ -351,7 +494,7 @@ async function getValidators(at?: string | Hash) {
       nominators: nominators.isSome ? nominators.unwrap().targets : [],
       stakers: stakers,
       sessionIds,
-      nextSessionIds: nextSessionIds.unwrap(),
+      nextSessionIds: nextSessionIds.isSome ? nextSessionIds.unwrap() : [],
       stakingLedger: stakingLedger.unwrap(),
       validatorPrefs: api.createType(
         'ValidatorPrefs',
@@ -397,8 +540,13 @@ async function testPruning(blockNumber: number) {
 }
 
 async function getHeaderDataHistory() {
-  let lastBlockNumber = (await api.rpc.chain.getHeader()).number.toNumber()
+  let lastBlockHash = await api.rpc.chain.getFinalizedHead()
+  let lastBlockNumber = (
+    await api.rpc.chain.getHeader(lastBlockHash)
+  ).number.toNumber()
+
   let firstBlock = firstSavedBlock.number
+
   let expectedBlockTime = api.consts.babe.expectedBlockTime.toNumber()
   maxBlockHistory = (settings.get().maxDataAge * 3600000) / expectedBlockTime
 
@@ -477,7 +625,10 @@ async function startDataService() {
       timestamp: lastBlock.timestamp
     }
   } else {
-    let lastBlockNumber = (await api.rpc.chain.getHeader()).number.toNumber()
+    let lastBlockHash = await api.rpc.chain.getFinalizedHead()
+    let lastBlockNumber = (
+      await api.rpc.chain.getHeader(lastBlockHash)
+    ).number.toNumber()
     let blockData = await getBlockHeader(lastBlockNumber)
     firstSavedBlock = { ...blockData }
     lastSavedBlock = { ...blockData }
@@ -488,8 +639,9 @@ async function startDataService() {
   notifications.init()
   watcher.init()
 
-  await subscribeEvents()
-  await subscribeHeaders()
+  subscribeEvents()
+  subscribeFinalizedHeaders()
+  subscribeHeaders()
 
   return
 }

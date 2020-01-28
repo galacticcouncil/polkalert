@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 import { useMutation } from '@apollo/react-hooks'
 
 import UPDATESETTINGS_MUTATION from 'apollo/mutations/updateSettings'
-import { SettingsInterface } from 'types'
+import { NotificationSettingsInterface } from 'types'
 import { setApiAction } from 'actions'
 import { NavigationContext } from 'contexts'
 import { useBooleanState } from 'hooks'
@@ -24,30 +24,30 @@ const ShortOnboarding = () => {
   const [successModalVisible, showSuccessModal] = useBooleanState()
   const [errorModalVisible, showErrorModal, hideErrorModal] = useBooleanState()
 
-  const [formFields, setFormFields] = useState<SettingsInterface>({
+  const [formFields, setFormFields] = useState<NotificationSettingsInterface>({
     blockReceivedLagNotificationDelay: '',
     noBlocksReceivedNotificationDelay: '',
+    notFinalizingNotificationDelay: '',
     serverPort: '',
     emailNotifications: false,
+    emailFrom: '',
     emailPort: '',
     emailHost: '',
     emailRecipient: '',
     emailUsername: '',
-    emailPassword: ''
+    emailPassword: '',
+    validatorId: ''
   })
   const [webHooks, setWebHooks] = useState<string[]>([])
 
   const [updateSettingsMutation] = useMutation(UPDATESETTINGS_MUTATION)
 
-  const handleOnChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    numbersOnly: boolean
-  ) => {
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
 
     setFormFields({
       ...formFields,
-      [name]: numbersOnly ? value.replace(/\D/, '') : value
+      [name]: value
     })
   }
 
@@ -69,14 +69,19 @@ const ShortOnboarding = () => {
         noBlocksReceivedNotificationDelay: parseInt(
           formFields.noBlocksReceivedNotificationDelay
         ),
+        notFinalizingNotificationDelay: parseInt(
+          formFields.notFinalizingNotificationDelay
+        ),
         serverPort: parseInt(formFields.serverPort),
         emailNotifications: formFields.emailNotifications,
+        emailFrom: formFields.emailFrom,
         emailPort: parseInt(formFields.emailPort),
         emailHost: formFields.emailHost,
         emailRecipient: formFields.emailRecipient,
         emailUsername: formFields.emailUsername,
         emailPassword: formFields.emailPassword,
-        webHooks
+        webHooks,
+        validatorId: formFields.validatorId
       }
     })
       .then(() => {

@@ -56,8 +56,10 @@ export const typeDefs = gql`
   type Settings {
     blockReceivedLagNotificationDelay: Int
     noBlocksReceivedNotificationDelay: Int
+    notFinalizingNotificationDelay: Int
     serverPort: Int
     emailNotifications: Boolean
+    emailFrom: String
     emailPort: Int
     emailHost: String
     emailRecipient: String
@@ -65,6 +67,7 @@ export const typeDefs = gql`
     emailPassword: String
     webHooks: [String]
     maxDataAge: Float
+    validatorId: String
   }
 
   type Mutation {
@@ -72,8 +75,10 @@ export const typeDefs = gql`
     updateSettings(
       blockReceivedLagNotificationDelay: Int
       noBlocksReceivedNotificationDelay: Int
+      notFinalizingNotificationDelay: Int
       serverPort: Int
       emailNotifications: Boolean
+      emailFrom: String
       emailPort: Int
       emailHost: String
       emailRecipient: String
@@ -81,6 +86,7 @@ export const typeDefs = gql`
       emailPassword: String
       webHooks: [String]
       maxDataAge: Float
+      validatorId: String
     ): Settings
   }
 
