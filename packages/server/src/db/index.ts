@@ -18,7 +18,6 @@ import { AppVersion } from '../entity/AppVersion'
 import { SessionInfo } from '../entity/SessionInfo'
 import { Slash } from '../entity/Slash'
 import humanizeDuration from 'humanize-duration'
-import { EnhancedHeader, EnhancedDerivedStakingQuery } from '../types/connector'
 import { pubsub } from '../api'
 import { readFileSync } from 'fs'
 
@@ -44,6 +43,7 @@ async function getValidator(hash: string) {
 }
 
 async function clearDB() {
+  'clearing DB'
   await connection.synchronize(true)
   return
 }
@@ -67,6 +67,10 @@ async function getDataAge() {
 async function init(reset = false) {
   if (connection) await disconnect()
   let connectionOptions = await getConnectionOptions()
+
+  if (reset) {
+    console.log('Clearing database')
+  }
 
   //TODO: handle connection disconnect
   connection =
@@ -95,9 +99,10 @@ async function init(reset = false) {
         `App updated from ${oldAppVersion} to ${version}, clearing block database...`
       )
       await clearDB()
-      await setAppVersion(version)
       await init()
     }
+
+    await setAppVersion(version)
 
     startPruningInterval()
   } else {
@@ -353,9 +358,13 @@ async function getNodeInfo(): Promise<NodeInfo> {
   } else return null
 }
 
+async function clearNodeInfo() {
+  console.log('clearing node info from DB')
+  await manager.delete(NodeInfoStorage, 1).catch()
+}
+
 async function getAppVersion() {
   let appVersion = await manager.findOne(AppVersion, 1)
-  console.log('got version', appVersion)
   if (appVersion) {
     return appVersion.version
   } else return null
@@ -403,6 +412,7 @@ export default {
   setAppVersion,
   setNodeInfo,
   getNodeInfo,
+  clearNodeInfo,
   getDataAge,
   clearDB,
   getFirstHeader,

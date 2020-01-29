@@ -34,11 +34,11 @@ const logger = {
       type: 'warn'
     })
   },
-  error: (title: string, content: Error) => {
+  error: (title: string, content: Error | any) => {
     console.error(title + '::', content)
     db.log({
       content: content
-        ? JSON.stringify(content) +
+        ? (content.toString ? content.toString() : content) +
           (content.stack ? '\n' + content.stack.toString() : '')
         : '',
       title,

@@ -48,7 +48,7 @@ function getNotFinalizingMessage() {
 
 function getBlockTimeMessage(blockReceivedTimeDifference: number) {
   return (
-    `node received block after ${blockReceivedTimeDifference} ms check your connection.\n` +
+    `last produced block was received by node after ${blockReceivedTimeDifference} ms check your connection.\n` +
     `If you think this message is false alarm check your settings`
   )
 }

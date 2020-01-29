@@ -1,34 +1,20 @@
 import db from '../db'
 import connector from '../connector'
-import { Validator } from '../entity/Validator'
 import settings from '../settings'
 import { pubsub } from '../api'
+import {
+  addCurrentEraInfoToValidators,
+  addDerivedHeartbeatsToValidators
+} from './helpers'
 
 let actionCounter = 0
-
-async function addCurrentEraInfoToValidators(validators: Validator[]) {
-  const currentValidators = await connector.getValidators()
-  const validatorsWithCurrentEraInfo = validators.map(validator => {
-    const isCurrent =
-      currentValidators.findIndex(
-        currentValidator =>
-          currentValidator.accountId.toString() ===
-          validator.accountId.toString()
-      ) >= 0
-    let currentValidator = isCurrent
-
-    return { ...validator, currentValidator }
-  })
-
-  return validatorsWithCurrentEraInfo
-}
 
 async function getValidators() {
   const validators = await db.getValidators()
   const validatorsWithCurrentEraInfo = await addCurrentEraInfoToValidators(
     validators
   )
-  const validatorsWithOnlineStates = await connector.addDerivedHeartbeatsToValidators(
+  const validatorsWithOnlineStates = await addDerivedHeartbeatsToValidators(
     validatorsWithCurrentEraInfo
   )
 
@@ -41,7 +27,9 @@ async function getValidatorInfo(_: any, { accountId }: { accountId: string }) {
 }
 
 async function connect(_: any, { nodeUrl }: { nodeUrl: string }) {
-  return connector.connect(nodeUrl)
+  await connector.disconnect(true)
+  connector.setNodeUrl(nodeUrl)
+  return connector.connect()
 }
 
 function updateSettings(_: any, config: Settings) {

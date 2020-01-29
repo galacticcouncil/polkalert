@@ -19,6 +19,7 @@ async function main() {
 
   const oldNodeInfo = await db.getNodeInfo().catch(() => {
     console.log('error getting node info')
+    return null
   })
 
   console.log('*****************')
@@ -30,9 +31,10 @@ async function main() {
   const httpServer = http.createServer(app)
   server.installSubscriptionHandlers(httpServer)
 
-  if (oldNodeInfo) {
+  if (oldNodeInfo && oldNodeInfo.nodeUrl) {
+    connector.setNodeUrl(oldNodeInfo.nodeUrl)
     await connector
-      .connect(oldNodeInfo.nodeUrl)
+      .connect(true)
       .catch(e => console.log('unable to connect to previously connected node'))
   }
 
