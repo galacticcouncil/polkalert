@@ -11,8 +11,8 @@
   "keywords": [],
   "author": "",
   "devDependencies": {
-    "@polkadot/ts": "^0.1.91",
-    "@polkadot/types": "^1.0.0-beta.36",
+    "@polkadot/ts": "^0.2.1",
+    "@polkadot/types": "^1.0.1",
     "@types/node": "^12.7.11",
     "@types/nodemailer": "^6.2.2",
     "nodemon": "^2.0.2",
@@ -20,8 +20,8 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "@polkadot/api": "^1.0.0-beta.36",
-    "@polkadot/api-derive": "^1.0.0-beta.36",
+    "@polkadot/api": "^1.0.1",
+    "@polkadot/api-derive": "^1.0.1",
     "@types/humanize-duration": "^3.18.0",
     "apollo-server-express": "^2.9.16",
     "edgeware-node-types": "^1.1.0",

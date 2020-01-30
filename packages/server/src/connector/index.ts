@@ -48,9 +48,9 @@ async function connect(autoConnect: boolean = false) {
     rejectApi = reject
 
     provider = new WsProvider(_nodeUrl, false)
-    provider.on('error', handleError)
-    provider.on('disconnected', handleError)
-    provider.on('connected', createApi)
+    subscriptions.push(provider.on('error', handleError))
+    subscriptions.push(provider.on('disconnected', handleError))
+    subscriptions.push(provider.on('connected', createApi))
     provider.connect()
   })
 
@@ -58,6 +58,7 @@ async function connect(autoConnect: boolean = false) {
 
   if (!api) throw new Error('Cannot connect to API')
 
+  // successfully connected, reconnect if something happens from this point on
   _reconnect = true
 
   await waitUntilSynced()
@@ -81,16 +82,16 @@ async function disconnect(clearSettings = false) {
     _nodeUrl = null
   }
 
+  if (subscriptions.length) {
+    subscriptions.forEach(async unsubscribe => await unsubscribe())
+    subscriptions = []
+  }
+
   // don't disconnect if node already disconnected
   if (!api && !provider && !subscriptions.length) return
 
   if (!_reconnect) {
     console.log('Disconnecting API')
-  }
-
-  if (subscriptions.length) {
-    subscriptions.forEach(async unsubscribe => await unsubscribe())
-    subscriptions = []
   }
 
   //disconnect will crash if provider was disconnected before api
@@ -116,9 +117,6 @@ async function disconnect(clearSettings = false) {
 
   eventEmitter.emit('disconnected')
   pubsub.publish('action', 'disconnected')
-
-  //We cannot stop listening for errors on provider, we need to wait till they pass
-  await new Promise(resolve => setTimeout(resolve, 500))
 
   return
 }
