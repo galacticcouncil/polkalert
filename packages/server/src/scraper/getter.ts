@@ -76,9 +76,7 @@ export const getBlockHeaders = async (
 
         if (event.method === 'NewSession') {
           sessionInfo = {
-            sessionIndex: (
-              await api.query.session.currentIndex.at(hash)
-            ).toNumber(),
+            sessionIndex: api.createType('SessionIndex',event.data[0]).toNumber(),
             eraIndex: (await api.query.staking.currentEra.at(hash)).toNumber()
           }
           await db.bulkSave('Validator', await getValidators(api, hash))
