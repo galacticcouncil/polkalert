@@ -1,31 +1,20 @@
 import db from '../db'
 import connector from '../connector'
-import { Validator } from '../entity/Validator'
 import settings from '../settings'
+import { pubsub } from '../api'
+import {
+  addCurrentEraInfoToValidators,
+  addDerivedHeartbeatsToValidators
+} from './helpers'
 
-async function addCurrentEraInfoToValidators(validators: Validator[]) {
-  const currentValidators = await connector.getValidators()
-  const validatorsWithCurrentEraInfo = validators.map(validator => {
-    const isCurrent =
-      currentValidators.findIndex(
-        currentValidator =>
-          currentValidator.accountId.toString() ===
-          validator.accountId.toString()
-      ) >= 0
-    let currentValidator = isCurrent
-
-    return { ...validator, currentValidator }
-  })
-
-  return validatorsWithCurrentEraInfo
-}
+let actionCounter = 0
 
 async function getValidators() {
   const validators = await db.getValidators()
   const validatorsWithCurrentEraInfo = await addCurrentEraInfoToValidators(
     validators
   )
-  const validatorsWithOnlineStates = await connector.addDerivedHeartbeatsToValidators(
+  const validatorsWithOnlineStates = await addDerivedHeartbeatsToValidators(
     validatorsWithCurrentEraInfo
   )
 
@@ -38,9 +27,9 @@ async function getValidatorInfo(_: any, { accountId }: { accountId: string }) {
 }
 
 async function connect(_: any, { nodeUrl }: { nodeUrl: string }) {
-  return connector.connect(nodeUrl).catch(e => {
-    console.log('error while connecting:', e)
-  })
+  await connector.disconnect(true)
+  connector.setNodeUrl(nodeUrl)
+  return connector.connect()
 }
 
 function updateSettings(_: any, config: Settings) {
@@ -56,12 +45,42 @@ export default {
     validators: getValidators,
     validator: getValidatorInfo,
     dataAge: getDataAge,
+    messages: db.getLogs,
     nodeInfo: connector.getNodeInfo,
     settings: settings.get
   },
-
   Mutation: {
     connect,
     updateSettings
+  },
+  Subscription: {
+    newMessage: {
+      resolve: (message: Message) => {
+        return {
+          newMessage: message
+        }
+      },
+      subscribe: () => pubsub.asyncIterator('newMessage')
+    },
+    action: {
+      resolve: (action: Action | string) => {
+        const actionMessage: Action = {
+          id: actionCounter,
+          type: null,
+          payload: null
+        }
+
+        if (typeof action === 'string') {
+          actionMessage.type = action
+        } else {
+          actionMessage.type = action.type
+          actionMessage.payload = action.payload
+        }
+
+        actionCounter += 1
+        return actionMessage
+      },
+      subscribe: () => pubsub.asyncIterator('action')
+    }
   }
 }

@@ -5,27 +5,29 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "build": "tsc",
-    "start": "nodemon src/index.ts"
+    "build": "tsc --project ./tsconfig.json",
+    "start": "nodemon"
   },
   "keywords": [],
   "author": "",
   "devDependencies": {
-    "@polkadot/ts": "^0.1.90",
-    "@polkadot/types": "^1.0.0-beta.13",
+    "@polkadot/ts": "^0.2.1",
+    "@polkadot/types": "^1.0.1",
     "@types/node": "^12.7.11",
     "@types/nodemailer": "^6.2.2",
-    "nodemon": "^1.19.3",
-    "ts-node": "^8.5.0",
-    "typescript": "^3.7.0"
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5"
   },
   "dependencies": {
-    "@polkadot/api": "^1.0.0-beta.13",
-    "@polkadot/api-derive": "^1.0.0-beta.13",
+    "@polkadot/api": "^1.0.1",
+    "@polkadot/api-derive": "^1.0.1",
     "@types/humanize-duration": "^3.18.0",
-    "apollo-server": "^2.9.5",
+    "apollo-server-express": "^2.9.16",
     "edgeware-node-types": "^1.1.0",
+    "express": "^4.17.1",
     "graphql": "^14.5.8",
+    "graphql-subscriptions": "^1.1.0",
     "humanize-duration": "^3.21.0",
     "levelup": "^4.3.2",
     "memdown": "^5.1.0",

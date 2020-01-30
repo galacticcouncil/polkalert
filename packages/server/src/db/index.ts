@@ -7,6 +7,7 @@ import {
   LessThan,
   getConnectionOptions
 } from 'typeorm'
+import { Log } from '../entity/Log'
 import { Header } from '../entity/Header'
 import { Validator } from '../entity/Validator'
 import { CommissionData } from '../entity/CommissionData'
@@ -17,18 +18,18 @@ import { AppVersion } from '../entity/AppVersion'
 import { SessionInfo } from '../entity/SessionInfo'
 import { Slash } from '../entity/Slash'
 import humanizeDuration from 'humanize-duration'
-import { EnhancedHeader, EnhancedDerivedStakingQuery } from '../types/connector'
+import { pubsub } from '../api'
+import { readFileSync } from 'fs'
 
 let connection: Connection = null
 let manager: EntityManager = null
 let nodeInfo: NodeInfo = null
 let validatorMap: { [key: string]: Validator } = {}
 let retryInterval: number = 5000
-let settingsListener: boolean = null
+let debugLogs = false
 
-//TODO: Config
 //number of seconds to prune blocks
-let pruning = 180
+let pruning = 120
 //max number of hours for storing blocks
 let maxDataAge: number = null
 //interval function
@@ -42,8 +43,8 @@ async function getValidator(hash: string) {
 }
 
 async function clearDB() {
+  'clearing DB'
   await connection.synchronize(true)
-  await init()
   return
 }
 
@@ -67,6 +68,10 @@ async function init(reset = false) {
   if (connection) await disconnect()
   let connectionOptions = await getConnectionOptions()
 
+  if (reset) {
+    console.log('Clearing database')
+  }
+
   //TODO: handle connection disconnect
   connection =
     (await createConnection({
@@ -80,35 +85,53 @@ async function init(reset = false) {
       }
     })) || null
 
-  if (!connection) {
+  if (connection) {
+    //Check if we updated app, clear database if we did to avoid errors
+    manager = connection.manager
+
+    const version = JSON.parse(readFileSync('package.json', 'utf8')).version
+    const oldAppVersion = await getAppVersion().catch(() => {
+      return null
+    })
+
+    if (version !== oldAppVersion) {
+      console.log(
+        `App updated from ${oldAppVersion} to ${version}, clearing block database...`
+      )
+      await clearDB()
+      await setAppVersion(version)
+      await init()
+    }
+
+    startPruningInterval()
+  } else {
     if (!reset) {
       console.log('Cannot create connection to database, retrying...')
       console.log('Please make sure the database is running')
       await new Promise(resolve => setTimeout(resolve, retryInterval))
     }
+
     await init(reset)
-  } else {
-    manager = connection.manager
-
-    startPruningInterval()
-
-    if (!settingsListener) {
-      settingsListener = settings.onChange(startPruningInterval)
-    }
   }
-
-  return
 }
 
 async function startPruningInterval() {
   maxDataAge = settings.get().maxDataAge
 
   if (manager) {
+    const pruningDate = Date.now() - maxDataAge * 3600 * 1000
+
     manager
       .delete(Header, {
-        timestamp: LessThan(Date.now() - maxDataAge * 3600 * 1000)
+        timestamp: LessThan(pruningDate)
       })
-      .catch(e => {})
+      .catch()
+
+    manager
+      .delete(Log, {
+        timestamp: LessThan(pruningDate)
+      })
+      .catch()
 
     pruningInterval = setTimeout(startPruningInterval, pruning * 1000)
   }
@@ -334,6 +357,11 @@ async function getNodeInfo(): Promise<NodeInfo> {
   } else return null
 }
 
+async function clearNodeInfo() {
+  console.log('clearing node info from DB')
+  await manager.delete(NodeInfoStorage, 1).catch()
+}
+
 async function getAppVersion() {
   let appVersion = await manager.findOne(AppVersion, 1)
   if (appVersion) {
@@ -345,19 +373,45 @@ async function setAppVersion(newAppVersion: string) {
   let appVersion = (await manager.findOne(AppVersion, 1)) || new AppVersion()
   appVersion.version = newAppVersion
   appVersion.id = 1
+  console.log('setting version', appVersion)
   await manager.save(appVersion)
 
   return
 }
 
+async function log(message: Message) {
+  const logMessage = new Log()
+  if (!message.timestamp) message.timestamp = Date.now()
+
+  Object.assign(logMessage, message)
+  const log = await manager.save(logMessage)
+
+  if (debugLogs || message.type !== 'debug') {
+    pubsub.publish('newMessage', log)
+  }
+
+  return log
+}
+
+async function getLogs(debug: boolean = false) {
+  if (debug) debugLogs = true
+
+  return (await manager.find(Log)).filter(message =>
+    debugLogs ? true : message.type !== 'debug'
+  )
+}
+
 export default {
   init,
+  log,
+  getLogs,
   saveHeader,
   saveValidator,
   getAppVersion,
   setAppVersion,
   setNodeInfo,
   getNodeInfo,
+  clearNodeInfo,
   getDataAge,
   clearDB,
   getFirstHeader,

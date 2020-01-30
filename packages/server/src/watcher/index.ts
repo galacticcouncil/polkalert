@@ -1,5 +1,6 @@
 import settings from '../settings'
 import notifications from '../notifications'
+import logger from '../logger'
 
 let settingsListener: boolean = null
 let blockReceivedLagNotificationDelay: number = null
@@ -47,7 +48,7 @@ function getNotFinalizingMessage() {
 
 function getBlockTimeMessage(blockReceivedTimeDifference: number) {
   return (
-    `node received block after ${blockReceivedTimeDifference} ms check your connection.\n` +
+    `last produced block was received by node after ${blockReceivedTimeDifference} ms check your connection.\n` +
     `If you think this message is false alarm check your settings`
   )
 }
@@ -56,7 +57,7 @@ function startNotFinalizingNotificationTimeout() {
   notFinalizingNotificationTimeout = setTimeout(() => {
     notifications.send('connection', getNotFinalizingMessage())
 
-    console.log(getNotFinalizingMessage())
+    logger.warn('Blocks are not being finalized', getNotFinalizingMessage())
   }, notFinalizingNotificationDelay)
 }
 
@@ -64,7 +65,7 @@ function startNoBlocksNotificationTimeout() {
   noBlocksReceivedNotificationTimeout = setTimeout(() => {
     notifications.send('connection', getNoBlocksMessage())
 
-    console.log(getNoBlocksMessage())
+    logger.warn('No blocks received', getNoBlocksMessage())
   }, noBlocksReceivedNotificationDelay)
 }
 
@@ -82,7 +83,10 @@ function ping(timestamp: number, finalizedHash: string) {
       'connection',
       getBlockTimeMessage(blockReceivedTimeDifference)
     )
-    console.log(getBlockTimeMessage(blockReceivedTimeDifference))
+    logger.warn(
+      'High network lag',
+      getBlockTimeMessage(blockReceivedTimeDifference)
+    )
   }
 
   clearTimeout(noBlocksReceivedNotificationTimeout)
