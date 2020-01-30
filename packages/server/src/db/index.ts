@@ -99,10 +99,9 @@ async function init(reset = false) {
         `App updated from ${oldAppVersion} to ${version}, clearing block database...`
       )
       await clearDB()
+      await setAppVersion(version)
       await init()
     }
-
-    await setAppVersion(version)
 
     startPruningInterval()
   } else {

@@ -14,7 +14,6 @@ import { createNodeInfo, getSyncProgress } from './helpers'
 let _nodeUrl: string = null
 let _reconnect: boolean = false
 
-let wasConnected: boolean = false
 let reconnectTimeout: NodeJS.Timeout = null
 let reconnectTime: number = 3000
 
@@ -66,7 +65,6 @@ async function connect(autoConnect: boolean = false) {
   //wait until we successfully scrape first data and save node info
   await scraper.init(api)
   await db.setNodeInfo(nodeInfo)
-  wasConnected = true
 
   return nodeInfo.nodeUrl
 }
@@ -81,9 +79,6 @@ async function disconnect(clearSettings = false) {
 
     _reconnect = false
     _nodeUrl = null
-    if (wasConnected) {
-      await db.clearDB()
-    }
   }
 
   // don't disconnect if node already disconnected
