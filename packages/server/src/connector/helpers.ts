@@ -31,22 +31,30 @@ export const createNodeInfo = async (api: ApiPromise, nodeUrl: string) => {
   }
 }
 
-export const getSyncProgress = async (api: ApiPromise) => {
-  const currentBlock = await api.rpc.chain.getHeader()
-  const currentBlockTime = (await api.query.timestamp.now()).toNumber()
-  const firstBlockHash = await api.rpc.chain.getBlockHash(1)
-  const firstBlockTime = (
-    await api.query.timestamp.now.at(firstBlockHash)
-  ).toNumber()
-  const currentTime = await Date.now()
-  const currentBlockHeight = currentBlock.number.toNumber()
-  const progress = (
-    ((currentTime - currentBlockTime) / (currentTime - firstBlockTime)) *
-    100
-  ).toFixed(1)
+export const getSyncProgress = async (api: ApiPromise): Promise<string> => {
+  try {
+    const currentBlock = await api.rpc.chain.getHeader()
+    const currentBlockTime = (await api.query.timestamp.now()).toNumber()
+    const firstBlockHash = await api.rpc.chain.getBlockHash(1)
+    const firstBlockTime = (
+      await api.query.timestamp.now.at(firstBlockHash)
+    ).toNumber()
+    const currentTime = await Date.now()
+    const currentBlockHeight = currentBlock.number.toNumber()
+    const progress = (
+      ((currentTime - currentBlockTime) / (currentTime - firstBlockTime)) *
+      100
+    ).toFixed(1)
 
-  console.log('Node is syncing, waiting to finish')
-  console.log('Current block height:', currentBlockHeight, ':', progress, '%')
+    console.log('Node is syncing, waiting to finish')
+    console.log('Current block height:', currentBlockHeight, ':', progress, '%')
+    return progress
+  } catch (e) {
+    const currentBlock = (await api.rpc.chain.getHeader()).number.toString()
+    console.log('Syncing... #', currentBlock, 'Unable to get sync progress')
+    console.log('Likely due to node not being archive node')
+    return null
+  }
 }
 
 export default {
