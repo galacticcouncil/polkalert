@@ -24,7 +24,10 @@ import { readFileSync } from 'fs'
 let connection: Connection = null
 let manager: EntityManager = null
 let nodeInfo: NodeInfo = null
-let validatorMap: { [key: string]: Validator } = {}
+
+let validatorEntityCache: { [key: string]: Validator } = {}
+let headerEntityCache: { [key: string]: Header } = {}
+
 let retryInterval: number = 5000
 let debugLogs = false
 
@@ -35,11 +38,12 @@ let maxDataAge: number = null
 //interval function
 let pruningInterval: NodeJS.Timeout = null
 
+//TODO: cleanup - this can cause memory bloating when running for a long time
 async function getValidator(hash: string) {
-  if (!validatorMap[hash]) {
-    validatorMap[hash] = await manager.findOne(Validator, hash)
+  if (!validatorEntityCache[hash]) {
+    validatorEntityCache[hash] = await manager.findOne(Validator, hash)
   }
-  return validatorMap[hash]
+  return validatorEntityCache[hash]
 }
 
 async function clearDB() {
@@ -51,7 +55,7 @@ async function clearDB() {
 async function disconnect() {
   clearTimeout(pruningInterval)
   await connection.close()
-  validatorMap = {}
+  validatorEntityCache = {}
   manager = null
   nodeInfo = null
   return
@@ -214,12 +218,16 @@ function createSessionInfoEntity({ sessionInfo: data }: EnhancedHeader) {
 }
 
 async function saveHeader(data: EnhancedHeader) {
-  let header = await manager.findOne(Header, data.number)
+  //We need this because subscribeFinalizedHeaders returns unsorted blocks
+  //If we were saving same 2 blocks at once due to this, db will throw
+  if (!headerEntityCache[data.number]) {
+    headerEntityCache[data.number] = await manager.findOne(Header, data.number)
+  }
 
-  if (header) return
+  if (headerEntityCache[data.number]) return
 
   const validator: Validator = await getValidator(data.author)
-  header = createHeaderObject(data)
+  let header = createHeaderObject(data)
 
   if (data.sessionInfo) {
     const sessionInfo = createSessionInfoEntity(data)
@@ -241,6 +249,9 @@ async function saveHeader(data: EnhancedHeader) {
 
   header.validator = validator
   await manager.save(header)
+
+  headerEntityCache[data.number] = null
+  delete headerEntityCache[data.number]
 
   return
 }
