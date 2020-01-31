@@ -64,8 +64,8 @@ async function connect(autoConnect: boolean = false) {
   await waitUntilSynced()
 
   //wait until we successfully scrape first data and save node info
-  await scraper.init(api)
   await db.setNodeInfo(nodeInfo)
+  await scraper.init(api)
 
   return nodeInfo.nodeUrl
 }
