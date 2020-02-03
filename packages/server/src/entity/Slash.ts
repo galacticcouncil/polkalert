@@ -14,6 +14,9 @@ export class Slash {
   @Column()
   sessionIndex: number
 
+  @Column({ type: 'bigint' })
+  timestamp: number
+
   @ManyToOne(
     type => SessionInfo,
     sessionInfo => sessionInfo.slashes

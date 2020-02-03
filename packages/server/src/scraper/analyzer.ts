@@ -84,28 +84,28 @@ export const analyzeExtrinsics = async (api: ApiPromise, blockHash: string) => {
     }
 
     if (methodName === 'unbond') {
-      const validatorInfo = await db.getValidatorInfo(
-        settings.get().validatorId
-      )
-      const ledger = await api.query.staking.ledger(signer.toString())
-      const stash = ledger.unwrap().stash.toString()
-      //TODO change nominator data to object
-      const nominatorData = JSON.parse(
-        validatorInfo.commissionData[0].nominatorData
-      )
-      if (nominatorData && nominatorData.stakers) {
-        nominatorData.stakers.forEach((stakerData: any) => {
-          console.log('nominator id ' + stakerData.accountId.toString())
-          if (stash === stakerData.accountId.toString()) {
-            if (isExtrinsicSucceed(index, systemEvents)) {
+      if (isExtrinsicSucceed(index, systemEvents)) {
+        const validatorInfo = await db.getValidatorInfo(
+          settings.get().validatorId
+        )
+        const ledger = await api.query.staking.ledger(signer.toString())
+        const stash = ledger.unwrap().stash.toString()
+        //TODO change nominator data to object
+        const nominatorData = JSON.parse(
+          validatorInfo.commissionData[0].nominatorData
+        )
+        if (nominatorData && nominatorData.stakers) {
+          nominatorData.stakers.forEach((stakerData: any) => {
+            console.log('nominator id ' + stakerData.accountId.toString())
+            if (stash === stakerData.accountId.toString()) {
               let amount = formatBalance(api.createType('Balance', args[0]))
               notifications.sendUnbondedMessage(stash, amount)
               if (parseFloat(amount) >= parseFloat(stakerData.stake)) {
                 notifications.sendUnbondedEverythingMessage(stash)
               }
             }
-          }
-        })
+          })
+        }
       }
     }
   })
