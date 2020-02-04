@@ -5,7 +5,9 @@ import {
   Connection,
   EntityManager,
   LessThan,
-  getConnectionOptions
+  getConnectionOptions,
+  Not,
+  Equal
 } from 'typeorm'
 import { Log } from '../entity/Log'
 import { Header } from '../entity/Header'
@@ -20,6 +22,7 @@ import { Slash } from '../entity/Slash'
 import humanizeDuration from 'humanize-duration'
 import { pubsub } from '../api'
 import { readFileSync } from 'fs'
+import logger from '../logger'
 
 let connection: Connection = null
 let manager: EntityManager = null
@@ -121,9 +124,12 @@ async function init(reset = false) {
 
 async function startPruningInterval() {
   maxDataAge = settings.get().maxDataAge
+  const validatorId = settings.get().validatorId
 
   if (manager) {
     const pruningDate = Date.now() - maxDataAge * 3600 * 1000
+
+    logger.debug('Pruning', 'Pruning data older than ' + pruningDate)
 
     manager
       .delete(Header, {
@@ -134,6 +140,20 @@ async function startPruningInterval() {
     manager
       .delete(Log, {
         timestamp: LessThan(pruningDate)
+      })
+      .catch()
+
+    manager
+      .delete(Slash, {
+        timestamp: LessThan(pruningDate),
+        validator: { accountId: Not(Equal(validatorId)) }
+      })
+      .catch()
+
+    manager
+      .delete(CommissionData, {
+        timestamp: LessThan(pruningDate),
+        validator: { accountId: Not(Equal(validatorId)) }
       })
       .catch()
 
@@ -242,6 +262,7 @@ async function saveHeader(data: EnhancedHeader) {
         slash.sessionIndex = data.sessionInfo.sessionIndex
         slash.validator = await getValidator(slashData.accountId)
         slash.sessionInfo = sessionInfo
+        slash.timestamp = Date.now()
         manager.save(slash)
       }
     }
@@ -274,6 +295,7 @@ async function saveValidator(data: EnhancedDerivedStakingQuery) {
   if (!commission) {
     commission = createCommissionObject(data)
     commission.validator = validator
+    commission.timestamp = Date.now()
     await manager.save(commission)
   }
 

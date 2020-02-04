@@ -31,6 +31,9 @@ export class CommissionData {
   @Column('text', { array: true, nullable: true })
   nextSessionIds: string[]
 
+  @Column({ type: 'bigint' })
+  timestamp: number
+
   @ManyToOne(
     type => Validator,
     validator => validator.commissionData
