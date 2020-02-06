@@ -16,9 +16,11 @@ async function init() {
   return
 }
 
-async function send(type: string, message: string) {
-  email.send(type, message)
-  webhooks.send(type, message)
+async function send(type: Category, message: string) {
+  if (settings.get().notificationToggles[type]) {
+    email.send(type, message)
+    webhooks.send(type, message)
+  }
 
   return
 }

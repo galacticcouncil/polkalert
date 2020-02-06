@@ -13,6 +13,17 @@
   "webHooks": [],
   "maxDataAge": 24,
   "validatorId": null,
+  "notificationToggles": {
+    "offline": true,
+    "slash": true,
+    "nominated": true,
+    "bonded": true,
+    "bondedExtra": true,
+    "unbonded": true,
+    "denominated": true,
+    "equivocating": true,
+    "connection": true
+  },
   "meta": {
     "blockReceivedLagNotificationDelay": "Delay after which notification for lagging network will be sent in seconds",
     "noBlocksReceivedNotificationDelay": "Delay after which notification for no blocks received will be sent in seconds",
@@ -27,6 +38,7 @@
     "serverPort": "Port used to run server app",
     "webHooks": "Array of urls which should be pinged when notification event occurs",
     "maxDataAge": "Maximum age for blocks stored in database, in hours ",
-    "validatorId": "Id of the validator to follow"
+    "validatorId": "Id of the validator to follow",
+    "notificationToggles": "Turn specific notification categories on or off"
   }
 }
