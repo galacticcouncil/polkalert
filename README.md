@@ -52,7 +52,7 @@ Navigate your browser to `localhost:8080` where Polkalert client runs by default
 
 ## Troubleshooting
 
-If you get errors upon starting client or server try running `yarn setup` again. Make sure the ports you are using to run Polkalert are not occuppied. If that doesn't work, run `yarn reset` \* WARNING - this will reset all your settings to defaults.
+If you get errors upon starting client or server try running `yarn setup` again. Make sure the ports you are using to run Polkalert are not occupied. If that doesn't work, run `yarn reset` \* WARNING - this will reset all your settings to defaults.
 
 ## Other Yarn scripts
 
@@ -66,9 +66,11 @@ Besides the `start` script, there are other ones which can be used to work with 
 
 - `yarn stop:db`: Stops db and resets docker interfaces if it doesn't stop automatically
 
-- `yarn reset`: Resets the database, server and settings to it's default state.
-- `yarn reset:db`: Resets the database to it's default state.
-- `yarn reset:server`: Resets the server to it's default state.
+- `yarn reset`: Resets the database, server and settings to it's default state
+- `yarn reset:db`: Resets the database to it's default state
+- `yarn reset:server`: Resets the server to it's default state
+
+- `yarn dev:server`: Runs server with automatic rebuild and restart on file changes
 
 - `yarn build`: Builds the whole project for production
 - `yarn build:client`: Builds only the client for production
