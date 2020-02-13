@@ -34,9 +34,9 @@ const defaultClientSettings = JSON.parse(
 )
 
 const initialized =
-  fs.existsSync(dbDockerFile) ||
-  fs.existsSync(ormConfigFile) ||
-  fs.existsSync(serverConfigFile) ||
+  fs.existsSync(dbDockerFile) &&
+  fs.existsSync(ormConfigFile) &&
+  fs.existsSync(serverConfigFile) &&
   fs.existsSync(clientConfigFile)
 
 let dbSettings = fs.existsSync(dbDockerFile)
@@ -92,9 +92,11 @@ const questions = [
 ;(async () => {
   console.log('Polkalert setup')
   let resetArg = process.argv.indexOf('--reset') !== -1
+  let updateArg = process.argv.indexOf('--update') !== -1
+
   let response = { serverPort: null, databasePort: null, reset: null }
 
-  if (!resetArg) {
+  if (!resetArg && !updateArg) {
     response = await prompts(questions)
     console.log(response)
   }
@@ -106,6 +108,11 @@ const questions = [
     ormSettings = defaultOrmSettings
     dbSettings = defaultDbSettings
     clientSettings = defaultClientSettings
+  } else if (updateArg) {
+    serverSettings = Object.assign(defaultServerSettings, serverSettings)
+    ormSettings = Object.assign(defaultOrmSettings, ormSettings)
+    dbSettings = Object.assign(defaultDbSettings, dbSettings)
+    clientSettings = Object.assign(defaultClientSettings, clientSettings)
   }
 
   if (serverPort) {

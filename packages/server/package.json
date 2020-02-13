@@ -1,12 +1,13 @@
 {
   "name": "polkalert-server",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
     "build": "tsc --project ./tsconfig.json",
-    "start": "nodemon"
+    "start": "ts-node --project tsconfig.json src/index.ts",
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
