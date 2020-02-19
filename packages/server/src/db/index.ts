@@ -259,6 +259,7 @@ async function saveHeader(data: EnhancedHeader) {
       for (const slashData of slashes) {
         const slash = new Slash()
         slash.amount = slashData.amount
+        slash.rawAmount = slashData.rawAmount
         slash.sessionIndex = data.sessionInfo.sessionIndex
         slash.validator = await getValidator(slashData.accountId)
         slash.sessionInfo = sessionInfo
@@ -451,5 +452,5 @@ export default {
   getLastHeader,
   bulkSave,
   getValidators,
-  getValidatorInfo
+  getValidatorInfo,
 }

@@ -11,6 +11,9 @@ export class Slash {
   @Column()
   amount: string
 
+  @Column({ type: 'float' })
+  rawAmount: number
+
   @Column()
   sessionIndex: number
 

@@ -31,7 +31,6 @@ async function main() {
   server.applyMiddleware({ app })
   
   prom.initMetricsRoute(app)
-  prom.startCollecting()
 
   const httpServer = http.createServer(app)
   server.installSubscriptionHandlers(httpServer)
@@ -42,11 +41,6 @@ async function main() {
       .connect(true)
       .catch(e => console.log('unable to connect to previously connected node'))
   }
-
-  //prom.updateMetric('blockProduced', {}, 'set', 10);
-  //prom.metric('blockProduced').update('dec', 1)
-  //prom.metric('peersCount').update('dec', 1)
-
 
   httpServer.listen({ port: config.serverPort || 4000 }, () => {
     console.log(

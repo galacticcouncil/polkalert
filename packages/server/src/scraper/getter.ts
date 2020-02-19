@@ -84,7 +84,8 @@ export const getBlockHeaders = async (
         if (event.method === 'Slash') {
           slashes.push({
             accountId: api.createType('AccountId', event.data[0]).toString(),
-            amount: formatBalance(api.createType('Balance', event.data[1]))
+            amount: formatBalance(api.createType('Balance', event.data[1])),
+            rawAmount: api.createType('Balance', event.data[1]).toNumber()
           })
         }
         if (event.method === 'Reward') {

@@ -15,6 +15,7 @@ declare interface BlockInfo {
 declare interface EventSlash {
   accountId: string
   amount: string
+  rawAmount: number
 }
 
 declare interface EventReward {
