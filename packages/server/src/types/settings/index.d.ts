@@ -13,4 +13,15 @@ declare type Settings = {
   webHooks?: string[]
   maxDataAge?: number
   validatorId?: string
+  notificationToggles?: {
+    offline?: boolean
+    slash?: boolean
+    nominated?: boolean
+    bonded?: boolean
+    bondedExtra?: boolean
+    unbonded?: boolean
+    denominated?: boolean
+    equivocating?: boolean
+    connection?: boolean
+  }
 }
