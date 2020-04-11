@@ -7,7 +7,7 @@ import {
   LessThan,
   getConnectionOptions,
   Not,
-  Equal
+  Equal,
 } from 'typeorm'
 import { Log } from '../entity/Log'
 import { Header } from '../entity/Header'
@@ -83,8 +83,8 @@ async function init(reset = false) {
   connection =
     (await createConnection({
       ...connectionOptions,
-      synchronize: reset
-    }).catch(async error => {
+      synchronize: reset,
+    }).catch(async (error) => {
       if (error.code === '23502') {
         reset = true
       } else {
@@ -115,7 +115,7 @@ async function init(reset = false) {
     if (!reset) {
       console.log('Cannot create connection to database, retrying...')
       console.log('Please make sure the database is running')
-      await new Promise(resolve => setTimeout(resolve, retryInterval))
+      await new Promise((resolve) => setTimeout(resolve, retryInterval))
     }
 
     await init(reset)
@@ -133,27 +133,27 @@ async function startPruningInterval() {
 
     manager
       .delete(Header, {
-        timestamp: LessThan(pruningDate)
+        timestamp: LessThan(pruningDate),
       })
       .catch()
 
     manager
       .delete(Log, {
-        timestamp: LessThan(pruningDate)
+        timestamp: LessThan(pruningDate),
       })
       .catch()
 
     manager
       .delete(Slash, {
         timestamp: LessThan(pruningDate),
-        validator: { accountId: Not(Equal(validatorId)) }
+        validator: { accountId: Not(Equal(validatorId)) },
       })
       .catch()
 
     manager
       .delete(CommissionData, {
         timestamp: LessThan(pruningDate),
-        validator: { accountId: Not(Equal(validatorId)) }
+        validator: { accountId: Not(Equal(validatorId)) },
       })
       .catch()
 
@@ -161,20 +161,22 @@ async function startPruningInterval() {
   }
 }
 
-function createNominatorObjectString({ stakers }: EnhancedDerivedStakingQuery) {
-  if (!stakers || !stakers.others.length) return null
+function createNominatorObjectString({
+  exposure,
+}: EnhancedDerivedStakingQuery) {
+  if (!exposure || !exposure.others.length) return null
 
   const nominatorObject = {
-    totalStake: formatBalance(stakers.total),
+    totalStake: formatBalance(exposure.total),
     nominatorStake: formatBalance(
-      stakers.total.unwrap().sub(stakers.own.unwrap())
+      exposure.total.unwrap().sub(exposure.own.unwrap())
     ),
-    stakers: stakers.others.map(staker => {
+    stakers: exposure.others.map((staker) => {
       return {
         accountId: staker.who.toString(),
-        stake: formatBalance(staker.value)
+        stake: formatBalance(staker.value),
       }
-    })
+    }),
   }
 
   return JSON.stringify(nominatorObject)
@@ -183,7 +185,7 @@ function createNominatorObjectString({ stakers }: EnhancedDerivedStakingQuery) {
 async function getCommissionData(accountId: string, sessionIndex: number) {
   return manager.find(CommissionData, {
     relations: ['validator'],
-    where: { validator: accountId, sessionIndex }
+    where: { validator: accountId, sessionIndex },
   })
 }
 
@@ -204,10 +206,10 @@ function createCommissionObject(data: EnhancedDerivedStakingQuery) {
   commissionData.controllerId = data.controllerId.toString()
   commissionData.nominatorData = createNominatorObjectString(data)
 
-  commissionData.sessionIds = data.sessionIds.map(sessionId =>
+  commissionData.sessionIds = data.sessionIds.map((sessionId) =>
     sessionId.toString()
   )
-  commissionData.nextSessionIds = data.sessionIds.map(sessionId =>
+  commissionData.nextSessionIds = data.sessionIds.map((sessionId) =>
     sessionId.toString()
   )
 
@@ -323,7 +325,7 @@ async function bulkSave(
 
 async function getValidatorInfo(id: string) {
   const validator = await manager.findOne(Validator, id, {
-    relations: ['commissionData', 'blocksProduced', 'slashes']
+    relations: ['commissionData', 'blocksProduced', 'slashes'],
   })
 
   validator.commissionData = validator.commissionData.sort((a, b) => {
@@ -346,10 +348,10 @@ async function getValidators() {
   let performanceStart = performance.now()
   //TODO limit commissionData and slashes
   let allValidators: Validator[] = await manager.find(Validator, {
-    relations: ['commissionData', 'slashes']
+    relations: ['commissionData', 'slashes'],
   })
 
-  allValidators.forEach(validator => {
+  allValidators.forEach((validator) => {
     validator.commissionData = validator.commissionData.sort((a, b) => {
       return b.sessionIndex - a.sessionIndex
     })
@@ -369,7 +371,7 @@ async function setNodeInfo(newNodeInfo: NodeInfo) {
 
   formatBalance.setDefaults({
     decimals: nodeInfo.tokenDecimals,
-    unit: nodeInfo.tokenSymbol
+    unit: nodeInfo.tokenSymbol,
   })
 
   const nodeInfoStorage =
@@ -429,7 +431,7 @@ async function log(message: Message) {
 async function getLogs(debug: boolean = false) {
   if (debug) debugLogs = true
 
-  return (await manager.find(Log)).filter(message =>
+  return (await manager.find(Log)).filter((message) =>
     debugLogs ? true : message.type !== 'debug'
   )
 }
@@ -451,5 +453,5 @@ export default {
   getLastHeader,
   bulkSave,
   getValidators,
-  getValidatorInfo
+  getValidatorInfo,
 }

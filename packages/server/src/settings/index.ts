@@ -1,12 +1,12 @@
 import { writeFileSync, existsSync, readFileSync } from 'fs'
-import EventEmitter from 'events'
+import { EventEmitter } from 'events'
 
 const configFile: string = './server-config.json'
 const defaultConfigFile: string = './server-config.default.json'
 
 const defaultConfig: Settings = JSON.parse(
   readFileSync(defaultConfigFile, {
-    encoding: 'utf8'
+    encoding: 'utf8',
   })
 )
 
@@ -32,7 +32,7 @@ function set(options: Settings) {
 
   settings = Object.assign(settings, options)
   writeFileSync('./server-config.json', JSON.stringify(settings, null, 2), {
-    encoding: 'utf8'
+    encoding: 'utf8',
   })
 
   change.emit('change')
@@ -52,5 +52,5 @@ function onChange(listener: () => void) {
 export default {
   set,
   get,
-  onChange
+  onChange,
 }

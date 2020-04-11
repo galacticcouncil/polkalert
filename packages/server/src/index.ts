@@ -6,7 +6,7 @@ import { readFileSync } from 'fs'
 import http from 'http'
 import express from 'express'
 
-process.on('unhandledRejection', error => {
+process.on('unhandledRejection', (error) => {
   console.log('unhandledRejection')
   console.error(error)
 })
@@ -35,7 +35,9 @@ async function main() {
     connector.setNodeUrl(oldNodeInfo.nodeUrl)
     await connector
       .connect(true)
-      .catch(e => console.log('unable to connect to previously connected node'))
+      .catch((e) =>
+        console.log(e, 'unable to connect to previously connected node')
+      )
   }
 
   httpServer.listen({ port: config.serverPort || 4000 }, () => {
@@ -48,6 +50,6 @@ async function main() {
   })
 }
 
-main().catch(e => {
+main().catch((e) => {
   console.log('error detected', e)
 })

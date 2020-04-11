@@ -1,7 +1,7 @@
 // import { DerivedStakingQuery } from '@polkadot/api-derive/types'
 // import { HeaderExtended } from '@polkadot/api-derive/type'
 
-declare type EnhancedDerivedStakingQuery = import('@polkadot/api-derive/types').DerivedStakingQuery & {
+declare type EnhancedDerivedStakingQuery = import('@polkadot/api-derive/types').DeriveStakingQuery & {
   eraIndex: number
   sessionIndex: number
 }

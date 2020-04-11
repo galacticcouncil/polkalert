@@ -2,14 +2,17 @@ import { pubsub } from '../api'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import scraper from '../scraper'
 
-import { IdentityTypes } from 'edgeware-node-types/dist/identity'
-import { SignalingTypes } from 'edgeware-node-types/dist/signaling'
-import { TreasuryRewardTypes } from 'edgeware-node-types/dist/treasuryReward'
-import { VotingTypes } from 'edgeware-node-types/dist/voting'
+import * as edgewareDefinitions from 'edgeware-node-types/dist/definitions'
+
 import db from '../db'
 import logger from '../logger'
 import eventEmitter from '../events'
 import { createNodeInfo, getSyncProgress } from './helpers'
+
+const edgewareTypes = Object.values(edgewareDefinitions).reduce(
+  (res, types): object => ({ ...res, ...types }),
+  {}
+)
 
 let _nodeUrl: string = null
 let _reconnect: boolean = false
@@ -82,7 +85,7 @@ async function disconnect(clearSettings = false) {
   }
 
   if (subscriptions.length) {
-    subscriptions.forEach(async unsubscribe => await unsubscribe())
+    subscriptions.forEach(async (unsubscribe) => await unsubscribe())
     subscriptions = []
   }
 
@@ -152,10 +155,10 @@ async function reconnect() {
   clearTimeout(reconnectTimeout)
 
   await new Promise(
-    resolve => (reconnectTimeout = setTimeout(resolve, reconnectTime))
+    (resolve) => (reconnectTimeout = setTimeout(resolve, reconnectTime))
   )
 
-  await connect().catch(e => {
+  await connect().catch((e) => {
     reconnect()
   })
 }
@@ -166,10 +169,10 @@ async function waitUntilSynced() {
     const progress = await getSyncProgress(api)
     pubsub.publish('action', {
       type: 'syncing',
-      payload: progress
+      payload: progress,
     })
 
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    await new Promise((resolve) => setTimeout(resolve, 3000))
     await waitUntilSynced()
   } else return
 }
@@ -180,14 +183,22 @@ async function createApi() {
   api = await ApiPromise.create({
     typesSpec: {
       edgeware: {
-        ...IdentityTypes,
-        ...SignalingTypes,
-        ...TreasuryRewardTypes,
-        ...VotingTypes
-      }
+        ...edgewareTypes,
+        // aliases that don't do well as part of interfaces
+        'voting::VoteType': 'VoteType',
+        'voting::TallyType': 'TallyType',
+        // chain-specific overrides
+        Address: 'GenericAddress',
+        Keys: 'SessionKeys4',
+        StakingLedger: 'StakingLedgerTo223',
+        Votes: 'VotesTo230',
+        ReferendumInfo: 'ReferendumInfoTo239',
+      },
+      // override duplicate type name edgeware
+      typesAlias: { voting: { Tally: 'VotingTally' } },
     },
-    provider: provider
-  }).catch(e => {
+    provider: provider,
+  }).catch((e) => {
     logger.error('Error creating api', e)
     handleError(e)
 
@@ -240,5 +251,5 @@ export default {
   getApi,
   disconnect,
   getNodeInfo,
-  addSubscription
+  addSubscription,
 }

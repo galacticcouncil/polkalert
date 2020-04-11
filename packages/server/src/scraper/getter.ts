@@ -32,27 +32,27 @@ export const getBlockHeaders = async (
   if (!blocksAvailable) return []
 
   let blockHashes: BlockHash[] = await Promise.all(
-    blockNumbers.map(blockNumber =>
+    blockNumbers.map((blockNumber) =>
       api.rpc.chain.getBlockHash(blockNumber).catch(() => null)
     )
   )
 
-  blockHashes = blockHashes.filter(block => !!block)
+  blockHashes = blockHashes.filter((block) => !!block)
 
   let headers = await Promise.all(
-    blockHashes.map(blockHash =>
+    blockHashes.map((blockHash) =>
       api.derive.chain.getHeader(blockHash.toString())
     )
   )
 
   let timestamps = await Promise.all(
-    headers.map(header =>
+    headers.map((header) =>
       header ? api.query.timestamp.now.at(header.hash) : null
     )
   )
 
   let events: Vec<EventRecord>[] = await Promise.all(
-    headers.map(header =>
+    headers.map((header) =>
       header ? api.query.system.events.at(header.hash) : null
     )
   )
@@ -76,26 +76,32 @@ export const getBlockHeaders = async (
 
         if (event.method === 'NewSession') {
           sessionInfo = {
-            sessionIndex: api.createType('SessionIndex',event.data[0]).toNumber(),
-            eraIndex: (await api.query.staking.currentEra.at(hash)).toNumber()
+            sessionIndex: api
+              .createType('SessionIndex', event.data[0])
+              .toNumber(),
+            eraIndex: (await api.query.staking.currentEra.at(hash))
+              .unwrap()
+              .toNumber(),
           }
           await db.bulkSave('Validator', await getValidators(api, hash))
         }
         if (event.method === 'Slash') {
           slashes.push({
             accountId: api.createType('AccountId', event.data[0]).toString(),
-            amount: formatBalance(api.createType('Balance', event.data[1]))
+            amount: formatBalance(api.createType('Balance', event.data[1])),
           })
         }
         if (event.method === 'Reward') {
           rewards.push({
-            amount: formatBalance(api.createType('Balance', event.data[0]))
+            amount: formatBalance(api.createType('Balance', event.data[0])),
           })
         }
         if (event.method === 'Offence') {
           offences.push({
             kind: api.createType('Kind', event.data[0]).toString(),
-            timeSlot: api.createType('OpaqueTimeSlot', event.data[1]).toString()
+            timeSlot: api
+              .createType('OpaqueTimeSlot', event.data[1])
+              .toString(),
           })
         }
       }
@@ -114,7 +120,7 @@ export const getBlockHeaders = async (
         number,
         hash,
         timestamp,
-        sessionInfo
+        sessionInfo,
       }
     })
   )
@@ -138,12 +144,14 @@ export const getValidators = async (api: ApiPromise, at?: string | Hash) => {
   }
 
   const validators = await api.query.session.validators.at(at)
-  const eraIndex = (await api.query.staking.currentEra.at(at)).toNumber()
+  const eraIndex = (await api.query.staking.currentEra.at(at))
+    .unwrap()
+    .toNumber()
   const sessionIndex = (await api.query.session.currentIndex.at(at)).toNumber()
   const queuedKeys = await api.query.session.queuedKeys.at(at)
   const validatorStakingRequests = []
   const controllerIds = await Promise.all(
-    validators.map(accountId => api.query.staking.bonded.at(at, accountId))
+    validators.map((accountId) => api.query.staking.bonded.at(at, accountId))
   )
 
   for (let index = 0; index < validators.length; index++) {
@@ -164,17 +172,13 @@ export const getValidators = async (api: ApiPromise, at?: string | Hash) => {
           stashId,
           controllerId,
           api.query.staking.nominators.at(at, accountId),
-          api.query.staking.stakers.at(at, accountId),
+          api.query.staking.erasStakers(eraIndex, accountId),
           sessionIds,
-          api.query.session.nextKeys.at(
-            at,
-            api.consts.session.dedupKeyPrefix,
-            accountId
-          ),
-          api.query.staking.ledger.at(at, controllerId)
+          api.query.session.nextKeys.at(at, accountId),
+          api.query.staking.ledger.at(at, controllerId),
         ]),
         //Max number of safe overloads in Promise.all is 10
-        Promise.all([api.query.staking.validators.at(at, accountId)])
+        Promise.all([api.query.staking.validators.at(at, accountId)]),
       ])
     )
   }
@@ -193,9 +197,9 @@ export const getValidators = async (api: ApiPromise, at?: string | Hash) => {
         stakers,
         sessionIds,
         nextSessionIds,
-        stakingLedger
+        stakingLedger,
       ],
-      [validatorPrefs]
+      [validatorPrefs],
     ]) => ({
       eraIndex,
       sessionIndex,
@@ -203,21 +207,18 @@ export const getValidators = async (api: ApiPromise, at?: string | Hash) => {
       stashId,
       controllerId,
       nominators: nominators.isSome ? nominators.unwrap().targets : [],
-      stakers: stakers,
+      exposure: stakers,
       sessionIds,
-      nextSessionIds: nextSessionIds.isSome ? nextSessionIds.unwrap() : [],
+      nextSessionIds: nextSessionIds.isEmpty
+        ? []
+        : api.createType('Vec<AccountId>', nextSessionIds.unwrap()),
       stakingLedger: stakingLedger.unwrap(),
       validatorPrefs: api.createType(
         'ValidatorPrefs',
         validatorPrefs.toArray()[0]
-      )
+      ),
     })
   )
-
-  // TODO?
-  // rewardDestination: RewardDestination
-  // nextKeys: Keys
-  // stakers: Exposure
 
   return enhancedStakingInfo
 }
@@ -225,7 +226,7 @@ export const getValidators = async (api: ApiPromise, at?: string | Hash) => {
 export const testPruning = async (api: ApiPromise, blockNumber: number) => {
   let headerHash = await api.rpc.chain.getBlockHash(blockNumber)
   let gotBlock = !isNullOrUndefined(
-    await api.derive.chain.getHeader(headerHash).catch(e => {
+    await api.derive.chain.getHeader(headerHash).catch((e) => {
       console.log('pruning test failed on block', blockNumber)
     })
   )
@@ -245,7 +246,7 @@ export const getPreviousHeaders = async (
   )
 
   //Stop getting headers at 1, we don't need initial block
-  blockNumbers = blockNumbers.filter(blockNumber => blockNumber > 0)
+  blockNumbers = blockNumbers.filter((blockNumber) => blockNumber > 0)
 
   console.log('getting', blockNumbers.length, 'previous headers')
 

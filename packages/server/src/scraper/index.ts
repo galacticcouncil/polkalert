@@ -18,8 +18,8 @@ let maxBlockHistory = 15000
 const headerCache: { [key: number]: EnhancedHeader } = {}
 
 async function subscribeEvents() {
-  const unsubscribe = await api.query.system.events(async events => {
-    events.forEach(async record => {
+  const unsubscribe = await api.query.system.events(async (events) => {
+    events.forEach(async (record) => {
       const { event } = record
 
       if (event.method === 'Reward') {
@@ -38,7 +38,7 @@ async function subscribeEvents() {
       if (event.method === 'SomeOffline') {
         api
           .createType('Vec<IdentificationTuple>', event.data[0])
-          .forEach(identificationTuple => {
+          .forEach((identificationTuple) => {
             if (
               identificationTuple[0].toString() === settings.get().validatorId
             ) {
@@ -60,7 +60,7 @@ async function subscribeEvents() {
 
 async function subscribeFinalizedHeaders() {
   const unsubscribe = await api.rpc.chain.subscribeFinalizedHeads(
-    async header => {
+    async (header) => {
       let hash = header.hash.toString()
       let number = header.number.toNumber()
       let missing = 0
@@ -107,7 +107,7 @@ async function subscribeFinalizedHeaders() {
 }
 
 async function subscribeHeaders() {
-  const unsubscribe = await api.rpc.chain.subscribeNewHeads(async header => {
+  const unsubscribe = await api.rpc.chain.subscribeNewHeads(async (header) => {
     let hash = header.hash.toString()
     let number = header.number.toNumber()
     let enhancedHeader = await getBlockHeader(api, number)
@@ -135,18 +135,27 @@ async function subscribeHeaders() {
 async function getSessionInfo(): Promise<SessionInfo> {
   let [derivedSessionInfo, newEraIndex] = await Promise.all([
     api.derive.session.info(),
-    api.query.staking.currentEra()
+    api.query.staking.currentEra(),
   ])
 
+  let derivedSessionProgress = await api.derive.session.progress()
+
+  console.log(
+    'SESSION INFO=',
+    derivedSessionInfo,
+    newEraIndex,
+    derivedSessionProgress
+  )
+
   return {
-    eraIndex: newEraIndex.toNumber(),
+    eraIndex: newEraIndex.unwrap().toNumber(),
     eraLength: derivedSessionInfo.eraLength.toNumber(),
-    eraProgress: derivedSessionInfo.eraProgress.toNumber(),
+    eraProgress: derivedSessionProgress.eraProgress.toNumber(),
     isEpoch: derivedSessionInfo.isEpoch,
     sessionIndex: derivedSessionInfo.currentIndex.toNumber(),
     sessionLength: derivedSessionInfo.sessionLength.toNumber(),
-    sessionProgress: derivedSessionInfo.sessionProgress.toNumber(),
-    sessionsPerEra: derivedSessionInfo.sessionsPerEra.toNumber()
+    sessionProgress: derivedSessionProgress.sessionProgress.toNumber(),
+    sessionsPerEra: derivedSessionInfo.sessionsPerEra.toNumber(),
   }
 }
 
@@ -175,7 +184,7 @@ async function getHeaderDataHistory() {
         firstSavedBlock = {
           hash: firstHeader.hash,
           number: firstHeader.number,
-          timestamp: firstHeader.timestamp
+          timestamp: firstHeader.timestamp,
         }
     }
 
@@ -188,13 +197,13 @@ async function init(apiObject: ApiPromise) {
   firstSavedBlock = {
     number: null,
     hash: null,
-    timestamp: null
+    timestamp: null,
   }
 
   lastSavedBlock = {
     number: null,
     hash: null,
-    timestamp: null
+    timestamp: null,
   }
 
   await db.bulkSave('Validator', await getValidators(api))
@@ -205,14 +214,14 @@ async function init(apiObject: ApiPromise) {
     firstSavedBlock = {
       number: firstBlock.id,
       hash: firstBlock.blockHash,
-      timestamp: firstBlock.timestamp
+      timestamp: firstBlock.timestamp,
     }
 
     let lastBlock = await db.getLastHeader()
     lastSavedBlock = {
       number: lastBlock.id,
       hash: lastBlock.blockHash,
-      timestamp: lastBlock.timestamp
+      timestamp: lastBlock.timestamp,
     }
   } else {
     let lastBlockHash = await api.rpc.chain.getFinalizedHead()
