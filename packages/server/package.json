@@ -1,38 +1,41 @@
 {
   "name": "polkalert-server",
-  "version": "0.18.1",
+  "version": "0.22.1",
   "description": "",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "build": "tsc",
-    "start": "nodemon src/index.ts"
+    "build": "tsc --project ./tsconfig.json",
+    "start": "ts-node --project tsconfig.json src/index.ts",
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
   "devDependencies": {
-    "@polkadot/ts": "^0.1.90",
-    "@polkadot/types": "^1.0.0-beta.13",
-    "@types/node": "^12.7.11",
-    "@types/nodemailer": "^6.2.2",
-    "nodemon": "^1.19.3",
-    "ts-node": "^8.5.0",
-    "typescript": "^3.7.0"
+    "@polkadot/ts": "^0.3.18",
+    "@polkadot/types": "1.10.0-beta.28",
+    "@types/node": "^13.11.1",
+    "@types/nodemailer": "^6.4.0",
+    "nodemon": "^2.0.3",
+    "ts-node": "^8.8.2",
+    "typescript": "^3.9.0-beta"
   },
   "dependencies": {
-    "@polkadot/api": "^1.0.0-beta.13",
-    "@polkadot/api-derive": "^1.0.0-beta.13",
+    "@polkadot/api": "1.10.0-beta.28",
+    "@polkadot/api-derive": "1.10.0-beta.28",
     "@types/humanize-duration": "^3.18.0",
-    "apollo-server": "^2.9.5",
-    "edgeware-node-types": "^1.1.0",
-    "graphql": "^14.5.8",
-    "humanize-duration": "^3.21.0",
+    "apollo-server-express": "^2.12.0",
+    "edgeware-node-types": "^2.0.1",
+    "express": "^4.17.1",
+    "graphql": "^14.6.0",
+    "graphql-subscriptions": "^1.1.0",
+    "humanize-duration": "^3.22.0",
     "levelup": "^4.3.2",
     "memdown": "^5.1.0",
     "node-fetch": "^2.6.0",
-    "nodemailer": "^6.3.1",
-    "pg": "^7.12.1",
+    "nodemailer": "^6.4.6",
+    "pg": "^8.0.2",
     "reflect-metadata": "^0.1.10",
-    "typeorm": "0.2.20"
+    "typeorm": "0.2.24"
   }
 }

@@ -1,16 +1,18 @@
 {
   "name": "polkalert",
   "description": "",
+  "author": "GalacticCouncil",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.6.0",
   "engines": {
     "yarn": "^1.10.1"
   },
   "scripts": {
     "bump": "lerna version --no-push --no-git-tag-version",
+    "dev:server": "cd packages/server && yarn dev",
     "setup": "node ./setup.js",
     "setup:reset": "node ./setup.js --reset",
-    "start": "yarn run-p start:*",
+    "start": "yarn run-p --race start:*",
     "start:client": "cd packages/client && yarn dev",
     "start:server": "cd packages/server && yarn start",
     "start:db": "cd packages/server && docker-compose up --build",

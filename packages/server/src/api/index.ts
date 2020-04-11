@@ -1,10 +1,12 @@
-import { ApolloServer } from 'apollo-server'
+import { ApolloServer, PubSub } from 'apollo-server-express'
 import { typeDefs } from '../schema'
 import resolvers from '../resolver'
 
-const server = new ApolloServer({
+export const server = new ApolloServer({
   typeDefs,
   resolvers
 })
 
-export default server
+export const pubsub = new PubSub()
+
+export default { server, pubsub }

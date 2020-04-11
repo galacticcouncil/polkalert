@@ -11,11 +11,11 @@ module.exports = {
         __dirname,
         'node_modules',
         'styled-components'
-      )
+      ),
     },
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
-    plugins: [new TsConfigPathsPlugin()]
+    plugins: [new TsConfigPathsPlugin()],
   },
   entry: ['./src/index.tsx'],
   module: {
@@ -23,39 +23,39 @@ module.exports = {
       {
         test: /\.ts[x]?$/,
         exclude: /node_modules/,
-        use: ['babel-loader']
+        use: ['babel-loader'],
       },
       {
         test: /\.css$/i,
         exclude: /node_modules/,
-        use: ['style-loader', 'css-loader']
-      }
-    ]
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
   },
   output: {
     filename: '[name].js',
     chunkFilename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/'
+    publicPath: '/',
   },
   devServer: {
     contentBase: path.join(__dirname, 'public'),
     hot: true,
     inline: true,
     port: clientConfig.clientPort,
-    historyApiFallback: true
+    historyApiFallback: true,
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'public', 'index.html'),
-      filename: 'index.html'
+      filename: 'index.html',
     }),
     new CopyWebpackPlugin([
       {
         from: 'public',
         to: '.',
-        ignore: 'README.md'
-      }
-    ])
-  ]
+        ignore: ['README.md'],
+      },
+    ]),
+  ],
 }

@@ -5,8 +5,11 @@ import {
   Connection,
   EntityManager,
   LessThan,
-  getConnectionOptions
+  getConnectionOptions,
+  Not,
+  Equal,
 } from 'typeorm'
+import { Log } from '../entity/Log'
 import { Header } from '../entity/Header'
 import { Validator } from '../entity/Validator'
 import { CommissionData } from '../entity/CommissionData'
@@ -17,40 +20,45 @@ import { AppVersion } from '../entity/AppVersion'
 import { SessionInfo } from '../entity/SessionInfo'
 import { Slash } from '../entity/Slash'
 import humanizeDuration from 'humanize-duration'
-import { EnhancedHeader, EnhancedDerivedStakingQuery } from '../types/connector'
+import { pubsub } from '../api'
+import { readFileSync } from 'fs'
+import logger from '../logger'
 
 let connection: Connection = null
 let manager: EntityManager = null
 let nodeInfo: NodeInfo = null
-let validatorMap: { [key: string]: Validator } = {}
-let retryInterval: number = 5000
-let settingsListener: boolean = null
 
-//TODO: Config
+let validatorEntityCache: { [key: string]: Validator } = {}
+let headerEntityCache: { [key: string]: Header } = {}
+
+let retryInterval: number = 5000
+let debugLogs = false
+
 //number of seconds to prune blocks
-let pruning = 180
+let pruning = 120
 //max number of hours for storing blocks
 let maxDataAge: number = null
 //interval function
 let pruningInterval: NodeJS.Timeout = null
 
+//TODO: cleanup - this can cause memory bloating when running for a long time
 async function getValidator(hash: string) {
-  if (!validatorMap[hash]) {
-    validatorMap[hash] = await manager.findOne(Validator, hash)
+  if (!validatorEntityCache[hash]) {
+    validatorEntityCache[hash] = await manager.findOne(Validator, hash)
   }
-  return validatorMap[hash]
+  return validatorEntityCache[hash]
 }
 
 async function clearDB() {
+  'clearing DB'
   await connection.synchronize(true)
-  await init()
   return
 }
 
 async function disconnect() {
   clearTimeout(pruningInterval)
   await connection.close()
-  validatorMap = {}
+  validatorEntityCache = {}
   manager = null
   nodeInfo = null
   return
@@ -67,12 +75,16 @@ async function init(reset = false) {
   if (connection) await disconnect()
   let connectionOptions = await getConnectionOptions()
 
+  if (reset) {
+    console.log('Clearing database')
+  }
+
   //TODO: handle connection disconnect
   connection =
     (await createConnection({
       ...connectionOptions,
-      synchronize: reset
-    }).catch(async error => {
+      synchronize: reset,
+    }).catch(async (error) => {
       if (error.code === '23502') {
         reset = true
       } else {
@@ -80,54 +92,91 @@ async function init(reset = false) {
       }
     })) || null
 
-  if (!connection) {
+  if (connection) {
+    //Check if we updated app, clear database if we did to avoid errors
+    manager = connection.manager
+
+    const version = JSON.parse(readFileSync('package.json', 'utf8')).version
+    const oldAppVersion = await getAppVersion().catch(() => {
+      return null
+    })
+
+    if (version !== oldAppVersion) {
+      console.log(
+        `App updated from ${oldAppVersion} to ${version}, clearing block database...`
+      )
+      await clearDB()
+      await setAppVersion(version)
+      await init()
+    }
+
+    startPruningInterval()
+  } else {
     if (!reset) {
       console.log('Cannot create connection to database, retrying...')
       console.log('Please make sure the database is running')
-      await new Promise(resolve => setTimeout(resolve, retryInterval))
+      await new Promise((resolve) => setTimeout(resolve, retryInterval))
     }
+
     await init(reset)
-  } else {
-    manager = connection.manager
-
-    startPruningInterval()
-
-    if (!settingsListener) {
-      settingsListener = settings.onChange(startPruningInterval)
-    }
   }
-
-  return
 }
 
 async function startPruningInterval() {
   maxDataAge = settings.get().maxDataAge
+  const validatorId = settings.get().validatorId
 
   if (manager) {
+    const pruningDate = Date.now() - maxDataAge * 3600 * 1000
+
+    logger.debug('Pruning', 'Pruning data older than ' + pruningDate)
+
     manager
       .delete(Header, {
-        timestamp: LessThan(Date.now() - maxDataAge * 3600 * 1000)
+        timestamp: LessThan(pruningDate),
       })
-      .catch(e => {})
+      .catch()
+
+    manager
+      .delete(Log, {
+        timestamp: LessThan(pruningDate),
+      })
+      .catch()
+
+    manager
+      .delete(Slash, {
+        timestamp: LessThan(pruningDate),
+        validator: { accountId: Not(Equal(validatorId)) },
+      })
+      .catch()
+
+    manager
+      .delete(CommissionData, {
+        timestamp: LessThan(pruningDate),
+        validator: { accountId: Not(Equal(validatorId)) },
+      })
+      .catch()
 
     pruningInterval = setTimeout(startPruningInterval, pruning * 1000)
   }
 }
 
-function createNominatorObjectString({ stakers }: EnhancedDerivedStakingQuery) {
-  if (!stakers || !stakers.others.length) return null
+function createNominatorObjectString({
+  exposure,
+}: EnhancedDerivedStakingQuery) {
+  if (!exposure || !exposure.others.length) return null
 
   const nominatorObject = {
-    totalStake: formatBalance(stakers.total),
+    totalStake: formatBalance(exposure.total),
     nominatorStake: formatBalance(
-      stakers.total.unwrap().sub(stakers.own.unwrap())
+      exposure.total.unwrap().sub(exposure.own.unwrap())
     ),
-    stakers: stakers.others.map(staker => {
+    stakers: exposure.others.map((staker) => {
       return {
         accountId: staker.who.toString(),
-        stake: formatBalance(staker.value)
+        stake: formatBalance(staker.value),
       }
-    })
+    }),
   }
 
   return JSON.stringify(nominatorObject)
@@ -136,7 +185,7 @@ function createNominatorObjectString({ stakers }: EnhancedDerivedStakingQuery) {
 async function getCommissionData(accountId: string, sessionIndex: number) {
   return manager.find(CommissionData, {
     relations: ['validator'],
-    where: { validator: accountId, sessionIndex }
+    where: { validator: accountId, sessionIndex },
   })
 }
 
@@ -157,10 +206,10 @@ function createCommissionObject(data: EnhancedDerivedStakingQuery) {
   commissionData.controllerId = data.controllerId.toString()
   commissionData.nominatorData = createNominatorObjectString(data)
 
-  commissionData.sessionIds = data.sessionIds.map(sessionId =>
+  commissionData.sessionIds = data.sessionIds.map((sessionId) =>
     sessionId.toString()
   )
-  commissionData.nextSessionIds = data.sessionIds.map(sessionId =>
+  commissionData.nextSessionIds = data.sessionIds.map((sessionId) =>
     sessionId.toString()
   )
 
@@ -191,12 +240,16 @@ function createSessionInfoEntity({ sessionInfo: data }: EnhancedHeader) {
 }
 
 async function saveHeader(data: EnhancedHeader) {
-  let header = await manager.findOne(Header, data.number)
+  //We need this because subscribeFinalizedHeaders returns unsorted blocks
+  //If we were saving same 2 blocks at once due to this, db will throw
+  if (!headerEntityCache[data.number]) {
+    headerEntityCache[data.number] = await manager.findOne(Header, data.number)
+  }
 
-  if (header) return
+  if (headerEntityCache[data.number]) return
 
   const validator: Validator = await getValidator(data.author)
-  header = createHeaderObject(data)
+  let header = createHeaderObject(data)
 
   if (data.sessionInfo) {
     const sessionInfo = createSessionInfoEntity(data)
@@ -211,6 +264,7 @@ async function saveHeader(data: EnhancedHeader) {
         slash.sessionIndex = data.sessionInfo.sessionIndex
         slash.validator = await getValidator(slashData.accountId)
         slash.sessionInfo = sessionInfo
+        slash.timestamp = Date.now()
         manager.save(slash)
       }
     }
@@ -218,6 +272,9 @@ async function saveHeader(data: EnhancedHeader) {
 
   header.validator = validator
   await manager.save(header)
+
+  headerEntityCache[data.number] = null
+  delete headerEntityCache[data.number]
 
   return
 }
@@ -240,6 +297,7 @@ async function saveValidator(data: EnhancedDerivedStakingQuery) {
   if (!commission) {
     commission = createCommissionObject(data)
     commission.validator = validator
+    commission.timestamp = Date.now()
     await manager.save(commission)
   }
 
@@ -267,7 +325,7 @@ async function bulkSave(
 
 async function getValidatorInfo(id: string) {
   const validator = await manager.findOne(Validator, id, {
-    relations: ['commissionData', 'blocksProduced', 'slashes']
+    relations: ['commissionData', 'blocksProduced', 'slashes'],
   })
 
   validator.commissionData = validator.commissionData.sort((a, b) => {
@@ -290,10 +348,10 @@ async function getValidators() {
   let performanceStart = performance.now()
   //TODO limit commissionData and slashes
   let allValidators: Validator[] = await manager.find(Validator, {
-    relations: ['commissionData', 'slashes']
+    relations: ['commissionData', 'slashes'],
   })
 
-  allValidators.forEach(validator => {
+  allValidators.forEach((validator) => {
     validator.commissionData = validator.commissionData.sort((a, b) => {
       return b.sessionIndex - a.sessionIndex
     })
@@ -313,7 +371,7 @@ async function setNodeInfo(newNodeInfo: NodeInfo) {
 
   formatBalance.setDefaults({
     decimals: nodeInfo.tokenDecimals,
-    unit: nodeInfo.tokenSymbol
+    unit: nodeInfo.tokenSymbol,
   })
 
   const nodeInfoStorage =
@@ -334,6 +392,11 @@ async function getNodeInfo(): Promise<NodeInfo> {
   } else return null
 }
 
+async function clearNodeInfo() {
+  console.log('clearing node info from DB')
+  await manager.delete(NodeInfoStorage, 1).catch()
+}
+
 async function getAppVersion() {
   let appVersion = await manager.findOne(AppVersion, 1)
   if (appVersion) {
@@ -345,24 +408,50 @@ async function setAppVersion(newAppVersion: string) {
   let appVersion = (await manager.findOne(AppVersion, 1)) || new AppVersion()
   appVersion.version = newAppVersion
   appVersion.id = 1
+  console.log('setting version', appVersion)
   await manager.save(appVersion)
 
   return
 }
 
+async function log(message: Message) {
+  const logMessage = new Log()
+  if (!message.timestamp) message.timestamp = Date.now()
+
+  Object.assign(logMessage, message)
+  const log = await manager.save(logMessage)
+
+  if (debugLogs || message.type !== 'debug') {
+    pubsub.publish('newMessage', log)
+  }
+
+  return log
+}
+
+async function getLogs(debug: boolean = false) {
+  if (debug) debugLogs = true
+
+  return (await manager.find(Log)).filter((message) =>
+    debugLogs ? true : message.type !== 'debug'
+  )
+}
+
 export default {
   init,
+  log,
+  getLogs,
   saveHeader,
   saveValidator,
   getAppVersion,
   setAppVersion,
   setNodeInfo,
   getNodeInfo,
+  clearNodeInfo,
   getDataAge,
   clearDB,
   getFirstHeader,
   getLastHeader,
   bulkSave,
   getValidators,
-  getValidatorInfo
+  getValidatorInfo,
 }

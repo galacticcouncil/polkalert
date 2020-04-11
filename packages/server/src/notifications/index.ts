@@ -1,6 +1,7 @@
 import settings from '../settings'
 import email from './email'
 import webhooks from './webhooks'
+import logger from '../logger'
 
 let settingsListener: boolean = false
 
@@ -23,51 +24,46 @@ async function send(type: string, message: string) {
 }
 
 async function sendOfflineMessage() {
-  await send('offline', getOfflineMessage())
-  console.log(getOfflineMessage())
-  return
+  const offlineMessage = getOfflineMessage()
+  logger.warn('Validator offline', offlineMessage)
+  return send('offline', offlineMessage)
 }
 
 async function sendSlashMessage(slash: string) {
-  await send('slash', getSlashMessage(slash))
-  console.log(getSlashMessage(slash))
-  return
+  const slashMessage = getSlashMessage(slash)
+  logger.warn('Validator slashed', slashMessage)
+  return send('slash', slashMessage)
 }
 
 async function sendNominatedMessage(signer: string) {
-  send('nominated', getNominatedMessage(signer))
-  console.log(getNominatedMessage(signer))
-  return
+  const nominatedMessage = getNominatedMessage(signer)
+  logger.warn('Validator nominated', nominatedMessage)
+  return send('nominated', nominatedMessage)
 }
 
 async function sendBondedMessage(signer: string, amount: string) {
-  send('bonded', getBondedMessage(signer, amount))
-  console.log(getBondedMessage(signer, amount))
-  return
+  logger.warn('Nominator bonded', getBondedMessage(signer, amount))
+  return send('bonded', getBondedMessage(signer, amount))
 }
 
 async function sendBondedExtraMessage(signer: string, amount: string) {
-  send('bondedExtra', getBondedExtraMessage(signer, amount))
-  console.log(getBondedExtraMessage(signer, amount))
-  return
+  logger.warn('Nominator bonded', getBondedExtraMessage(signer, amount))
+  return send('bondedExtra', getBondedExtraMessage(signer, amount))
 }
 
 async function sendUnbondedMessage(signer: string, amount: string) {
-  send('unbonded', getUnbondedMessage(signer, amount))
-  console.log(getUnbondedMessage(signer, amount))
-  return
+  logger.warn('Nominator unbonded', getUnbondedMessage(signer, amount))
+  return send('unbonded', getUnbondedMessage(signer, amount))
 }
 
 async function sendDenominateMessage(signer: string) {
-  send('unbonded', getDenominateMessage(signer))
-  console.log(getDenominateMessage(signer))
-  return
+  logger.warn('Nominator denominated', getDenominateMessage(signer))
+  return send('denominated', getDenominateMessage(signer))
 }
 
 async function sendUnbondedEverythingMessage(signer: string) {
-  send('unbonded', getUnbondedEverythingMessage(signer))
-  console.log(getUnbondedEverythingMessage(signer))
-  return
+  logger.warn('Nominator unbonded', getUnbondedEverythingMessage(signer))
+  return send('unbonded', getUnbondedEverythingMessage(signer))
 }
 
 function sendEquivocatingMessage(
@@ -81,80 +77,51 @@ function sendEquivocatingMessage(
 }
 
 function getSlashMessage(slash: String) {
-  return (
-    'The validator with ID ' +
-    settings.get().validatorId +
-    ' was slashed for ' +
-    slash
-  )
+  return `The validator with ID ${
+    settings.get().validatorId
+  } was slashed for ${slash}`
 }
 
 function getOfflineMessage() {
-  return (
-    'The validator with ID ' +
-    settings.get().validatorId +
-    ' was reported offline'
-  )
+  return `The validator with ID ${
+    settings.get().validatorId
+  } was reported offline`
 }
 
 function getNominatedMessage(sender: string) {
-  return (
-    'The validator with ID ' +
-    settings.get().validatorId +
-    ' was nominated by ' +
-    sender
-  )
+  return `The validator with ID ${
+    settings.get().validatorId
+  } was nominated by ${sender}`
 }
 
 function getBondedMessage(sender: string, amount: string) {
-  return (
-    'The account ' +
-    sender +
-    ' has bonded ' +
-    amount +
-    ' to validator with ID ' +
+  return `Nominator ${sender} has bonded ${amount} to validator with ID ${
     settings.get().validatorId
-  )
+  }`
 }
 
 function getBondedExtraMessage(sender: string, amount: string) {
-  return (
-    'The account ' +
-    sender +
-    ' has bonded extra ' +
-    amount +
-    ' to validator with ID ' +
+  return `Nominator ${sender} has bonded extra ${amount} to validator with ID ${
     settings.get().validatorId
-  )
+  }`
 }
 
 function getUnbondedMessage(sender: string, amount: string) {
-  return (
-    'The account ' +
-    sender +
-    ' has unbonded ' +
-    amount +
-    ' from validator with ID ' +
+  return `The account ${sender} has unbonded ${amount} from validator with ID ${
     settings.get().validatorId
-  )
+  }`
 }
 
 function getDenominateMessage(sender: string) {
-  return (
-    'The account ' +
-    sender +
-    ' is no longer nominating validator with ID ' +
+  return `The account ${sender} is no longer nominating validator with ID ${
     settings.get().validatorId
-  )
+  }`
 }
 
 function getUnbondedEverythingMessage(sender: string) {
-  return (
-    'The account ' +
-    sender +
-    ' has unbonded everything from validator with ID ' +
+  return `The account ${sender} has unbonded everything from validator with ID ${
     settings.get().validatorId
-  )
+  }`
 }
 
 function getEquivocatingMessage(
