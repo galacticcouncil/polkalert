@@ -24,7 +24,7 @@
     "@polkadot/api": "1.10.0-beta.28",
     "@polkadot/api-derive": "1.10.0-beta.28",
     "@types/humanize-duration": "^3.18.0",
-    "apollo-server-express": "^2.12.0",
+    "apollo-server-express": "^2.14.2",
     "edgeware-node-types": "^2.0.1",
     "express": "^4.17.1",
     "graphql": "^14.6.0",
