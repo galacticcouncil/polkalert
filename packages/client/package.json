@@ -28,7 +28,7 @@
     "apollo-boost": "^0.4.4",
     "core-js": "3",
     "graphql": "^14.6.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "polished": "^3.4.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
